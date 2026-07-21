@@ -523,6 +523,16 @@ h2 {
   gap: var(--space-3);
 }
 
+.auth-security-note {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid rgb(11 111 105 / 24%);
+  border-radius: var(--radius-md);
+  background: var(--teal-soft);
+  color: var(--teal-strong);
+  font-size: 0.86rem;
+}
+
 .auth-form label {
   display: grid;
   gap: var(--space-2);

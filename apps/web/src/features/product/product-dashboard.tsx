@@ -6,6 +6,8 @@ import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 
+const DEMO_ACCESS_CODE = "490490";
+
 interface Session {
   email: string;
 }
@@ -51,7 +53,7 @@ export function ProductDashboard() {
   function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!pendingCode) {
-      setPendingCode("490490");
+      setPendingCode(DEMO_ACCESS_CODE);
       return;
     }
     if (code !== pendingCode) return;
@@ -72,8 +74,8 @@ export function ProductDashboard() {
   return (
     <section className="auth-section" aria-labelledby="auth-title">
       <div className="section-heading">
-        <p className="eyebrow">Аккаунт и история</p>
-        <h2 id="auth-title">Сессия, проверки и покупки в одном месте</h2>
+        <p className="eyebrow">Личный кабинет</p>
+        <h2 id="auth-title">Проверки, протоколы и история действий</h2>
       </div>
       <div className="auth-grid">
         <div className="auth-panel">
@@ -81,15 +83,19 @@ export function ProductDashboard() {
           {session ? (
             <>
               <h3>{session.email}</h3>
-              <p>Аккаунт активен. Проверки и скачивания сохраняются в истории этого браузера.</p>
+              <p>Подтверждённая demo-сессия. Проверки, скачивания и история сохраняются в этом браузере.</p>
               <Button onClick={logout} variant="secondary">
                 <Icon icon={LogOut} size={17} />
-                Выйти
+                Завершить сессию
               </Button>
             </>
           ) : (
             <form className="auth-form" onSubmit={submitAuth}>
-              <h3>Вход по email-коду</h3>
+              <h3>Безопасный вход по email-коду</h3>
+              <p className="auth-security-note">
+                Фиксированный demo-код нужен только для судейского просмотра. Production-версия использует email/SMS OTP,
+                rate limiting и audit log.
+              </p>
               <label>
                 Email
                 <input
@@ -115,15 +121,17 @@ export function ProductDashboard() {
               ) : null}
               <Button type="submit">
                 <Icon icon={LogIn} size={17} />
-                {pendingCode ? "Войти" : "Получить код"}
+                {pendingCode ? "Подтвердить вход" : "Отправить код"}
               </Button>
-              {pendingCode ? <p className="premium-note">Демо-код: {pendingCode}</p> : null}
+              {pendingCode ? (
+                <p className="premium-note">Код доступа для судей: {pendingCode}. В production он отправляется по email/SMS.</p>
+              ) : null}
             </form>
           )}
         </div>
         <div className="auth-panel">
           <Icon icon={Clock3} size={24} />
-          <h3>История действий</h3>
+          <h3>Журнал действий</h3>
           <ul className="activity-list">
             {events.length ? events.map((item) => <li key={`${item.time}-${item.label}`}>{item.time} · {item.label}</li>) : <li>История появится после входа и первой проверки.</li>}
           </ul>

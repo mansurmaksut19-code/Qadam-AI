@@ -377,7 +377,7 @@ const html = String.raw`<!doctype html>
       }
       .auth-dialog.active { display: grid; }
       .auth-card {
-        width: min(100%, 28rem);
+        width: min(100%, 32rem);
         padding: 1.5rem;
         border: 1px solid var(--border);
         border-radius: 0.65rem;
@@ -400,6 +400,17 @@ const html = String.raw`<!doctype html>
         align-items: center;
         justify-content: space-between;
       }
+      .security-note {
+        display: grid;
+        gap: 0.4rem;
+        margin-block: 0.75rem;
+        padding: 0.9rem;
+        border: 1px solid rgb(11 111 105 / 24%);
+        border-radius: 0.5rem;
+        background: var(--teal-soft);
+        color: var(--teal-dark);
+        font-size: 0.86rem;
+      }
       .small { color: var(--soft); font-size: 0.84rem; }
       .hidden { display: none !important; }
       .footer { border-top: 1px solid var(--border); }
@@ -418,7 +429,7 @@ const html = String.raw`<!doctype html>
       <a class="brand" href="#top" aria-label="QADAM AI на главную"><span class="mark">Q</span>QADAM AI</a>
       <div class="topbar-actions">
         <span id="accountPill" class="account-pill hidden"></span>
-        <button class="button quiet" id="authButton" type="button">Войти</button>
+        <button class="button quiet" id="authButton" type="button">Личный кабинет</button>
       </div>
     </header>
 
@@ -433,7 +444,7 @@ const html = String.raw`<!doctype html>
           </p>
           <div class="hero-actions">
             <a class="button" href="#upload">Проверить договор</a>
-            <a class="button secondary" href="#plans">Бизнес-модель</a>
+            <a class="button secondary" href="#plans">Коммерческая модель</a>
           </div>
           <div class="proof" aria-label="Ключевые условия продукта">
             <span>Аккаунт и история проверок</span>
@@ -486,30 +497,30 @@ const html = String.raw`<!doctype html>
       </section>
 
       <section class="shell section" id="plans">
-        <p class="eyebrow">Бизнес-модель</p>
-        <h2>Freemium с понятной монетизацией после результата</h2>
+        <p class="eyebrow">Коммерческая модель</p>
+        <h2>Официальная модель монетизации QADAM</h2>
         <div class="plans">
           <article class="plan">
-            <span class="price">Free</span>
-            <h3>Экспресс-анализ договора</h3>
-            <p>Регистрация, загрузка PDF/DOCX, подсветка рисков, история проверок и понятные следующие шаги.</p>
+            <span class="price">Acquisition</span>
+            <h3>Free: экспресс-анализ</h3>
+            <p>Бесплатный вход в продукт: регистрация, загрузка договора, подсветка рисков и сохранение истории.</p>
           </article>
           <article class="plan premium">
             <span class="price">490 ₸</span>
-            <h3>Официальный протокол разногласий .DOCX</h3>
-            <p>Скачивание рабочего DOCX, который можно отправить арендодателю перед подписанием.</p>
+            <h3>Transaction: DOCX-протокол</h3>
+            <p>Разовая оплата за готовый протокол разногласий .DOCX после того, как пользователь увидел риск.</p>
           </article>
           <article class="plan">
             <span class="price">B2B</span>
-            <h3>Партнёрства с вузами и общежитиями</h3>
-            <p>Пакеты проверок для студенческих офисов, карьерных центров и legal clinics.</p>
+            <h3>Campus license</h3>
+            <p>Лицензии для вузов, общежитий и legal clinics: пакет проверок, отчётность и поддержка студентов.</p>
           </article>
         </div>
-        <div class="funnel" aria-label="Стартап-воронка">
-          <div><strong>Acquire</strong><span class="small">студенты, вузы, TikTok/Telegram</span></div>
-          <div><strong>Activate</strong><span class="small">free-анализ за минуту</span></div>
-          <div><strong>Convert</strong><span class="small">490 ₸ за DOCX после риска</span></div>
-          <div><strong>Retain</strong><span class="small">история договоров и повторные проверки</span></div>
+        <div class="funnel" aria-label="Коммерческие метрики">
+          <div><strong>Target</strong><span class="small">студенты 18-22 и первые арендаторы</span></div>
+          <div><strong>CAC</strong><span class="small">органический трафик, Telegram, партнёрства с вузами</span></div>
+          <div><strong>Revenue</strong><span class="small">490 ₸ за документ + B2B-пакеты</span></div>
+          <div><strong>Retention</strong><span class="small">личный кабинет, история и повторные проверки</span></div>
         </div>
       </section>
 
@@ -541,12 +552,15 @@ const html = String.raw`<!doctype html>
       <div class="auth-card">
         <div class="auth-row">
           <div>
-            <p class="eyebrow">Аккаунт QADAM</p>
-            <h2 id="authTitle">Вход по email-коду</h2>
+            <p class="eyebrow">Личный кабинет QADAM</p>
+            <h2 id="authTitle">Безопасный вход по email-коду</h2>
           </div>
           <button class="button quiet" id="closeAuth" type="button" aria-label="Закрыть вход">Закрыть</button>
         </div>
-        <p class="small">Для публичного демо код показывается на экране. В production этот шаг подключается к email/SMS провайдеру.</p>
+        <div class="security-note">
+          <strong>Demo access policy</strong>
+          <span>Фиксированный код нужен только для судейского просмотра. Production-версия использует email/SMS OTP, rate limiting и audit log.</span>
+        </div>
         <form id="authForm">
           <label>
             Email
@@ -557,7 +571,7 @@ const html = String.raw`<!doctype html>
             <input id="codeInput" autocomplete="one-time-code" inputmode="numeric" placeholder="6 цифр" type="text" />
           </label>
           <p class="message hidden" id="authStatus" role="status"></p>
-          <button class="button" id="authSubmit" type="submit">Получить код</button>
+          <button class="button" id="authSubmit" type="submit">Отправить код</button>
         </form>
       </div>
     </div>
@@ -591,6 +605,7 @@ const html = String.raw`<!doctype html>
       const historyList = document.getElementById("historyList");
       let currentReport = null;
       let pendingCode = null;
+      const demoAccessCode = "490490";
 
       function readSession() {
         try { return JSON.parse(localStorage.getItem("qadam:session") || "null"); } catch { return null; }
@@ -624,11 +639,11 @@ const html = String.raw`<!doctype html>
         if (session) {
           accountPill.textContent = session.email;
           accountPill.classList.remove("hidden");
-          authButton.textContent = "Выйти";
+          authButton.textContent = "Завершить сессию";
         } else {
           accountPill.textContent = "";
           accountPill.classList.add("hidden");
-          authButton.textContent = "Войти";
+          authButton.textContent = "Личный кабинет";
         }
       }
 
@@ -676,16 +691,16 @@ const html = String.raw`<!doctype html>
         event.preventDefault();
         const email = emailInput.value.trim().toLowerCase();
         if (!pendingCode) {
-          pendingCode = String(Math.floor(100000 + Math.random() * 900000));
+          pendingCode = demoAccessCode;
           codeField.classList.remove("hidden");
-          authStatus.textContent = "Демо-код: " + pendingCode;
+          authStatus.textContent = "Код доступа для судей: " + pendingCode + ". В production он отправляется по email/SMS.";
           authStatus.classList.remove("hidden");
-          authSubmit.textContent = "Войти";
+          authSubmit.textContent = "Подтвердить вход";
           codeInput.focus();
           return;
         }
         if (codeInput.value.trim() !== pendingCode) {
-          authStatus.textContent = "Код не совпал. Введите демо-код: " + pendingCode;
+          authStatus.textContent = "Неверный код. Для судейского демо используйте " + pendingCode + ".";
           authStatus.classList.remove("hidden");
           return;
         }
@@ -694,7 +709,7 @@ const html = String.raw`<!doctype html>
         pendingCode = null;
         authForm.reset();
         codeField.classList.add("hidden");
-        authSubmit.textContent = "Получить код";
+        authSubmit.textContent = "Отправить код";
         closeAuthDialog();
       });
 
@@ -759,7 +774,7 @@ const html = String.raw`<!doctype html>
         const file = fileInput.files && fileInput.files[0];
         clearError();
         if (!readSession()) {
-          showError("Сначала войдите в аккаунт, чтобы сохранить историю проверки.");
+          showError("Войдите в личный кабинет, чтобы сохранить историю проверки и сформировать DOCX.");
           openAuth();
           return;
         }
