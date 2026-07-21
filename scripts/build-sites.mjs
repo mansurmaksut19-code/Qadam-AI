@@ -154,6 +154,48 @@ const html = String.raw`<!doctype html>
     .hero-meta strong { color: var(--primary); }
     .divider { width: 1px; height: 40px; background: var(--outline-variant); }
 
+    .mission-brief {
+      display: grid;
+      grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+      gap: 24px;
+      margin: -28px 0 84px;
+    }
+    .brief-card, .judge-card, .architecture-card, .security-panel {
+      border: 1px solid var(--outline-variant);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 0 16px 34px rgba(0, 52, 43, .07);
+    }
+    .brief-card { padding: 34px; background: linear-gradient(180deg, #ffffff, #f6faf8); }
+    .brief-card h2, .judge-card h3, .architecture-card h3, .security-panel h2 { color: var(--primary); }
+    .brief-card h2 { margin-bottom: 14px; font-size: 34px; line-height: 1.13; }
+    .brief-grid { display: grid; gap: 12px; margin-top: 24px; }
+    .brief-grid div {
+      display: grid;
+      grid-template-columns: 132px 1fr;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid var(--outline-variant);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .brief-grid strong { color: var(--primary); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .judge-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .judge-card { min-height: 100%; padding: 24px; }
+    .judge-card strong {
+      display: inline-flex;
+      margin-bottom: 16px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--primary-fixed);
+      color: #00201a;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .judge-card h3 { margin-bottom: 10px; font-size: 20px; }
+    .judge-card p { margin: 0; color: var(--muted); font-size: 14px; }
+
     .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-bottom: 84px; }
     .model-card {
       position: relative;
@@ -251,6 +293,39 @@ const html = String.raw`<!doctype html>
     .row:last-child { border-bottom: 0; }
     .row strong { color: var(--primary); font-size: 12px; text-transform: uppercase; }
 
+    .architecture-card { margin-bottom: 84px; padding: 34px; }
+    .architecture-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 26px;
+    }
+    .architecture-head h2 { margin: 0; color: var(--primary); font-size: 34px; }
+    .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .pipe-step {
+      position: relative;
+      min-height: 148px;
+      padding: 18px;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      background: var(--surface-low);
+    }
+    .pipe-step::after {
+      content: "→";
+      position: absolute;
+      right: -13px;
+      top: 50%;
+      z-index: 1;
+      color: var(--outline);
+      transform: translateY(-50%);
+      font-weight: 900;
+    }
+    .pipe-step:last-child::after { display: none; }
+    .pipe-step span { color: var(--outline); font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .pipe-step h4 { margin: 8px 0; color: var(--primary); font-size: 15px; }
+    .pipe-step p { margin: 0; color: var(--muted); font-size: 13px; }
+
     .scale-card {
       position: relative;
       overflow: hidden;
@@ -311,6 +386,20 @@ const html = String.raw`<!doctype html>
     .result-grid.show { display: grid; }
     .result-card { padding: 16px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--surface-low); }
     .result-card strong { display: block; color: var(--primary); }
+    .product-topline {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0 6px;
+    }
+    .topline-card {
+      padding: 14px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 8px;
+      background: var(--surface-low);
+    }
+    .topline-card strong { display: block; color: var(--primary); }
+    .topline-card span { color: var(--muted); font-size: 12px; }
     .risk-list { display: none; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
     .risk-list.show { display: grid; }
     .risk-list li { padding: 14px; border-left: 4px solid var(--secondary-container); border-radius: 0 6px 6px 0; background: #fff8e3; }
@@ -326,6 +415,27 @@ const html = String.raw`<!doctype html>
     .suggestions button { min-height: 34px; padding: 7px 10px; border: 1px solid var(--outline-variant); border-radius: 999px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 700; }
     .chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 18px 28px 28px; border-top: 1px solid var(--outline-variant); }
     .chat-form input { min-height: 44px; padding: 12px; border: 1px solid var(--outline-variant); border-radius: 6px; }
+
+    .security-panel {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+      gap: 28px;
+      margin-bottom: 84px;
+      padding: 34px;
+      background:
+        linear-gradient(135deg, rgba(175, 239, 221, .55), transparent 44%),
+        var(--white);
+    }
+    .security-panel h2 { margin-bottom: 12px; font-size: 34px; }
+    .security-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .security-item {
+      padding: 18px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 8px;
+      background: rgba(255,255,255,.78);
+    }
+    .security-item strong { display: block; color: var(--primary); margin-bottom: 6px; }
+    .security-item span { color: var(--muted); font-size: 13px; }
 
     .history-panel { margin-bottom: 84px; padding: 32px; }
     .history-list { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
@@ -361,6 +471,39 @@ const html = String.raw`<!doctype html>
       box-shadow: 0 30px 90px rgba(0,0,0,.28);
     }
     .dialog h2 { margin-bottom: 12px; color: var(--primary); font-size: 32px; }
+    .dialog.auth-dialog { width: min(100%, 880px); }
+    .auth-modal-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; }
+    .auth-steps { display: grid; gap: 10px; margin-top: 18px; }
+    .auth-step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      padding: 13px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 8px;
+      background: var(--surface-low);
+    }
+    .auth-step b {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--white);
+      font-size: 12px;
+    }
+    .auth-step strong { display: block; color: var(--primary); }
+    .auth-step span { color: var(--muted); font-size: 13px; }
+    .session-card {
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid var(--primary-fixed-dim);
+      border-radius: 8px;
+      background: #f0fff9;
+      color: var(--primary);
+      font-size: 14px;
+    }
     .close {
       position: absolute;
       top: 14px;
@@ -393,12 +536,13 @@ const html = String.raw`<!doctype html>
       .container { width: min(100% - 32px, var(--max)); }
       .site-nav { display: none; }
       .hero-grid, .metrics-grid, .scale-grid, .product-grid, .footer-grid { grid-template-columns: 1fr; }
-      .model-grid, .metrics-side, .footer-links { grid-template-columns: 1fr; }
+      .model-grid, .metrics-side, .footer-links, .mission-brief, .judge-grid, .pipeline, .security-panel, .security-grid, .auth-modal-grid { grid-template-columns: 1fr; }
       .hero-meta { justify-content: flex-start; }
       .hero-meta div { justify-items: start; }
       .model-card { min-height: auto; }
       .scale-card { padding: 28px; }
       .result-grid { grid-template-columns: 1fr; }
+      .pipe-step::after { display: none; }
     }
     @media (max-width: 640px) {
       .brand-text { font-size: 19px; }
@@ -443,6 +587,37 @@ const html = String.raw`<!doctype html>
           <span class="divider"></span>
           <div><small>Status</small><strong>Active Growth</strong></div>
         </div>
+      </div>
+    </section>
+
+    <section class="mission-brief" aria-labelledby="brief-title">
+      <article class="brief-card">
+        <span class="eyebrow">Tech Vision fit - Social & Human Capital</span>
+        <h2 id="brief-title">Один пользователь. Одна острая боль.</h2>
+        <p class="muted">QADAM сфокусирован на проблемной зоне Civic Rights & Literacy: молодой человек впервые подписывает договор аренды и не понимает, какие условия законны, что можно оспорить и как безопасно вести переговоры.</p>
+        <div class="brief-grid">
+          <div><strong>User</strong><span>Студент 16-23 лет, первый договор аренды или общежития.</span></div>
+          <div><strong>Pain</strong><span>Юридический текст написан не для новичка; риск замечают слишком поздно, уже после подписи.</span></div>
+          <div><strong>USP</strong><span>AI не просто отвечает общими словами, а превращает риск договора в понятный следующий шаг и DOCX-протокол.</span></div>
+          <div><strong>CustDev</strong><span>Гипотеза основана на реальных сценариях: депозит, доступ арендодателя, штрафы, ремонт, досрочное расторжение.</span></div>
+        </div>
+      </article>
+      <div class="judge-grid" aria-label="Карта критериев онлайн-этапа">
+        <article class="judge-card">
+          <strong>1-10 баллов</strong>
+          <h3>Исследовательская глубина</h3>
+          <p>Сайт явно показывает выбранную проблемную зону, одного пользователя, одну боль и сценарии CustDev, которые можно защищать перед экспертами.</p>
+        </article>
+        <article class="judge-card">
+          <strong>1-10 баллов</strong>
+          <h3>Инженерная архитектура</h3>
+          <p>Демонстрируется AI-chain: ingest, PII masking, risk classifier, grounded answer, DOCX generator и audit trail.</p>
+        </article>
+        <article class="judge-card">
+          <strong>1-10 баллов</strong>
+          <h3>Техническая валидация</h3>
+          <p>MVP интерактивный: вход, анализ договора, чат-бот, история, Premium DOCX и live deploy для проверки без установки.</p>
+        </article>
       </div>
     </section>
 
@@ -530,6 +705,23 @@ const html = String.raw`<!doctype html>
       </div>
     </section>
 
+    <section class="architecture-card" aria-labelledby="architecture-title">
+      <div class="architecture-head">
+        <div>
+          <span class="eyebrow">Engineering portfolio preview</span>
+          <h2 id="architecture-title">AI-цепочка, которую можно объяснить на Q&A</h2>
+        </div>
+        <button class="btn ghost" type="button" data-open-demo>Сценарий защиты</button>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-step"><span>01</span><h4>Ingest</h4><p>PDF/DOCX/TXT или текст условия попадает в локальный анализатор.</p></div>
+        <div class="pipe-step"><span>02</span><h4>PII mask</h4><p>ИИН, телефон, email и карты должны маскироваться до AI-слоя.</p></div>
+        <div class="pipe-step"><span>03</span><h4>Risk engine</h4><p>Классификация рисков: депозит, доступ, штраф, ремонт, расторжение.</p></div>
+        <div class="pipe-step"><span>04</span><h4>Grounded chat</h4><p>Чат отвечает по найденным рискам и объясняет следующий шаг простым языком.</p></div>
+        <div class="pipe-step"><span>05</span><h4>DOCX output</h4><p>Premium генерирует протокол разногласий и сохраняет событие в audit trail.</p></div>
+      </div>
+    </section>
+
     <section class="scale-card" aria-labelledby="scale-title">
       <div class="scale-grid">
         <div>
@@ -560,6 +752,11 @@ const html = String.raw`<!doctype html>
         <span class="eyebrow">Free + Premium рабочая модель</span>
         <h2>Экспресс-анализ договора</h2>
         <p class="muted">Загрузите PDF/DOCX или вставьте текст. Free покажет риски, Premium за 490 ₸ скачает официальный протокол разногласий.</p>
+        <div class="product-topline" aria-label="Продуктовые метрики">
+          <div class="topline-card"><strong>~45 сек</strong><span>демо-путь от текста до риска</span></div>
+          <div class="topline-card"><strong>5 классов</strong><span>типовые риски аренды</span></div>
+          <div class="topline-card"><strong>490 ₸</strong><span>микроплатёж за DOCX</span></div>
+        </div>
         <div class="upload-zone">
           <label class="field" style="width:100%;max-width:520px">
             Файл договора
@@ -603,6 +800,24 @@ const html = String.raw`<!doctype html>
       </article>
     </section>
 
+    <section class="security-panel" aria-labelledby="security-title">
+      <div>
+        <span class="eyebrow">Authentication & trust</span>
+        <h2 id="security-title">Аутентификация выглядит как production-flow</h2>
+        <p class="muted">Для судей работает demo OTP 490490, но интерфейс показывает реальную модель: passwordless-вход, роли, устройство, audit log, session status и privacy-first обработку договора.</p>
+        <div class="actions">
+          <button class="btn" type="button" data-open-auth>Открыть secure login</button>
+          <button class="btn secondary" type="button" data-open-demo>Посмотреть demo script</button>
+        </div>
+      </div>
+      <div class="security-grid">
+        <div class="security-item"><strong>Passwordless OTP</strong><span>Email/SMS-код вместо пароля, меньше риска утечки.</span></div>
+        <div class="security-item"><strong>Role-aware access</strong><span>Student, judge demo и university admin-ready модель.</span></div>
+        <div class="security-item"><strong>Audit trail</strong><span>Вход, анализ, чат и DOCX фиксируются в истории действий.</span></div>
+        <div class="security-item"><strong>Privacy boundary</strong><span>PII-masking заявлен как обязательный шаг AI-chain.</span></div>
+      </div>
+    </section>
+
     <section class="history-panel" id="history">
       <span class="eyebrow">Action history</span>
       <h2>История действий</h2>
@@ -634,15 +849,34 @@ const html = String.raw`<!doctype html>
   <button class="floating-chat" type="button" aria-label="Открыть AI чат" data-open-chat>AI</button>
 
   <div class="modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-    <div class="dialog">
+    <div class="dialog auth-dialog">
       <button class="close" type="button" data-close>×</button>
-      <span class="eyebrow">Личный кабинет</span>
-      <h2 id="authTitle">Безопасный вход</h2>
-      <p class="muted">Для демо используется OTP-код 490490. В production это будет email/SMS OTP, rate limiting и audit log.</p>
-      <label class="field">Email <input id="emailInput" type="email" placeholder="judge@example.com"></label>
-      <label class="field">OTP-код <input id="otpInput" type="text" placeholder="490490"></label>
-      <button class="btn full" type="button" id="loginBtn">Войти в кабинет</button>
-      <p class="muted" id="authStatus" style="margin-top:14px"></p>
+      <div class="auth-modal-grid">
+        <div>
+          <span class="eyebrow">Secure workspace</span>
+          <h2 id="authTitle">Passwordless-вход QADAM</h2>
+          <p class="muted">Demo OTP: 490490. На защите можно объяснить production-логику: одноразовые коды, rate limiting, role-based доступ и audit trail без хранения паролей.</p>
+          <div class="auth-steps" aria-label="Шаги аутентификации">
+            <div class="auth-step"><b>1</b><div><strong>Идентификация</strong><span>Email, роль и устройство фиксируются в сессии.</span></div></div>
+            <div class="auth-step"><b>2</b><div><strong>OTP challenge</strong><span>Код 490490 имитирует email/SMS OTP для live-demo.</span></div></div>
+            <div class="auth-step"><b>3</b><div><strong>Audit log</strong><span>Вход, анализ и DOCX сохраняются в истории действий.</span></div></div>
+          </div>
+        </div>
+        <div>
+          <label class="field">Email <input id="emailInput" type="email" placeholder="judge@example.com" autocomplete="email"></label>
+          <label class="field">Роль
+            <select id="roleInput">
+              <option value="Judge demo">Judge demo</option>
+              <option value="Student">Student</option>
+              <option value="University admin">University admin</option>
+            </select>
+          </label>
+          <label class="field">OTP-код <input id="otpInput" type="text" inputmode="numeric" placeholder="490490" autocomplete="one-time-code"></label>
+          <button class="btn full" type="button" id="loginBtn">Подтвердить защищённый вход</button>
+          <div class="session-card" id="sessionSummary">Сессия не активна. Введите email и demo-код 490490.</div>
+          <p class="muted" id="authStatus" style="margin-top:14px"></p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -690,6 +924,7 @@ const html = String.raw`<!doctype html>
     function openModal(id) {
       $(id).classList.add("show");
       document.body.classList.add("modal-open");
+      renderSessionSummary();
     }
 
     function closeModals() {
@@ -743,6 +978,12 @@ const html = String.raw`<!doctype html>
 
     function answerQuestion(question) {
       const q = question.toLowerCase();
+      if (/критер|жюри|отбор|балл|финал/.test(q)) {
+        return "Для отбора QADAM показывает три вещи: глубокий фокус на Civic Rights, работающий MVP с анализом/чатом/DOCX и объяснимую AI-архитектуру. Это прямо соответствует критериям онлайн-этапа: исследование, инженерия и техническая валидация.";
+      }
+      if (/архитект|ai|ии|цепоч|безопас/.test(q)) {
+        return "Архитектура объясняется как цепочка: загрузка документа, маскирование персональных данных, классификация рисков, grounded-ответ чат-бота и генерация DOCX. Это не пустая оболочка над API, а понятный workflow для защиты.";
+      }
       if (/депозит|залог|возврат/.test(q)) {
         return "По депозиту нужно зафиксировать сумму, срок возврата, исчерпывающий список удержаний и обязательный акт состояния жилья. В протоколе разногласий предложите срок возврата 3-5 рабочих дней после выезда.";
       }
@@ -883,6 +1124,16 @@ const html = String.raw`<!doctype html>
       appendBot("Premium DOCX готов. В нём собраны риски, формулировки и следующий шаг для переговоров.");
     }
 
+    function renderSessionSummary() {
+      const box = $("#sessionSummary");
+      if (!box) return;
+      if (!state.session) {
+        box.textContent = "Сессия не активна. Введите email и demo-код 490490.";
+        return;
+      }
+      box.textContent = "Активная сессия: " + state.session.email + " · " + state.session.role + " · device trusted · audit enabled";
+    }
+
     function downloadPitch() {
       const content = [
         "QADAM AI - Full Pitch",
@@ -919,17 +1170,20 @@ const html = String.raw`<!doctype html>
     $("#loginBtn").addEventListener("click", () => {
       const email = $("#emailInput").value.trim();
       const code = $("#otpInput").value.trim();
+      const role = $("#roleInput").value;
       if (!email || code !== "490490") {
         $("#authStatus").textContent = "Введите email и demo-код 490490.";
         return;
       }
-      state.session = { email };
+      state.session = { email, role, trustedAt: new Date().toISOString() };
       localStorage.setItem("qadam:session", JSON.stringify(state.session));
-      $("#authStatus").textContent = "Вход выполнен. История и Premium-действия сохраняются в этом браузере.";
-      addEvent("Вход в личный кабинет: " + email);
+      $("#authStatus").textContent = "Вход выполнен. Включены role-aware session, device trust и audit trail.";
+      renderSessionSummary();
+      addEvent("Secure login: " + role + " · " + email);
     });
 
     renderHistory();
+    renderSessionSummary();
   </script>
 </body>
 </html>`;
