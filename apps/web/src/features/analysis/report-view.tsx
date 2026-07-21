@@ -1,4 +1,4 @@
-import { AlertOctagon, CheckCircle2, FileQuestion } from "lucide-react";
+import { AlertOctagon, CheckCircle2, Download, FileQuestion } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -109,9 +109,17 @@ export function ReportView({ onRetry, report }: ReportViewProps) {
         <QuestionPanel analysisId={report.id} suggestions={report.questionSuggestions} />
         {findings.length ? (
           <div className="negotiation-launcher">
-            <p className="eyebrow">Подготовьтесь к разговору</p>
-            <h2>Обсудите спорный пункт письменно</h2>
-            <p>QADAM соберёт вежливое сообщение из конкретного вопроса и следующего шага.</p>
+            <p className="eyebrow">Premium · 490 ₸</p>
+            <h2>Скачайте протокол разногласий .DOCX</h2>
+            <p>
+              Free-анализ уже подсветил риски. Premium подготовит официальный DOCX, который можно отправить
+              арендодателю перед подписанием.
+            </p>
+            <Button disabled type="button" variant="secondary">
+              <Icon icon={Download} size={17} />
+              Скачать DOCX — 490 ₸
+            </Button>
+            <p className="premium-note">Оплата и генерация DOCX будут подключены после выбора платежного провайдера.</p>
             <NegotiationDialog analysisId={report.id} findings={findings} />
           </div>
         ) : null}

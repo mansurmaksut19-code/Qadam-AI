@@ -1,4 +1,12 @@
-import { ArrowDown, BookOpenCheck, FileSearch, MessageSquareText, ShieldCheck } from "lucide-react";
+import {
+  ArrowDown,
+  BookOpenCheck,
+  Download,
+  FileSearch,
+  MessageSquareText,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
@@ -59,6 +67,27 @@ export default function Home() {
                 условия договора, понятные выводы и источники.
               </p>
             </div>
+          </div>
+        </section>
+
+        <section className="pricing-section" aria-labelledby="pricing-title">
+          <div className="section-heading">
+            <p className="eyebrow">Бизнес-модель</p>
+            <h2 id="pricing-title">Бесплатно найти риски, платно подготовить документ</h2>
+          </div>
+          <div className="pricing-grid">
+            <article className="pricing-plan">
+              <Icon icon={Sparkles} size={24} />
+              <span className="pricing-plan__price">Free</span>
+              <h3>Экспресс-анализ договора</h3>
+              <p>Загрузка PDF/DOCX, подсветка рисков, цитаты из договора и понятные следующие шаги.</p>
+            </article>
+            <article className="pricing-plan pricing-plan--premium">
+              <Icon icon={Download} size={24} />
+              <span className="pricing-plan__price">490 ₸</span>
+              <h3>Официальный протокол разногласий .DOCX</h3>
+              <p>Премиум-скачивание готового DOCX, который можно отправить арендодателю перед подписанием.</p>
+            </article>
           </div>
         </section>
 

@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@11.3.0",
   "scripts": {
-    "build": "npm --prefix apps/web run build",
+    "build": "node scripts/build-sites.mjs",
     "dev": "pnpm --if-present --recursive --parallel dev",
     "lint": "pnpm --if-present --recursive lint && cd apps/api && uv run ruff check src tests",
     "test": "pnpm --if-present --recursive test && cd apps/api && uv run pytest",
