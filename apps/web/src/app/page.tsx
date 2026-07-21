@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
@@ -18,10 +19,17 @@ export default function Home() {
     <>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="QADAM AI — на главную">
-          <span className="brand__mark">Q</span>
-          <span>QADAM AI</span>
+          <Image alt="" className="brand__logo" height={48} priority src="/qadam-logo.png" width={48} />
+          <span className="brand__text">
+            <strong>QADAM AI</strong>
+            <small>Legal AI Platform</small>
+          </span>
         </a>
-        <span className="site-header__note">Для аренды жилья в Казахстане</span>
+        <nav className="site-nav" aria-label="Основная навигация">
+          <a href="#upload">Анализ</a>
+          <a href="#pricing-title">Модель</a>
+          <a href="#auth-title">Кабинет</a>
+        </nav>
       </header>
 
       <main id="main-content">
@@ -48,6 +56,14 @@ export default function Home() {
           </div>
 
           <aside className="stat-note" aria-label="Почему это важно студентам">
+            <Image
+              alt="QADAM AI Legal AI Platform"
+              className="stat-note__logo"
+              height={86}
+              priority
+              src="/qadam-logo.png"
+              width={86}
+            />
             <span className="stat-note__number">364,5 тыс.</span>
             <p>студентов в Казахстане учатся не в своём населённом пункте.</p>
             <a

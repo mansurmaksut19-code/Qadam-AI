@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const web = join(root, "apps", "web");
 const dist = join(root, "dist");
+const logoDataUrl = `data:image/png;base64,${readFileSync(join(web, "public", "qadam-logo.png")).toString("base64")}`;
 
 execFileSync(process.execPath, [join(web, "node_modules", "next", "dist", "bin", "next"), "build"], {
   cwd: web,
@@ -28,16 +29,16 @@ const html = String.raw`<!doctype html>
     />
     <style>
       :root {
-        --paper: #f7f8f5;
+        --paper: #f5f7fb;
         --panel: #ffffff;
-        --muted: #eef2ed;
-        --ink: #101716;
-        --soft: #4f5d59;
-        --teal: #0b6f69;
-        --teal-dark: #064f4b;
-        --teal-soft: #dbeeea;
-        --amber: #99610a;
-        --amber-soft: #f8e4b5;
+        --muted: #eef1f5;
+        --ink: #0b1220;
+        --soft: #465263;
+        --teal: #0b1d49;
+        --teal-dark: #071534;
+        --teal-soft: #e7ecf6;
+        --amber: #b88a2a;
+        --amber-soft: #f6ead0;
         --danger: #a6332d;
         --danger-soft: #f7dfdc;
         --border: #d8ded8;
@@ -50,10 +51,7 @@ const html = String.raw`<!doctype html>
       body {
         margin: 0;
         min-width: 320px;
-        background:
-          linear-gradient(180deg, rgb(219 238 234 / 76%), transparent 25rem),
-          radial-gradient(circle at 86% 10%, rgb(153 97 10 / 12%), transparent 28rem),
-          var(--paper);
+        background: linear-gradient(180deg, rgb(231 236 246 / 86%), transparent 25rem), radial-gradient(circle at 86% 10%, rgb(184 138 42 / 12%), transparent 28rem), var(--paper);
         color: var(--ink);
         font-family: "Segoe UI", Inter, Roboto, Arial, system-ui, sans-serif;
         line-height: 1.55;
@@ -65,7 +63,7 @@ const html = String.raw`<!doctype html>
 
       .shell { width: min(100% - 2rem, 74rem); margin-inline: auto; }
       .topbar, .footer {
-        min-height: 4.5rem;
+        min-height: 5.25rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -98,15 +96,25 @@ const html = String.raw`<!doctype html>
         letter-spacing: 0.04em;
         text-decoration: none;
       }
-      .mark {
-        width: 2rem;
-        height: 2rem;
+      .brand-logo {
+        width: 3rem;
+        height: 3rem;
+        object-fit: contain;
+        border: 1px solid rgb(11 29 73 / 12%);
+        border-radius: 0.5rem;
+        background: #fff;
+      }
+      .brand-copy {
         display: grid;
-        place-items: center;
-        border-radius: 50%;
-        background: var(--teal);
-        color: #fff;
-        font-family: Georgia, serif;
+        gap: 0.05rem;
+        line-height: 1;
+      }
+      .brand-copy small {
+        color: var(--amber);
+        font-size: 0.66rem;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
       }
 
       .hero {
@@ -154,7 +162,7 @@ const html = String.raw`<!doctype html>
         font-weight: 750;
         text-decoration: none;
         cursor: pointer;
-        box-shadow: 0 10px 24px rgb(11 111 105 / 18%);
+        box-shadow: 0 12px 26px rgb(11 29 73 / 18%);
       }
       .button.secondary {
         border-color: var(--border);
@@ -186,6 +194,14 @@ const html = String.raw`<!doctype html>
         border-radius: 0.65rem;
         background: linear-gradient(180deg, #fff, #f7fbfa);
         box-shadow: var(--shadow);
+      }
+      .preview-logo {
+        width: 5.4rem;
+        height: 5.4rem;
+        object-fit: contain;
+        margin-bottom: 1.5rem;
+        border-radius: 0.5rem;
+        background: #fff;
       }
       .preview-number {
         display: block;
@@ -416,7 +432,8 @@ const html = String.raw`<!doctype html>
       .footer { border-top: 1px solid var(--border); }
 
       @media (max-width: 760px) {
-        .topbar span:last-child { display: none; }
+        .brand-copy small { display: none; }
+        .topbar-actions { gap: 0.4rem; }
         .hero, .split, .report-grid { grid-template-columns: 1fr; }
         .hero { min-height: auto; }
         .plans, .funnel { grid-template-columns: 1fr; }
@@ -426,7 +443,10 @@ const html = String.raw`<!doctype html>
   </head>
   <body>
     <header class="shell topbar">
-      <a class="brand" href="#top" aria-label="QADAM AI на главную"><span class="mark">Q</span>QADAM AI</a>
+      <a class="brand" href="#top" aria-label="QADAM AI на главную">
+        <img alt="" class="brand-logo" src="${logoDataUrl}" />
+        <span class="brand-copy"><strong>QADAM AI</strong><small>Legal AI Platform</small></span>
+      </a>
       <div class="topbar-actions">
         <span id="accountPill" class="account-pill hidden"></span>
         <button class="button quiet" id="authButton" type="button">Личный кабинет</button>
@@ -453,6 +473,7 @@ const html = String.raw`<!doctype html>
           </div>
         </div>
         <aside class="preview" aria-label="Почему это важно">
+          <img alt="QADAM AI Legal AI Platform" class="preview-logo" src="${logoDataUrl}" />
           <span class="preview-number">364,5 тыс.</span>
           <p>студентов в Казахстане учатся не в своём населённом пункте и часто впервые снимают жильё.</p>
           <div class="doc-card" aria-hidden="true">

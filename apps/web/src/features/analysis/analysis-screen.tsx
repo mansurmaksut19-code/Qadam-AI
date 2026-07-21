@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -54,8 +55,11 @@ export function AnalysisScreen({ analysisId }: { analysisId: string }) {
     <>
       <header className="report-header">
         <Link className="brand" href="/" aria-label="QADAM AI — на главную">
-          <span className="brand__mark">Q</span>
-          <span>QADAM AI</span>
+          <Image alt="" className="brand__logo" height={48} src="/qadam-logo.png" width={48} />
+          <span className="brand__text">
+            <strong>QADAM AI</strong>
+            <small>Legal AI Platform</small>
+          </span>
         </Link>
         <span>Приватный отчёт</span>
       </header>
