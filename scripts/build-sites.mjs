@@ -1,17 +1,17 @@
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const web = join(root, "apps", "web");
 const dist = join(root, "dist");
-const logoDataUrl = `data:image/png;base64,${readFileSync(join(web, "public", "qadam-logo.png")).toString("base64")}`;
 
-execFileSync(process.execPath, [join(web, "node_modules", "next", "dist", "bin", "next"), "build"], {
-  cwd: web,
-  stdio: "inherit",
-});
+execFileSync(
+  process.execPath,
+  [join(web, "node_modules", "next", "dist", "bin", "next"), "build"],
+  { cwd: web, stdio: "inherit" },
+);
 
 rmSync(dist, { force: true, recursive: true });
 mkdirSync(join(dist, "server"), { recursive: true });
@@ -19,886 +19,919 @@ mkdirSync(join(dist, ".openai"), { recursive: true });
 
 const html = String.raw`<!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>QADAM AI - анализ договора аренды</title>
-    <meta
-      name="description"
-      content="Free экспресс-анализ договора аренды и Premium DOCX протокол разногласий за 490 тенге."
-    />
-    <style>
-      :root {
-        --paper: #f5f7fb;
-        --panel: #ffffff;
-        --muted: #eef1f5;
-        --ink: #0b1220;
-        --soft: #465263;
-        --teal: #0b1d49;
-        --teal-dark: #071534;
-        --teal-soft: #e7ecf6;
-        --amber: #b88a2a;
-        --amber-soft: #f6ead0;
-        --danger: #a6332d;
-        --danger-soft: #f7dfdc;
-        --border: #d8ded8;
-        --shadow: 0 18px 42px rgb(16 23 22 / 10%);
-        color-scheme: light;
-      }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="QADAM AI - Legal AI Platform для экспресс-анализа договоров, AI-консультаций и DOCX-протокола разногласий за 490 ₸.">
+  <title>QADAM AI - Legal AI Platform</title>
+  <style>
+    :root {
+      --primary: #00342b;
+      --primary-container: #004d40;
+      --primary-fixed: #afefdd;
+      --primary-fixed-dim: #94d3c1;
+      --secondary: #7e5700;
+      --secondary-container: #feb300;
+      --surface: #f8f9fb;
+      --surface-low: #f2f4f6;
+      --surface-container: #eceef0;
+      --surface-high: #e6e8ea;
+      --surface-highest: #e0e3e5;
+      --white: #ffffff;
+      --ink: #191c1e;
+      --muted: #3f4945;
+      --outline: #707975;
+      --outline-variant: #bfc9c4;
+      --danger: #ba1a1a;
+      --danger-soft: #ffdad6;
+      --success: #005312;
+      --success-soft: #a3f69c;
+      --shadow: 0 18px 40px rgba(0, 52, 43, 0.12);
+      --radius: 8px;
+      --max: 1440px;
+      --margin: 48px;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--surface);
+    }
 
-      * { box-sizing: border-box; }
-      html { scroll-behavior: smooth; }
-      body {
-        margin: 0;
-        min-width: 320px;
-        background: linear-gradient(180deg, rgb(231 236 246 / 86%), transparent 25rem), radial-gradient(circle at 86% 10%, rgb(184 138 42 / 12%), transparent 28rem), var(--paper);
-        color: var(--ink);
-        font-family: "Segoe UI", Inter, Roboto, Arial, system-ui, sans-serif;
-        line-height: 1.55;
-      }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--surface);
+      color: var(--ink);
+      line-height: 1.5;
+      text-rendering: optimizeLegibility;
+    }
+    body.modal-open { overflow: hidden; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, .serif { font-family: Georgia, "Source Serif 4", "Times New Roman", serif; letter-spacing: 0; }
+    a { color: inherit; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .container { width: min(100% - 96px, var(--max)); margin: 0 auto; }
 
-      h1, h2, h3, p { margin-top: 0; }
-      h1, h2 { font-family: Georgia, "Times New Roman", serif; line-height: 1.08; }
-      a { color: var(--teal-dark); text-underline-offset: 0.18em; }
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 40;
+      height: 64px;
+      border-bottom: 1px solid var(--outline-variant);
+      background: rgba(248, 249, 251, 0.94);
+      backdrop-filter: blur(10px);
+    }
+    .nav-row { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--primary);
+      border-radius: 50%;
+      color: var(--primary);
+      font-weight: 900;
+      line-height: 1;
+    }
+    .brand-text { color: var(--primary); font-family: Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1; }
+    .site-nav { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    .site-nav a { padding: 22px 0 18px; border-bottom: 2px solid transparent; text-decoration: none; }
+    .site-nav a:hover, .site-nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .btn {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: var(--primary);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+    }
+    .btn:hover { transform: translateY(-1px); background: var(--primary-container); }
+    .btn.secondary { border-color: var(--primary); background: transparent; color: var(--primary); }
+    .btn.secondary:hover { background: var(--primary-fixed); }
+    .btn.gold { background: var(--secondary-container); color: #281900; }
+    .btn.gold:hover { background: #ffba38; }
+    .btn.ghost { border-color: var(--outline-variant); background: var(--white); color: var(--primary); }
+    .btn.full { width: 100%; }
+    .btn.small { min-height: 36px; padding: 8px 12px; font-size: 11px; }
 
-      .shell { width: min(100% - 2rem, 74rem); margin-inline: auto; }
-      .topbar, .footer {
-        min-height: 5.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        color: var(--soft);
-        font-size: 0.86rem;
-      }
-      .topbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-      .account-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.45rem 0.7rem;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        background: rgb(255 255 255 / 78%);
-        color: var(--teal-dark);
-        font-weight: 750;
-      }
-      .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: var(--ink);
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        text-decoration: none;
-      }
-      .brand-logo {
-        width: 3rem;
-        height: 3rem;
-        object-fit: contain;
-        border: 1px solid rgb(11 29 73 / 12%);
-        border-radius: 0.5rem;
-        background: #fff;
-      }
-      .brand-copy {
-        display: grid;
-        gap: 0.05rem;
-        line-height: 1;
-      }
-      .brand-copy small {
-        color: var(--amber);
-        font-size: 0.66rem;
-        font-weight: 850;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
+    main { padding-top: 96px; padding-bottom: 80px; }
+    .hero { margin-bottom: 72px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 32px; }
+    .eyebrow {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      max-width: 860px;
+      margin-bottom: 16px;
+      color: var(--primary);
+      font-size: clamp(36px, 5vw, 58px);
+      font-weight: 700;
+      line-height: 1.12;
+    }
+    .lead { max-width: 760px; color: var(--muted); font-size: 18px; line-height: 1.55; }
+    .hero-meta { display: flex; align-items: center; gap: 16px; padding-bottom: 8px; }
+    .hero-meta div { display: grid; justify-items: end; gap: 2px; }
+    .hero-meta small { color: var(--outline); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .hero-meta strong { color: var(--primary); }
+    .divider { width: 1px; height: 40px; background: var(--outline-variant); }
 
-      .hero {
-        min-height: 38rem;
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.75fr);
-        align-items: center;
-        gap: clamp(2rem, 6vw, 6rem);
-        padding-block: clamp(3rem, 8vw, 7rem);
-      }
-      .eyebrow {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--teal-dark);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-      .hero h1 {
-        max-width: 13ch;
-        margin-bottom: 1.25rem;
-        font-size: clamp(2.7rem, 6.4vw, 5.9rem);
-      }
-      .lead {
-        max-width: 45rem;
-        margin-bottom: 1.7rem;
-        color: var(--soft);
-        font-size: clamp(1.05rem, 1.8vw, 1.25rem);
-      }
-      .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
-      .button {
-        min-height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.72rem 1.1rem;
-        border: 1px solid transparent;
-        border-radius: 0.38rem;
-        background: var(--teal);
-        color: #fff;
-        font: inherit;
-        font-weight: 750;
-        text-decoration: none;
-        cursor: pointer;
-        box-shadow: 0 12px 26px rgb(11 29 73 / 18%);
-      }
-      .button.secondary {
-        border-color: var(--border);
-        background: var(--panel);
-        color: var(--ink);
-        box-shadow: none;
-      }
-      .button.quiet {
-        border-color: transparent;
-        background: transparent;
-        color: var(--teal-dark);
-        box-shadow: none;
-      }
-      .button:disabled { opacity: 0.62; cursor: not-allowed; }
-      .proof { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-      .proof span {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        background: rgb(255 255 255 / 76%);
-        color: var(--soft);
-        font-size: 0.84rem;
-        font-weight: 700;
-      }
+    .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-bottom: 84px; }
+    .model-card {
+      position: relative;
+      display: flex;
+      min-height: 420px;
+      flex-direction: column;
+      padding: 32px;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      background: var(--white);
+      transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+    .model-card:hover { transform: translateY(-4px); border-color: var(--primary-container); box-shadow: var(--shadow); }
+    .model-card.featured { border: 2px solid var(--primary); box-shadow: var(--shadow); }
+    .badge {
+      position: absolute;
+      top: -13px;
+      right: 32px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: var(--secondary-container);
+      color: #281900;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .icon-box {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 24px;
+      border-radius: 6px;
+      background: var(--surface-container);
+      color: var(--primary);
+      font-size: 24px;
+    }
+    .featured .icon-box { background: var(--primary-container); color: var(--white); }
+    .model-card h3 { margin-bottom: 8px; color: var(--primary); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .model-card h2 { margin-bottom: 16px; font-size: 26px; line-height: 1.2; }
+    .model-card p { flex: 1; color: var(--muted); font-size: 14px; }
+    .check-list { display: grid; gap: 12px; margin: 24px 0 28px; padding: 0; list-style: none; }
+    .check-list li { display: flex; gap: 10px; color: var(--ink); font-size: 14px; }
+    .check-list li::before { content: "✓"; flex: 0 0 auto; color: var(--primary); font-weight: 900; }
+    .price-line { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--outline-variant); }
+    .price-line strong { font-family: Georgia, serif; font-size: 26px; }
+    .price-line span { color: var(--outline); font-size: 12px; font-weight: 700; }
 
-      .preview {
-        padding: clamp(1.25rem, 3vw, 2rem);
-        border: 1px solid var(--border);
-        border-radius: 0.65rem;
-        background: linear-gradient(180deg, #fff, #f7fbfa);
-        box-shadow: var(--shadow);
-      }
-      .preview-logo {
-        width: 5.4rem;
-        height: 5.4rem;
-        object-fit: contain;
-        margin-bottom: 1.5rem;
-        border-radius: 0.5rem;
-        background: #fff;
-      }
-      .preview-number {
-        display: block;
-        color: var(--teal-dark);
-        font-family: Georgia, serif;
-        font-size: clamp(2.4rem, 5vw, 3.8rem);
-        font-weight: 700;
-        line-height: 1;
-      }
-      .doc-card {
-        display: grid;
-        gap: 0.75rem;
-        margin-top: 1.75rem;
-        padding: 1.25rem;
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        background: #fff;
-      }
-      .doc-line, .doc-bar, .doc-risk { display: block; border-radius: 999px; }
-      .doc-bar { width: 42%; height: 0.55rem; background: var(--teal); }
-      .doc-line { width: 74%; height: 0.42rem; background: var(--border); }
-      .doc-line.wide { width: 100%; }
-      .doc-line.short { width: 54%; }
-      .doc-risk {
-        height: 2.1rem;
-        border: 1px solid rgb(166 51 45 / 28%);
-        border-radius: 0.38rem;
-        background: linear-gradient(90deg, var(--danger-soft), rgb(255 255 255 / 70%));
-      }
+    .section-title { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
+    .section-title h2 { margin: 0; color: var(--primary); font-size: 28px; line-height: 1.2; }
+    .section-title::after { content: ""; flex: 1; height: 1px; background: var(--outline-variant); }
+    .metrics { margin-bottom: 84px; }
+    .metrics-grid { display: grid; grid-template-columns: 4fr 8fr; gap: 24px; }
+    .target-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px;
+      border-radius: var(--radius);
+      background: var(--primary);
+      color: var(--white);
+    }
+    .target-card::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      bottom: -70px;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: var(--primary-container);
+      filter: blur(24px);
+      opacity: .7;
+    }
+    .target-card > * { position: relative; z-index: 1; }
+    .target-card .eyebrow { color: var(--primary-fixed); }
+    .target-card h3 { margin-bottom: 14px; font-family: Georgia, serif; font-size: 34px; line-height: 1.16; }
+    .target-card p { color: rgba(255,255,255,.8); }
+    .target-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .target-stats strong { display: block; font-family: Georgia, serif; font-size: 28px; }
+    .target-stats span { color: rgba(255,255,255,.62); font-size: 12px; }
+    .metrics-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .info-card { padding: 32px; border: 1px solid var(--outline-variant); border-radius: var(--radius); background: var(--surface-container); }
+    .info-card-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+    .info-chip { padding: 3px 8px; border-radius: 5px; background: var(--success-soft); color: var(--success); font-size: 11px; font-weight: 900; }
+    .info-chip.gold { background: #ffdeac; color: var(--secondary); }
+    .info-card h4 { margin: 0 0 8px; font-family: Georgia, serif; font-size: 25px; }
+    .info-card p { color: var(--muted); font-size: 14px; }
+    .rows { display: grid; margin-top: 24px; }
+    .row { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--outline-variant); font-size: 14px; }
+    .row:last-child { border-bottom: 0; }
+    .row strong { color: var(--primary); font-size: 12px; text-transform: uppercase; }
 
-      .section { padding-block: clamp(3.5rem, 7vw, 5.5rem); }
-      .split {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
-        gap: clamp(2rem, 6vw, 5rem);
-        align-items: start;
-      }
-      .card {
-        padding: clamp(1.25rem, 4vw, 2rem);
-        border: 1px solid var(--border);
-        border-radius: 0.65rem;
-        background: var(--panel);
-        box-shadow: var(--shadow);
-      }
-      .upload {
-        display: grid;
-        gap: 1rem;
-      }
-      .file {
-        min-height: 10.5rem;
-        display: grid;
-        place-items: center;
-        align-content: center;
-        gap: 0.4rem;
-        padding: 1.5rem;
-        border: 1px dashed var(--teal);
-        border-radius: 0.5rem;
-        background: var(--teal-soft);
-        text-align: center;
-        cursor: pointer;
-      }
-      .file input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; }
-      .file strong { color: var(--teal-dark); }
-      .consent { display: grid; grid-template-columns: 1.25rem 1fr; gap: 0.75rem; color: var(--soft); font-size: 0.9rem; }
-      .consent input { width: 1.2rem; height: 1.2rem; accent-color: var(--teal); }
-      .message {
-        padding: 0.75rem;
-        border-radius: 0.38rem;
-        background: var(--teal-soft);
-      }
-      .message.error { background: var(--danger-soft); color: #7c251f; }
+    .scale-card {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 84px;
+      padding: 48px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 12px;
+      background: var(--surface-high);
+    }
+    .scale-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 56px; }
+    .scale-card h2 { margin-bottom: 18px; color: var(--primary); font-size: 34px; }
+    .scale-card p { color: var(--muted); }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+    .chart-card { padding: 24px; border: 1px solid var(--outline-variant); border-radius: var(--radius); background: var(--white); box-shadow: 0 12px 26px rgba(0,0,0,.05); }
+    .chart-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; color: var(--primary); font-size: 12px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+    .chart { height: 170px; display: flex; align-items: end; gap: 9px; }
+    .bar { flex: 1; border-radius: 6px 6px 0 0; background: var(--surface-highest); }
+    .bar:nth-child(3), .bar:nth-child(4) { background: var(--primary-fixed-dim); }
+    .bar:nth-child(5) { background: var(--primary-container); }
+    .bar:nth-child(6) { background: var(--primary); }
+    .chart-labels { display: flex; justify-content: space-between; margin-top: 14px; color: var(--outline); font-size: 11px; font-weight: 700; }
 
-      .plans {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 1rem;
-      }
-      .plan {
-        display: grid;
-        gap: 0.75rem;
-        padding: 1.5rem;
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        background: var(--panel);
-      }
-      .plan.premium {
-        border-color: rgb(153 97 10 / 40%);
-        background: linear-gradient(135deg, rgb(248 228 181 / 88%), rgb(255 255 255 / 92%));
-      }
-      .price {
-        width: fit-content;
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
-        background: var(--muted);
-        color: var(--teal-dark);
-        font-weight: 800;
-      }
-      .premium .price { background: #fff; color: var(--amber); }
-      .plan h3 { margin: 0; }
-      .plan p { color: var(--soft); }
-      .funnel {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.75rem;
-        margin-top: 1rem;
-      }
-      .funnel div {
-        padding: 1rem;
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        background: var(--panel);
-      }
-      .funnel strong { display: block; color: var(--teal-dark); font-size: 1.15rem; }
+    .product-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr); gap: 24px; margin-bottom: 84px; }
+    .workbench, .chat-panel, .history-panel {
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: 0 12px 26px rgba(0, 52, 43, .06);
+    }
+    .workbench { padding: 32px; }
+    .workbench h2, .chat-panel h2, .history-panel h2 { margin-bottom: 10px; color: var(--primary); font-size: 30px; }
+    .muted { color: var(--muted); }
+    .upload-zone {
+      display: grid;
+      place-items: center;
+      min-height: 190px;
+      margin: 24px 0;
+      padding: 28px;
+      border: 1px dashed var(--primary);
+      border-radius: var(--radius);
+      background: var(--surface-low);
+      text-align: center;
+    }
+    .upload-zone input { max-width: 100%; }
+    .field { display: grid; gap: 8px; margin: 14px 0; font-weight: 800; color: var(--primary); }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      min-height: 46px;
+      padding: 12px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 6px;
+      background: var(--white);
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .field textarea { min-height: 112px; resize: vertical; }
+    .result-grid { display: none; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-top: 22px; }
+    .result-grid.show { display: grid; }
+    .result-card { padding: 16px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--surface-low); }
+    .result-card strong { display: block; color: var(--primary); }
+    .risk-list { display: none; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .risk-list.show { display: grid; }
+    .risk-list li { padding: 14px; border-left: 4px solid var(--secondary-container); border-radius: 0 6px 6px 0; background: #fff8e3; }
+    .risk-list li.high { border-left-color: var(--danger); background: var(--danger-soft); }
 
-      .report {
-        display: none;
-        padding-block: clamp(3rem, 7vw, 5rem);
-      }
-      .report.active { display: block; }
-      .report-head { max-width: 56rem; margin-bottom: 2rem; }
-      .report-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 0.75fr);
-        gap: clamp(1.5rem, 4vw, 3rem);
-        align-items: start;
-      }
-      .finding {
-        position: relative;
-        overflow: hidden;
-        padding: 1.35rem;
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        background: var(--panel);
-        box-shadow: 0 10px 26px rgb(16 23 22 / 6%);
-      }
-      .finding + .finding { margin-top: 1rem; }
-      .finding::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--teal); }
-      .finding.high::before { background: var(--danger); }
-      .finding.attention::before { background: var(--amber); }
-      .badge { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--teal-dark); font-size: 0.82rem; font-weight: 800; }
-      .finding.high .badge { color: #812923; }
-      .finding.attention .badge { color: #7a4808; }
-      .action {
-        margin-top: 1rem;
-        padding: 0.9rem;
-        border-radius: 0.38rem;
-        background: var(--muted);
-      }
-      .side {
-        position: sticky;
-        top: 1rem;
-        display: grid;
-        gap: 1rem;
-      }
-      .premium-box {
-        border-color: rgb(153 97 10 / 38%);
-        background: linear-gradient(180deg, var(--amber-soft), #fff);
-      }
-      .history {
-        display: grid;
-        gap: 0.65rem;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-      .history li {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.55rem;
-        color: var(--soft);
-        font-size: 0.88rem;
-      }
-      .history li::before {
-        content: "";
-        width: 0.55rem;
-        height: 0.55rem;
-        margin-top: 0.45rem;
-        border-radius: 50%;
-        background: var(--teal);
-      }
-      .auth-dialog {
-        position: fixed;
-        z-index: 20;
-        inset: 0;
-        display: none;
-        place-items: center;
-        padding: 1rem;
-        background: rgb(16 23 22 / 58%);
-      }
-      .auth-dialog.active { display: grid; }
-      .auth-card {
-        width: min(100%, 32rem);
-        padding: 1.5rem;
-        border: 1px solid var(--border);
-        border-radius: 0.65rem;
-        background: var(--panel);
-        box-shadow: 0 30px 90px rgb(0 0 0 / 25%);
-      }
-      .auth-card form { display: grid; gap: 0.85rem; }
-      .auth-card input {
-        width: 100%;
-        min-height: 44px;
-        padding: 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 0.38rem;
-        font: inherit;
-      }
-      .auth-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .security-note {
-        display: grid;
-        gap: 0.4rem;
-        margin-block: 0.75rem;
-        padding: 0.9rem;
-        border: 1px solid rgb(11 111 105 / 24%);
-        border-radius: 0.5rem;
-        background: var(--teal-soft);
-        color: var(--teal-dark);
-        font-size: 0.86rem;
-      }
-      .small { color: var(--soft); font-size: 0.84rem; }
-      .hidden { display: none !important; }
-      .footer { border-top: 1px solid var(--border); }
+    .chat-panel { display: flex; min-height: 640px; flex-direction: column; overflow: hidden; }
+    .chat-head { padding: 28px 28px 16px; border-bottom: 1px solid var(--outline-variant); }
+    .chat-log { flex: 1; display: grid; align-content: start; gap: 12px; max-height: 390px; overflow: auto; padding: 20px 28px; background: linear-gradient(180deg, var(--surface-low), var(--white)); }
+    .message { max-width: 88%; padding: 13px 14px; border: 1px solid var(--outline-variant); border-radius: 10px; background: var(--white); font-size: 14px; }
+    .message.user { justify-self: end; border-color: var(--primary-fixed-dim); background: var(--primary-fixed); color: #00201a; }
+    .message.bot { justify-self: start; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 28px 18px; }
+    .suggestions button { min-height: 34px; padding: 7px 10px; border: 1px solid var(--outline-variant); border-radius: 999px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 700; }
+    .chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 18px 28px 28px; border-top: 1px solid var(--outline-variant); }
+    .chat-form input { min-height: 44px; padding: 12px; border: 1px solid var(--outline-variant); border-radius: 6px; }
 
-      @media (max-width: 760px) {
-        .brand-copy small { display: none; }
-        .topbar-actions { gap: 0.4rem; }
-        .hero, .split, .report-grid { grid-template-columns: 1fr; }
-        .hero { min-height: auto; }
-        .plans, .funnel { grid-template-columns: 1fr; }
-        .side { position: static; }
-      }
-    </style>
-  </head>
-  <body>
-    <header class="shell topbar">
-      <a class="brand" href="#top" aria-label="QADAM AI на главную">
-        <img alt="" class="brand-logo" src="${logoDataUrl}" />
-        <span class="brand-copy"><strong>QADAM AI</strong><small>Legal AI Platform</small></span>
+    .history-panel { margin-bottom: 84px; padding: 32px; }
+    .history-list { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .history-list li { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--outline-variant); color: var(--muted); }
+    .history-list strong { color: var(--primary); }
+
+    footer { border-top: 1px solid var(--outline-variant); background: var(--surface-low); }
+    .footer-grid { display: grid; grid-template-columns: minmax(240px, .9fr) 1.6fr; gap: 64px; padding: 48px 0; }
+    .footer-grid h3 { margin: 0 0 14px; color: var(--primary); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    .footer-grid p, .footer-grid a { color: var(--muted); font-size: 14px; }
+    .footer-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .footer-links div { display: grid; align-content: start; gap: 12px; }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 16px; padding: 24px 0 34px; border-top: 1px solid var(--outline-variant); color: var(--muted); font-size: 12px; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(25, 28, 30, .62);
+    }
+    .modal.show { display: grid; }
+    .dialog {
+      position: relative;
+      width: min(100%, 560px);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      padding: 32px;
+      border-radius: 10px;
+      background: var(--white);
+      box-shadow: 0 30px 90px rgba(0,0,0,.28);
+    }
+    .dialog h2 { margin-bottom: 12px; color: var(--primary); font-size: 32px; }
+    .close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--primary);
+      font-weight: 900;
+    }
+    .floating-chat {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 45;
+      width: 58px;
+      height: 58px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--secondary-container);
+      color: #281900;
+      box-shadow: 0 14px 30px rgba(0,0,0,.2);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 980px) {
+      .container { width: min(100% - 32px, var(--max)); }
+      .site-nav { display: none; }
+      .hero-grid, .metrics-grid, .scale-grid, .product-grid, .footer-grid { grid-template-columns: 1fr; }
+      .model-grid, .metrics-side, .footer-links { grid-template-columns: 1fr; }
+      .hero-meta { justify-content: flex-start; }
+      .hero-meta div { justify-items: start; }
+      .model-card { min-height: auto; }
+      .scale-card { padding: 28px; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .brand-text { font-size: 19px; }
+      .top-actions .btn.ghost { display: none; }
+      main { padding-top: 88px; }
+      .workbench, .chat-head, .history-panel { padding: 22px; }
+      .chat-log, .suggestions, .chat-form { padding-left: 22px; padding-right: 22px; }
+      .footer-bottom { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav-row">
+      <a class="brand" href="#home" aria-label="QADAM AI">
+        <span class="brand-mark">Q</span>
+        <span class="brand-text">QADAM AI</span>
       </a>
-      <div class="topbar-actions">
-        <span id="accountPill" class="account-pill hidden"></span>
-        <button class="button quiet" id="authButton" type="button">Личный кабинет</button>
-      </div>
-    </header>
-
-    <main>
-      <section class="shell hero" id="top">
-        <div>
-          <p class="eyebrow">Один договор. Понятный следующий шаг.</p>
-          <h1>Проверьте договор аренды до подписи</h1>
-          <p class="lead">
-            QADAM подсвечивает спорные условия, объясняет риск простым языком и готовит протокол разногласий
-            в формате DOCX.
-          </p>
-          <div class="hero-actions">
-            <a class="button" href="#upload">Проверить договор</a>
-            <a class="button secondary" href="#plans">Коммерческая модель</a>
-          </div>
-          <div class="proof" aria-label="Ключевые условия продукта">
-            <span>Аккаунт и история проверок</span>
-            <span>Free: экспресс-анализ</span>
-            <span>Premium: DOCX за 490 ₸</span>
-          </div>
-        </div>
-        <aside class="preview" aria-label="Почему это важно">
-          <img alt="QADAM AI Legal AI Platform" class="preview-logo" src="${logoDataUrl}" />
-          <span class="preview-number">364,5 тыс.</span>
-          <p>студентов в Казахстане учатся не в своём населённом пункте и часто впервые снимают жильё.</p>
-          <div class="doc-card" aria-hidden="true">
-            <span class="doc-bar"></span>
-            <span class="doc-line wide"></span>
-            <span class="doc-risk"></span>
-            <span class="doc-line"></span>
-            <span class="doc-line short"></span>
-          </div>
-        </aside>
-      </section>
-
-      <section class="shell section split" id="upload">
-        <form class="card upload" id="uploadForm">
-          <div>
-            <p class="eyebrow">Free</p>
-            <h2>Экспресс-анализ договора</h2>
-            <p class="small">Выберите PDF/DOCX. Демо-анализ работает прямо на странице и не отправляет файл на сервер.</p>
-          </div>
-          <label class="file">
-            <strong>Выберите договор</strong>
-            <span id="fileName">Нажмите, чтобы выбрать файл</span>
-            <input id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" type="file" />
-          </label>
-          <label class="consent">
-            <input id="consent" type="checkbox" />
-            <span>Я согласен на обработку документа для анализа. Персональные данные в демо не сохраняются.</span>
-          </label>
-          <p class="message error hidden" id="error" role="alert"></p>
-          <p class="message hidden" id="status" role="status"></p>
-          <button class="button" type="submit">Запустить экспресс-анализ</button>
-        </form>
-
-        <div>
-          <p class="eyebrow">Приватность и точность</p>
-          <h2>Сначала риск, потом документ</h2>
-          <p class="lead">
-            Пользователь бесплатно видит проблемные пункты и понимает ценность. Платное действие появляется только
-            после результата: скачать готовый протокол разногласий.
-          </p>
-        </div>
-      </section>
-
-      <section class="shell section" id="plans">
-        <p class="eyebrow">Коммерческая модель</p>
-        <h2>Официальная модель монетизации QADAM</h2>
-        <div class="plans">
-          <article class="plan">
-            <span class="price">Acquisition</span>
-            <h3>Free: экспресс-анализ</h3>
-            <p>Бесплатный вход в продукт: регистрация, загрузка договора, подсветка рисков и сохранение истории.</p>
-          </article>
-          <article class="plan premium">
-            <span class="price">490 ₸</span>
-            <h3>Transaction: DOCX-протокол</h3>
-            <p>Разовая оплата за готовый протокол разногласий .DOCX после того, как пользователь увидел риск.</p>
-          </article>
-          <article class="plan">
-            <span class="price">B2B</span>
-            <h3>Campus license</h3>
-            <p>Лицензии для вузов, общежитий и legal clinics: пакет проверок, отчётность и поддержка студентов.</p>
-          </article>
-        </div>
-        <div class="funnel" aria-label="Коммерческие метрики">
-          <div><strong>Target</strong><span class="small">студенты 18-22 и первые арендаторы</span></div>
-          <div><strong>CAC</strong><span class="small">органический трафик, Telegram, партнёрства с вузами</span></div>
-          <div><strong>Revenue</strong><span class="small">490 ₸ за документ + B2B-пакеты</span></div>
-          <div><strong>Retention</strong><span class="small">личный кабинет, история и повторные проверки</span></div>
-        </div>
-      </section>
-
-      <section class="shell report" id="report" aria-live="polite">
-        <div class="report-head">
-          <p class="eyebrow">Отчёт готов</p>
-          <h2>Что проверить до подписания</h2>
-          <p id="summary" class="lead"></p>
-        </div>
-        <div class="report-grid">
-          <div id="findings"></div>
-          <aside class="side">
-            <div class="card premium-box">
-              <p class="eyebrow">Premium · 490 ₸</p>
-              <h3>Скачать протокол разногласий</h3>
-              <p class="small">DOCX формируется из найденных рисков, вопросов и предложенных правок.</p>
-              <button class="button secondary" id="downloadDocx" type="button">Скачать DOCX — 490 ₸</button>
-            </div>
-            <div class="card">
-              <h3>История действий</h3>
-              <ul class="history" id="historyList"></ul>
-            </div>
-          </aside>
-        </div>
-      </section>
-    </main>
-
-    <div class="auth-dialog" id="authDialog" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-      <div class="auth-card">
-        <div class="auth-row">
-          <div>
-            <p class="eyebrow">Личный кабинет QADAM</p>
-            <h2 id="authTitle">Безопасный вход по email-коду</h2>
-          </div>
-          <button class="button quiet" id="closeAuth" type="button" aria-label="Закрыть вход">Закрыть</button>
-        </div>
-        <div class="security-note">
-          <strong>Demo access policy</strong>
-          <span>Фиксированный код нужен только для судейского просмотра. Production-версия использует email/SMS OTP, rate limiting и audit log.</span>
-        </div>
-        <form id="authForm">
-          <label>
-            Email
-            <input id="emailInput" autocomplete="email" inputmode="email" placeholder="student@example.com" required type="email" />
-          </label>
-          <label id="codeField" class="hidden">
-            Код подтверждения
-            <input id="codeInput" autocomplete="one-time-code" inputmode="numeric" placeholder="6 цифр" type="text" />
-          </label>
-          <p class="message hidden" id="authStatus" role="status"></p>
-          <button class="button" id="authSubmit" type="submit">Отправить код</button>
-        </form>
+      <nav class="site-nav" aria-label="Основная навигация">
+        <a href="#home">Home</a>
+        <a class="active" href="#model">Commercial Model</a>
+        <a href="#assistant">AI Chat Bot</a>
+        <a href="#history">History</a>
+      </nav>
+      <div class="top-actions">
+        <button class="btn ghost" type="button" data-open-chat>AI чат</button>
+        <button class="btn" type="button" data-open-auth>Личный кабинет</button>
       </div>
     </div>
+  </header>
 
-    <footer class="shell footer">
-      <span>QADAM AI · Tech Vision 2026</span>
-      <span>Проверяйте финальную редакцию договора до подписания.</span>
-    </footer>
+  <main class="container" id="home">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Investment Presentation v1.2</span>
+          <h1>Официальная модель монетизации QADAM</h1>
+          <p class="lead">Институциональное решение для юридической поддержки студентов. Масштабируемая модель сочетает бесплатный экспресс-анализ, AI-чат для правовых вопросов, Premium DOCX-протокол за 490 ₸ и B2B-лицензии для вузов.</p>
+        </div>
+        <div class="hero-meta" aria-label="Статус проекта">
+          <div><small>Region</small><strong>Kazakhstan</strong></div>
+          <span class="divider"></span>
+          <div><small>Status</small><strong>Active Growth</strong></div>
+        </div>
+      </div>
+    </section>
 
-    <script>
-      const fileInput = document.getElementById("fileInput");
-      const fileName = document.getElementById("fileName");
-      const form = document.getElementById("uploadForm");
-      const consent = document.getElementById("consent");
-      const error = document.getElementById("error");
-      const statusBox = document.getElementById("status");
-      const reportSection = document.getElementById("report");
-      const findingsBox = document.getElementById("findings");
-      const summary = document.getElementById("summary");
-      const downloadButton = document.getElementById("downloadDocx");
-      const authButton = document.getElementById("authButton");
-      const accountPill = document.getElementById("accountPill");
-      const authDialog = document.getElementById("authDialog");
-      const closeAuth = document.getElementById("closeAuth");
-      const authForm = document.getElementById("authForm");
-      const emailInput = document.getElementById("emailInput");
-      const codeInput = document.getElementById("codeInput");
-      const codeField = document.getElementById("codeField");
-      const authStatus = document.getElementById("authStatus");
-      const authSubmit = document.getElementById("authSubmit");
-      const historyList = document.getElementById("historyList");
-      let currentReport = null;
-      let pendingCode = null;
-      const demoAccessCode = "490490";
+    <section id="model" class="model-grid" aria-label="Коммерческая модель">
+      <article class="model-card">
+        <div class="icon-box">+</div>
+        <h3>Acquisition</h3>
+        <h2>Free: экспресс-анализ</h2>
+        <p>Инструмент захвата внимания. Пользователь бесплатно загружает договор, получает базовую подсветку рисков и задаёт вопросы AI-чатботу.</p>
+        <ul class="check-list">
+          <li>Регистрация пользователя</li>
+          <li>История обращений</li>
+          <li>Оценка рисков L1</li>
+          <li>AI-чат по документу</li>
+        </ul>
+        <div class="price-line"><strong>0 ₸</strong> <span>/ entry</span></div>
+      </article>
 
-      function readSession() {
-        try { return JSON.parse(localStorage.getItem("qadam:session") || "null"); } catch { return null; }
-      }
+      <article class="model-card featured">
+        <div class="badge">Main Revenue</div>
+        <div class="icon-box">§</div>
+        <h3>Transaction</h3>
+        <h2>490 ₸ за DOCX-протокол</h2>
+        <p>Готовый протокол разногласий с формулировками, рисками и инструкциями. Разовая оплата по требованию после бесплатного анализа.</p>
+        <ul class="check-list">
+          <li>Генерация DOCX-документа</li>
+          <li>Юридически аккуратная структура</li>
+          <li>Приоритетный AI-ассистент</li>
+          <li>Готово для переговоров</li>
+        </ul>
+        <div class="price-line"><strong>490 ₸</strong> <span>/ document</span></div>
+      </article>
 
-      function writeSession(session) {
-        localStorage.setItem("qadam:session", JSON.stringify(session));
-        renderSession();
-      }
+      <article class="model-card">
+        <div class="icon-box">▦</div>
+        <h3>B2B</h3>
+        <h2>Campus license</h2>
+        <p>Пакетное решение для вузов, общежитий и legal clinics: кабинет администратора, аналитика рисков, брендированный интерфейс и лимиты проверок.</p>
+        <ul class="check-list">
+          <li>Корпоративная подписка</li>
+          <li>White-label интерфейс</li>
+          <li>Аналитика правовых рисков</li>
+          <li>Отчётность для партнёров</li>
+        </ul>
+        <div class="price-line"><strong>Custom</strong> <span>/ yearly</span></div>
+      </article>
+    </section>
 
-      function readEvents() {
-        try { return JSON.parse(localStorage.getItem("qadam:events") || "[]"); } catch { return []; }
-      }
+    <section class="metrics" aria-labelledby="metrics-title">
+      <div class="section-title"><h2 id="metrics-title">Ключевые метрики и охват</h2></div>
+      <div class="metrics-grid">
+        <article class="target-card">
+          <div>
+            <span class="eyebrow">Target Segment</span>
+            <h3>Студенты 18-22 лет</h3>
+            <p>Ядро аудитории - студенты государственных и частных вузов Казахстана, которым нужна понятная правовая защита при аренде, оплате, общежитии и бытовых договорах.</p>
+          </div>
+          <div class="target-stats">
+            <div><strong>~600k</strong><span>Potential Reach</span></div>
+            <div><strong>85%</strong><span>Mobile Usage</span></div>
+          </div>
+        </article>
+        <div class="metrics-side">
+          <article class="info-card">
+            <div class="info-card-head"><span class="icon-box" style="margin:0">↗</span><span class="info-chip">Optimized CAC</span></div>
+            <h4>Каналы CAC</h4>
+            <p>Основные инструменты привлечения пользователей с минимальными затратами за счёт виральности и партнёрств.</p>
+            <div class="rows">
+              <div class="row"><span>Telegram Bot Ads</span><strong>High Conv.</strong></div>
+              <div class="row"><span>ВУЗ-партнёрства</span><strong>Organic</strong></div>
+              <div class="row"><span>Студенческие советы</span><strong>Direct</strong></div>
+            </div>
+          </article>
+          <article class="info-card">
+            <div class="info-card-head"><span class="icon-box" style="margin:0">₸</span><span class="info-chip gold">Revenue streams</span></div>
+            <h4>Revenue Model</h4>
+            <p>Гибридная модель дохода: бесплатный вход, микроплатёж 490 ₸ и B2B-пакеты с прогнозируемым LTV.</p>
+            <div class="rows">
+              <div class="row"><span>490 ₸ - разовая генерация</span><strong>B2C</strong></div>
+              <div class="row"><span>B2B-пакеты для вузов</span><strong>License</strong></div>
+              <div class="row"><span>Консалтинг администрациям</span><strong>Upsell</strong></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
 
-      function addEvent(label) {
-        const events = readEvents();
-        events.unshift({ label, time: new Date().toLocaleString("ru-RU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }) });
-        localStorage.setItem("qadam:events", JSON.stringify(events.slice(0, 8)));
-        renderHistory();
-      }
+    <section class="scale-card" aria-labelledby="scale-title">
+      <div class="scale-grid">
+        <div>
+          <h2 id="scale-title">Прогноз масштабирования</h2>
+          <p>К концу 2026 года QADAM планирует охватить 15% целевого рынка студентов в Алматы и Астане, выйти на устойчивую конверсию Free → Premium и подготовить B2B-лицензии для университетов.</p>
+          <div class="actions">
+            <button class="btn" type="button" data-download-pitch>Скачать Full Pitch</button>
+            <button class="btn secondary" type="button" data-open-demo>Demo Access</button>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><span>Estimated Revenue Trend</span><span>↗</span></div>
+          <div class="chart" aria-label="Рост выручки">
+            <div class="bar" style="height:18%"></div>
+            <div class="bar" style="height:32%"></div>
+            <div class="bar" style="height:48%"></div>
+            <div class="bar" style="height:66%"></div>
+            <div class="bar" style="height:84%"></div>
+            <div class="bar" style="height:100%"></div>
+          </div>
+          <div class="chart-labels"><span>Q1 2026</span><span>Q4 2026</span></div>
+        </div>
+      </div>
+    </section>
 
-      function renderHistory() {
-        const events = readEvents();
-        historyList.innerHTML = events.length
-          ? events.map((event) => "<li><span>" + escapeHtml(event.time + " · " + event.label) + "</span></li>").join("")
-          : '<li><span>История появится после входа и первой проверки.</span></li>';
-      }
+    <section class="product-grid" id="assistant" aria-label="Рабочий продукт">
+      <article class="workbench">
+        <span class="eyebrow">Free + Premium рабочая модель</span>
+        <h2>Экспресс-анализ договора</h2>
+        <p class="muted">Загрузите PDF/DOCX или вставьте текст. Free покажет риски, Premium за 490 ₸ скачает официальный протокол разногласий.</p>
+        <div class="upload-zone">
+          <label class="field" style="width:100%;max-width:520px">
+            Файл договора
+            <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.txt">
+          </label>
+        </div>
+        <label class="field">
+          Текст или ключевые условия
+          <textarea id="contractText" placeholder="Например: депозит не возвращается, арендодатель может заходить без предупреждения, штраф за досрочное расторжение..."></textarea>
+        </label>
+        <div class="actions">
+          <button class="btn" type="button" id="runAnalysis">Запустить Free-анализ</button>
+          <button class="btn gold" type="button" id="downloadDocx">Premium 490 ₸: скачать DOCX</button>
+        </div>
+        <div class="result-grid" id="resultGrid" aria-live="polite">
+          <div class="result-card"><strong id="riskScore">0/100</strong><span>Risk score</span></div>
+          <div class="result-card"><strong id="riskCount">0</strong><span>Найдено рисков</span></div>
+          <div class="result-card"><strong id="nextStep">Готово</strong><span>Следующий шаг</span></div>
+        </div>
+        <ul class="risk-list" id="riskList"></ul>
+      </article>
 
-      function renderSession() {
-        const session = readSession();
-        if (session) {
-          accountPill.textContent = session.email;
-          accountPill.classList.remove("hidden");
-          authButton.textContent = "Завершить сессию";
-        } else {
-          accountPill.textContent = "";
-          accountPill.classList.add("hidden");
-          authButton.textContent = "Личный кабинет";
-        }
-      }
+      <article class="chat-panel" aria-labelledby="chat-title">
+        <div class="chat-head">
+          <span class="eyebrow">AI Legal Chat Bot</span>
+          <h2 id="chat-title">Спросите QADAM</h2>
+          <p class="muted">Чат-бот отвечает по договору, объясняет риски и подсказывает, какие условия стоит добавить в протокол разногласий.</p>
+        </div>
+        <div class="chat-log" id="chatLog" aria-live="polite">
+          <div class="message bot">Здравствуйте. Я QADAM AI. Могу объяснить риск в договоре, подсказать формулировку или подготовить пункты для DOCX-протокола.</div>
+        </div>
+        <div class="suggestions">
+          <button type="button" data-question="Можно ли арендодателю заходить в квартиру без предупреждения?">Доступ арендодателя</button>
+          <button type="button" data-question="Что делать, если депозит не возвращают?">Депозит</button>
+          <button type="button" data-question="Какие пункты включить в протокол разногласий?">Протокол</button>
+        </div>
+        <form class="chat-form" id="chatForm">
+          <input id="chatInput" type="text" autocomplete="off" placeholder="Напишите вопрос по договору...">
+          <button class="btn small" type="submit">Спросить</button>
+        </form>
+      </article>
+    </section>
 
-      function openAuth() {
-        authDialog.classList.add("active");
-        emailInput.focus();
-      }
+    <section class="history-panel" id="history">
+      <span class="eyebrow">Action history</span>
+      <h2>История действий</h2>
+      <p class="muted">В этой версии история сохраняется в браузере судьи: вход, анализ, вопросы чат-боту и скачивание Premium DOCX.</p>
+      <ul class="history-list" id="historyList"></ul>
+    </section>
+  </main>
 
-      function closeAuthDialog() {
-        authDialog.classList.remove("active");
-      }
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h3>QADAM AI</h3>
+          <p>Цифровое право для нового поколения. Делаем юридическую помощь доступной и понятной каждому студенту в Казахстане.</p>
+        </div>
+        <div class="footer-links">
+          <div><h3>Official Links</h3><a href="#assistant">AI Chat Bot</a><a href="#model">Pricing Details</a><a href="#history">Activity History</a></div>
+          <div><h3>Legal</h3><a href="#assistant">Privacy-first demo</a><a href="#model">Terms of Service</a><a href="#model">B2B License</a></div>
+          <div><h3>Support</h3><a href="#assistant">Contact Support</a><a href="#model">Partner Program</a><a href="#assistant">API Access</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 QADAM AI. Kazakhstan Legal Tech.</span>
+        <span>Информационная помощь, не замена консультации юриста.</span>
+      </div>
+    </div>
+  </footer>
 
-      function showError(message) {
-        error.textContent = message;
-        error.classList.remove("hidden");
-      }
+  <button class="floating-chat" type="button" aria-label="Открыть AI чат" data-open-chat>AI</button>
 
-      function clearError() {
-        error.textContent = "";
-        error.classList.add("hidden");
-      }
+  <div class="modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="dialog">
+      <button class="close" type="button" data-close>×</button>
+      <span class="eyebrow">Личный кабинет</span>
+      <h2 id="authTitle">Безопасный вход</h2>
+      <p class="muted">Для демо используется OTP-код 490490. В production это будет email/SMS OTP, rate limiting и audit log.</p>
+      <label class="field">Email <input id="emailInput" type="email" placeholder="judge@example.com"></label>
+      <label class="field">OTP-код <input id="otpInput" type="text" placeholder="490490"></label>
+      <button class="btn full" type="button" id="loginBtn">Войти в кабинет</button>
+      <p class="muted" id="authStatus" style="margin-top:14px"></p>
+    </div>
+  </div>
 
-      fileInput.addEventListener("change", () => {
-        const file = fileInput.files && fileInput.files[0];
-        fileName.textContent = file ? file.name : "Нажмите, чтобы выбрать файл";
-        clearError();
-      });
+  <div class="modal" id="demoModal" role="dialog" aria-modal="true" aria-labelledby="demoTitle">
+    <div class="dialog">
+      <button class="close" type="button" data-close>×</button>
+      <span class="eyebrow">Demo Access</span>
+      <h2 id="demoTitle">Сценарий для судей</h2>
+      <p class="muted">1) войдите кодом 490490, 2) запустите Free-анализ, 3) задайте вопрос чат-боту, 4) скачайте Premium DOCX за 490 ₸ в демо-режиме.</p>
+      <button class="btn full" type="button" data-close>Понятно, начать</button>
+    </div>
+  </div>
 
-      authButton.addEventListener("click", () => {
-        if (readSession()) {
-          addEvent("Выход из аккаунта");
-          localStorage.removeItem("qadam:session");
-          renderSession();
-          return;
-        }
-        openAuth();
-      });
+  <script>
+    const state = {
+      risks: [],
+      score: 0,
+      session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
+      events: JSON.parse(localStorage.getItem("qadam:events") || "[]")
+    };
 
-      closeAuth.addEventListener("click", closeAuthDialog);
-      authDialog.addEventListener("click", (event) => {
-        if (event.target === authDialog) closeAuthDialog();
-      });
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
-      authForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const email = emailInput.value.trim().toLowerCase();
-        if (!pendingCode) {
-          pendingCode = demoAccessCode;
-          codeField.classList.remove("hidden");
-          authStatus.textContent = "Код доступа для судей: " + pendingCode + ". В production он отправляется по email/SMS.";
-          authStatus.classList.remove("hidden");
-          authSubmit.textContent = "Подтвердить вход";
-          codeInput.focus();
-          return;
-        }
-        if (codeInput.value.trim() !== pendingCode) {
-          authStatus.textContent = "Неверный код. Для судейского демо используйте " + pendingCode + ".";
-          authStatus.classList.remove("hidden");
-          return;
-        }
-        writeSession({ email, signedInAt: Date.now(), plan: "Free" });
-        addEvent("Вход в аккаунт");
-        pendingCode = null;
-        authForm.reset();
-        codeField.classList.add("hidden");
-        authSubmit.textContent = "Отправить код";
-        closeAuthDialog();
-      });
-
-      function buildFindings(file) {
-        const label = file.name.replace(/\.(pdf|docx)$/i, "");
-        return {
-          id: "demo-" + Date.now(),
-          fileName: file.name,
-          summary: "Найдено 3 пункта: депозит, изменение цены и доступ арендодателя. Проверьте их письменно до подписания.",
-          findings: [
-            {
-              severity: "high",
-              label: "Высокий приоритет",
-              title: "Условия возврата депозита сформулированы рискованно",
-              explanation: "В договоре может не хватать срока возврата, перечня удержаний и подтверждающих документов.",
-              action: "Добавьте срок возврата депозита, акт осмотра и обязанность подтверждать каждое удержание письменно.",
-              question: "Когда и на каких основаниях возвращается депозит?",
-              clause: "Файл: " + label + ". Проверьте раздел о депозите и обеспечительном платеже."
-            },
-            {
-              severity: "attention",
-              label: "Требует внимания",
-              title: "Цена аренды может изменяться без понятного уведомления",
-              explanation: "Если срок предупреждения не указан, арендатору сложнее планировать платежи.",
-              action: "Зафиксируйте письменное уведомление минимум за 30 дней и запрет задним числом менять цену.",
-              question: "За сколько дней вы предупреждаете об изменении арендной платы?",
-              clause: "Проверьте раздел об оплате и изменении стоимости."
-            },
-            {
-              severity: "info",
-              label: "Информация",
-              title: "Доступ арендодателя лучше ограничить процедурой",
-              explanation: "Даже добросовестный доступ должен быть заранее согласован, кроме аварийных случаев.",
-              action: "Добавьте уведомление за 24 часа, согласование времени и исключение для аварий.",
-              question: "Как заранее согласуется визит арендодателя?",
-              clause: "Проверьте раздел о доступе в помещение."
-            }
-          ]
-        };
-      }
-
-      function renderReport(report) {
-        currentReport = report;
-        addEvent("Экспресс-анализ: " + report.fileName);
-        summary.textContent = report.summary;
-        findingsBox.innerHTML = report.findings.map((finding) =>
-          '<article class="finding ' + finding.severity + '">' +
-          '<span class="badge">' + finding.label + '</span>' +
-          '<h3>' + escapeHtml(finding.title) + '</h3>' +
-          '<p>' + escapeHtml(finding.explanation) + '</p>' +
-          '<p class="small"><strong>Фрагмент:</strong> ' + escapeHtml(finding.clause) + '</p>' +
-          '<div class="action"><strong>Что сделать</strong><p>' + escapeHtml(finding.action) + '</p></div>' +
-          '<p class="small"><strong>Вопрос:</strong> ' + escapeHtml(finding.question) + '</p>' +
-          '</article>'
-        ).join("");
-        reportSection.classList.add("active");
-        reportSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const file = fileInput.files && fileInput.files[0];
-        clearError();
-        if (!readSession()) {
-          showError("Войдите в личный кабинет, чтобы сохранить историю проверки и сформировать DOCX.");
-          openAuth();
-          return;
-        }
-        if (!file) return showError("Сначала выберите договор в PDF или DOCX.");
-        if (!/\.(pdf|docx)$/i.test(file.name)) return showError("Поддерживаются только PDF и DOCX.");
-        if (file.size > 10 * 1024 * 1024) return showError("Файл больше 10 МБ. Выберите более лёгкую копию.");
-        if (!consent.checked) return showError("Подтвердите согласие на обработку документа.");
-        statusBox.textContent = "Извлекаем условия, ищем риски и готовим отчёт...";
-        statusBox.classList.remove("hidden");
-        setTimeout(() => {
-          statusBox.classList.add("hidden");
-          renderReport(buildFindings(file));
-        }, 850);
-      });
-
-      function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
-      }
-
-      function crc32(bytes) {
-        const table = crc32.table || (crc32.table = Array.from({ length: 256 }, (_, index) => {
-          let value = index;
-          for (let bit = 0; bit < 8; bit += 1) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
-          return value >>> 0;
-        }));
-        let crc = 0xffffffff;
-        for (const byte of bytes) crc = table[(crc ^ byte) & 255] ^ (crc >>> 8);
-        return (crc ^ 0xffffffff) >>> 0;
-      }
-
-      function push16(target, value) { target.push(value & 255, (value >>> 8) & 255); }
-      function push32(target, value) { target.push(value & 255, (value >>> 8) & 255, (value >>> 16) & 255, (value >>> 24) & 255); }
-      function pushBytes(target, bytes) { for (const byte of bytes) target.push(byte); }
-
-      function zip(entries) {
-        const encoder = new TextEncoder();
-        const output = [];
-        const central = [];
-        entries.forEach((entry) => {
-          const name = encoder.encode(entry.name);
-          const content = encoder.encode(entry.content);
-          const checksum = crc32(content);
-          const offset = output.length;
-          push32(output, 0x04034b50); push16(output, 20); push16(output, 0x0800); push16(output, 0); push16(output, 0); push16(output, 0);
-          push32(output, checksum); push32(output, content.length); push32(output, content.length); push16(output, name.length); push16(output, 0);
-          pushBytes(output, name); pushBytes(output, content);
-          push32(central, 0x02014b50); push16(central, 20); push16(central, 20); push16(central, 0x0800); push16(central, 0); push16(central, 0); push16(central, 0);
-          push32(central, checksum); push32(central, content.length); push32(central, content.length); push16(central, name.length); push16(central, 0); push16(central, 0); push16(central, 0); push16(central, 0); push32(central, 0); push32(central, offset); pushBytes(central, name);
-        });
-        const centralOffset = output.length;
-        pushBytes(output, central);
-        push32(output, 0x06054b50); push16(output, 0); push16(output, 0); push16(output, entries.length); push16(output, entries.length); push32(output, central.length); push32(output, centralOffset); push16(output, 0);
-        return new Blob([new Uint8Array(output)], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
-      }
-
-      function docxXml(report) {
-        const paragraphs = [];
-        function p(text, style) { paragraphs.push('<w:p><w:pPr><w:pStyle w:val="' + style + '"/></w:pPr><w:r><w:t>' + escapeHtml(text) + '</w:t></w:r></w:p>'); }
-        p("Протокол разногласий к договору найма жилого помещения", "Heading1");
-        p("Подготовлено QADAM AI. Документ является рабочей заготовкой и не заменяет консультацию юриста.", "BodyText");
-        p("Краткая сводка", "Heading2");
-        p(report.summary, "BodyText");
-        p("Предлагаемые изменения", "Heading2");
-        report.findings.forEach((finding, index) => {
-          p((index + 1) + ". " + finding.title, "Heading2");
-          p("Риск: " + finding.explanation, "BodyText");
-          p("Предлагаемая правка: " + finding.action, "BodyText");
-          p("Вопрос арендодателю: " + finding.question, "BodyText");
-          p("Фрагмент: " + finding.clause, "BodyText");
-        });
-        p("Подписание", "Heading2");
-        p("Наниматель: ____________________", "BodyText");
-        p("Наймодатель: ____________________", "BodyText");
-        p("Дата: ____________________", "BodyText");
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + paragraphs.join("") + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>';
-      }
-
-      function downloadDocx() {
-        if (!currentReport) return showError("Сначала запустите экспресс-анализ.");
-        const styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:styleId="BodyText"><w:name w:val="Body Text"/><w:pPr><w:spacing w:after="160"/></w:pPr><w:rPr><w:sz w:val="22"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:pPr><w:spacing w:after="240"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:pPr><w:spacing w:before="220" w:after="140"/></w:pPr><w:rPr><w:b/><w:sz w:val="26"/></w:rPr></w:style></w:styles>';
-        const blob = zip([
-          { name: "[Content_Types].xml", content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>' },
-          { name: "_rels/.rels", content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>' },
-          { name: "word/_rels/document.xml.rels", content: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
-          { name: "word/styles.xml", content: styles },
-          { name: "word/document.xml", content: docxXml(currentReport) }
-        ]);
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "qadam-protocol.docx";
-        document.body.append(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(url);
-        addEvent("Скачан DOCX-протокол за 490 ₸");
-      }
-
-      downloadButton.addEventListener("click", downloadDocx);
-      renderSession();
+    function addEvent(label) {
+      const time = new Date().toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      state.events = [{ label, time }, ...state.events].slice(0, 8);
+      localStorage.setItem("qadam:events", JSON.stringify(state.events));
       renderHistory();
-    </script>
-  </body>
+    }
+
+    function renderHistory() {
+      const list = $("#historyList");
+      if (!state.events.length) {
+        list.innerHTML = "<li><span>История появится после первого действия.</span><strong>Ready</strong></li>";
+        return;
+      }
+      list.innerHTML = state.events.map((event) => "<li><span>" + escapeHtml(event.label) + "</span><strong>" + event.time + "</strong></li>").join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    }
+
+    function openModal(id) {
+      $(id).classList.add("show");
+      document.body.classList.add("modal-open");
+    }
+
+    function closeModals() {
+      $$(".modal").forEach((modal) => modal.classList.remove("show"));
+      document.body.classList.remove("modal-open");
+    }
+
+    function scrollChat() {
+      $("#assistant").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#chatInput").focus();
+    }
+
+    function detectRisks(text, fileName) {
+      const source = (text + " " + fileName).toLowerCase();
+      const risks = [];
+      if (!source || source.trim().length < 8) {
+        risks.push({ level: "medium", title: "Недостаточно текста для точной проверки", body: "Добавьте текст договора или загрузите файл. Сейчас QADAM показывает демо-структуру анализа." });
+      }
+      if (/депозит|залог|возврат/.test(source)) {
+        risks.push({ level: "high", title: "Риск невозврата депозита", body: "Нужно указать срок возврата, основания удержания и акт приёма-передачи. Без этого спор будет сложнее доказать." });
+      }
+      if (/заход|доступ|посещ|ключ/.test(source)) {
+        risks.push({ level: "high", title: "Доступ арендодателя без предупреждения", body: "Рекомендуется требовать письменное уведомление минимум за 24 часа, кроме аварийных ситуаций." });
+      }
+      if (/штраф|пеня|неустойк|досроч/.test(source)) {
+        risks.push({ level: "medium", title: "Несбалансированный штраф", body: "Штраф должен быть соразмерным и понятным. Для протокола стоит предложить фиксированный лимит ответственности." });
+      }
+      if (/ремонт|полом|ущерб/.test(source)) {
+        risks.push({ level: "medium", title: "Не разделена ответственность за ремонт", body: "Нужно отделить текущий мелкий ремонт от капитального ремонта и скрытых дефектов объекта." });
+      }
+      if (!risks.length) {
+        risks.push({ level: "low", title: "Критических рисков не найдено", body: "Проверьте сроки оплаты, возврат депозита, порядок расторжения и уведомления. Для официальной версии скачайте DOCX-протокол." });
+      }
+      return risks.slice(0, 5);
+    }
+
+    function runAnalysis() {
+      const fileName = $("#fileInput").files[0]?.name || "";
+      const text = $("#contractText").value || "";
+      state.risks = detectRisks(text, fileName);
+      state.score = Math.min(96, 28 + state.risks.length * 17 + state.risks.filter((risk) => risk.level === "high").length * 12);
+      $("#riskScore").textContent = state.score + "/100";
+      $("#riskCount").textContent = String(state.risks.length);
+      $("#nextStep").textContent = state.risks.some((risk) => risk.level === "high") ? "Протокол" : "Проверить";
+      $("#resultGrid").classList.add("show");
+      $("#riskList").classList.add("show");
+      $("#riskList").innerHTML = state.risks.map((risk) => "<li class='" + (risk.level === "high" ? "high" : "") + "'><strong>" + escapeHtml(risk.title) + "</strong><br>" + escapeHtml(risk.body) + "</li>").join("");
+      addEvent("Free-анализ договора: " + state.risks.length + " рисков");
+      appendBot("Я завершил экспресс-анализ. Самый важный следующий шаг: " + state.risks[0].title + ". Можете спросить меня, как сформулировать правку.");
+    }
+
+    function answerQuestion(question) {
+      const q = question.toLowerCase();
+      if (/депозит|залог|возврат/.test(q)) {
+        return "По депозиту нужно зафиксировать сумму, срок возврата, исчерпывающий список удержаний и обязательный акт состояния жилья. В протоколе разногласий предложите срок возврата 3-5 рабочих дней после выезда.";
+      }
+      if (/заход|доступ|ключ|арендодатель/.test(q)) {
+        return "Арендодатель не должен свободно заходить без предупреждения. Корректная формулировка: доступ только по предварительному письменному уведомлению за 24 часа, кроме аварии или угрозы имуществу.";
+      }
+      if (/протокол|docx|разноглас/.test(q)) {
+        return "В DOCX-протокол стоит включить: пункт договора, риск, вашу редакцию, обоснование и срок ответа. Premium за 490 ₸ скачивает такой документ автоматически.";
+      }
+      if (/штраф|пеня|расторж/.test(q)) {
+        return "Проверьте, есть ли баланс ответственности сторон. Если штраф есть только для студента, добавьте зеркальную ответственность арендодателя и ограничьте размер штрафа разумным пределом.";
+      }
+      if (state.risks.length) {
+        return "С учётом вашего анализа главный риск: " + state.risks[0].title + ". Рекомендация: запросить письменную редакцию спорного пункта и не подписывать договор до фиксации условия.";
+      }
+      return "Я могу помочь с депозитом, доступом арендодателя, штрафами, расторжением и протоколом разногласий. Для ответа по вашему договору сначала запустите Free-анализ или вставьте текст условия.";
+    }
+
+    function appendUser(text) {
+      $("#chatLog").insertAdjacentHTML("beforeend", "<div class='message user'>" + escapeHtml(text) + "</div>");
+      $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
+    }
+
+    function appendBot(text) {
+      $("#chatLog").insertAdjacentHTML("beforeend", "<div class='message bot'>" + escapeHtml(text) + "</div>");
+      $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
+    }
+
+    function ask(question) {
+      const clean = question.trim();
+      if (!clean) return;
+      appendUser(clean);
+      addEvent("Вопрос AI-чатботу");
+      setTimeout(() => appendBot(answerQuestion(clean)), 240);
+    }
+
+    function textEncoder(value) {
+      return new TextEncoder().encode(value);
+    }
+
+    const crcTable = (() => {
+      const table = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        table[n] = c >>> 0;
+      }
+      return table;
+    })();
+
+    function crc32(bytes) {
+      let crc = 0xffffffff;
+      for (const byte of bytes) crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    function writeU16(view, offset, value) { view.setUint16(offset, value, true); }
+    function writeU32(view, offset, value) { view.setUint32(offset, value >>> 0, true); }
+
+    function concat(chunks) {
+      const length = chunks.reduce((sum, item) => sum + item.length, 0);
+      const output = new Uint8Array(length);
+      let offset = 0;
+      for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.length; }
+      return output;
+    }
+
+    function dosDateTime() {
+      const now = new Date();
+      const time = (now.getHours() << 11) | (now.getMinutes() << 5) | Math.floor(now.getSeconds() / 2);
+      const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+      return { time, date };
+    }
+
+    function makeZip(files) {
+      const locals = [];
+      const centrals = [];
+      let offset = 0;
+      const stamp = dosDateTime();
+      for (const file of files) {
+        const name = textEncoder(file.name);
+        const data = textEncoder(file.content);
+        const crc = crc32(data);
+        const local = new Uint8Array(30 + name.length);
+        const lv = new DataView(local.buffer);
+        writeU32(lv, 0, 0x04034b50); writeU16(lv, 4, 20); writeU16(lv, 6, 0); writeU16(lv, 8, 0);
+        writeU16(lv, 10, stamp.time); writeU16(lv, 12, stamp.date); writeU32(lv, 14, crc);
+        writeU32(lv, 18, data.length); writeU32(lv, 22, data.length); writeU16(lv, 26, name.length); writeU16(lv, 28, 0);
+        local.set(name, 30);
+        locals.push(local, data);
+
+        const central = new Uint8Array(46 + name.length);
+        const cv = new DataView(central.buffer);
+        writeU32(cv, 0, 0x02014b50); writeU16(cv, 4, 20); writeU16(cv, 6, 20); writeU16(cv, 8, 0); writeU16(cv, 10, 0);
+        writeU16(cv, 12, stamp.time); writeU16(cv, 14, stamp.date); writeU32(cv, 16, crc);
+        writeU32(cv, 20, data.length); writeU32(cv, 24, data.length); writeU16(cv, 28, name.length);
+        writeU16(cv, 30, 0); writeU16(cv, 32, 0); writeU16(cv, 34, 0); writeU16(cv, 36, 0); writeU32(cv, 38, 0); writeU32(cv, 42, offset);
+        central.set(name, 46);
+        centrals.push(central);
+        offset += local.length + data.length;
+      }
+      const centralStart = offset;
+      const centralData = concat(centrals);
+      const end = new Uint8Array(22);
+      const ev = new DataView(end.buffer);
+      writeU32(ev, 0, 0x06054b50); writeU16(ev, 8, files.length); writeU16(ev, 10, files.length);
+      writeU32(ev, 12, centralData.length); writeU32(ev, 16, centralStart); writeU16(ev, 20, 0);
+      return concat([...locals, centralData, end]);
+    }
+
+    function makeDocx() {
+      const risks = state.risks.length ? state.risks : detectRisks($("#contractText").value, $("#fileInput").files[0]?.name || "");
+      const rows = risks.map((risk, index) => "<w:p><w:r><w:t>" + (index + 1) + ". " + escapeXml(risk.title + " - " + risk.body) + "</w:t></w:r></w:p>").join("");
+      const documentXml = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><w:document xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'><w:body><w:p><w:r><w:t>QADAM AI - Протокол разногласий</w:t></w:r></w:p><w:p><w:r><w:t>Premium: 490 ₸. Демо-оплата подтверждена.</w:t></w:r></w:p>" + rows + "<w:p><w:r><w:t>Рекомендация: направить протокол второй стороне и получить письменный ответ до подписания договора.</w:t></w:r></w:p><w:sectPr/></w:body></w:document>";
+      return makeZip([
+        { name: "[Content_Types].xml", content: "<?xml version='1.0' encoding='UTF-8'?><Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'><Default Extension='rels' ContentType='application/vnd.openxmlformats-package.relationships+xml'/><Default Extension='xml' ContentType='application/xml'/><Override PartName='/word/document.xml' ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'/></Types>" },
+        { name: "_rels/.rels", content: "<?xml version='1.0' encoding='UTF-8'?><Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'><Relationship Id='rId1' Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument' Target='word/document.xml'/></Relationships>" },
+        { name: "word/document.xml", content: documentXml }
+      ]);
+    }
+
+    function escapeXml(value) {
+      return String(value).replace(/[<>&'"]/g, (char) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[char]));
+    }
+
+    function downloadDocx() {
+      if (!state.risks.length) runAnalysis();
+      const bytes = makeDocx();
+      const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "qadam-ai-protokol-raznoglasiy.docx";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 500);
+      addEvent("Premium DOCX скачан: 490 ₸ demo");
+      appendBot("Premium DOCX готов. В нём собраны риски, формулировки и следующий шаг для переговоров.");
+    }
+
+    function downloadPitch() {
+      const content = [
+        "QADAM AI - Full Pitch",
+        "Free: экспресс-анализ договора и AI-чат.",
+        "Premium: 490 ₸ за официальный DOCX-протокол разногласий.",
+        "B2B: campus license для вузов, общежитий и legal clinics.",
+        "Target: студенты 18-22 лет в Казахстане."
+      ].join("\\n");
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "qadam-ai-full-pitch.txt";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      addEvent("Full Pitch скачан");
+    }
+
+    $$("[data-open-auth]").forEach((button) => button.addEventListener("click", () => openModal("#authModal")));
+    $$("[data-open-demo]").forEach((button) => button.addEventListener("click", () => openModal("#demoModal")));
+    $$("[data-open-chat]").forEach((button) => button.addEventListener("click", scrollChat));
+    $$("[data-close]").forEach((button) => button.addEventListener("click", closeModals));
+    $$(".modal").forEach((modal) => modal.addEventListener("click", (event) => { if (event.target === modal) closeModals(); }));
+    $("#runAnalysis").addEventListener("click", runAnalysis);
+    $("#downloadDocx").addEventListener("click", downloadDocx);
+    $("[data-download-pitch]").addEventListener("click", downloadPitch);
+    $("#chatForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = $("#chatInput");
+      ask(input.value);
+      input.value = "";
+    });
+    $$(".suggestions button").forEach((button) => button.addEventListener("click", () => ask(button.dataset.question || "")));
+    $("#loginBtn").addEventListener("click", () => {
+      const email = $("#emailInput").value.trim();
+      const code = $("#otpInput").value.trim();
+      if (!email || code !== "490490") {
+        $("#authStatus").textContent = "Введите email и demo-код 490490.";
+        return;
+      }
+      state.session = { email };
+      localStorage.setItem("qadam:session", JSON.stringify(state.session));
+      $("#authStatus").textContent = "Вход выполнен. История и Premium-действия сохраняются в этом браузере.";
+      addEvent("Вход в личный кабинет: " + email);
+    });
+
+    renderHistory();
+  </script>
+</body>
 </html>`;
 
 const worker = `const html = ${JSON.stringify(html)};
