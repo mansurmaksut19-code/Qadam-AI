@@ -1,0 +1,48 @@
+{
+  "dataset": "QADAM AI synthetic rental agreements",
+  "synthetic": true,
+  "purpose": "Repeatable demo and regression evaluation; not CustDev evidence",
+  "documents": [
+    {
+      "file": "qadam-balanced-contract.txt",
+      "expected_clause_types": [
+        "property",
+        "term",
+        "rent",
+        "rent_change",
+        "deposit",
+        "utilities",
+        "handover",
+        "repairs",
+        "termination",
+        "occupancy",
+        "landlord_access"
+      ]
+    },
+    {
+      "file": "qadam-risky-contract.txt",
+      "expected_clause_types": [
+        "property",
+        "rent",
+        "rent_change",
+        "deposit",
+        "utilities",
+        "repairs",
+        "termination",
+        "eviction",
+        "landlord_access",
+        "penalties"
+      ]
+    },
+    {
+      "file": "qadam-mixed-language-contract.txt",
+      "expected_clause_types": [
+        "property",
+        "rent",
+        "deposit",
+        "utilities",
+        "termination"
+      ]
+    }
+  ]
+}

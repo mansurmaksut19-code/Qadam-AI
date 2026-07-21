@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QADAM AI — Tech Vision 2026</title>
+    <style>
+      :root {
+        --paper: #f4f0e7;
+        --paper-2: #ebe4d7;
+        --ink: #16201f;
+        --muted: #586764;
+        --teal: #00685f;
+        --teal-dark: #004b45;
+        --red: #a94337;
+        --amber: #a86d19;
+        --line: #cfc5b6;
+        --white: #fffdf8;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: #252b2a; color: var(--ink); }
+      body { font-family: Arial, Helvetica, sans-serif; }
+      .deck { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+      .slide {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        padding: 58px 68px 48px;
+        background: var(--paper);
+        page-break-after: always;
+        break-after: page;
+      }
+      .slide:last-child { page-break-after: auto; break-after: auto; }
+      .slide::before {
+        content: "";
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        right: -130px;
+        top: -180px;
+        border: 1px solid rgba(0, 104, 95, .16);
+        border-radius: 50%;
+      }
+      .slide::after {
+        content: "";
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        right: 69px;
+        top: 54px;
+        border-radius: 50%;
+        background: var(--teal);
+      }
+      h1, h2, h3, p { margin: 0; }
+      h1, h2, .serif { font-family: Georgia, "Times New Roman", serif; }
+      h1 { font-size: 76px; line-height: .98; letter-spacing: -2.8px; max-width: 930px; }
+      h2 { font-size: 48px; line-height: 1.04; letter-spacing: -1.4px; max-width: 940px; }
+      h3 { font-size: 20px; line-height: 1.15; }
+      p { font-size: 20px; line-height: 1.4; }
+      .eyebrow {
+        color: var(--teal);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2.4px;
+      }
+      .muted { color: var(--muted); }
+      .small { font-size: 14px; line-height: 1.4; }
+      .slide-no {
+        position: absolute;
+        right: 68px;
+        bottom: 34px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 1.5px;
+      }
+      .brand {
+        position: absolute;
+        left: 68px;
+        bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.8px;
+      }
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        color: white;
+        background: var(--teal);
+        font-family: Georgia, serif;
+      }
+      .rule { width: 100%; height: 1px; background: var(--line); }
+      .accent { color: var(--teal); }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 7px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        background: rgba(255,255,255,.35);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .tag.red { color: var(--red); border-color: #d9a69f; }
+      .tag.teal { color: var(--teal-dark); border-color: #89b8b1; }
+      .card {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255,253,248,.68);
+      }
+      .number { font-family: Georgia, serif; color: var(--teal); font-size: 64px; line-height: .95; font-weight: 700; }
+      .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; }
+      .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+      .hero { display: grid; grid-template-columns: 1.25fr .75fr; gap: 70px; align-items: end; height: 100%; padding-bottom: 52px; }
+      .hero-copy { display: flex; flex-direction: column; gap: 25px; }
+      .hero-aside { border-left: 1px solid var(--line); padding: 24px 0 24px 30px; }
+      .hero-aside .serif { font-size: 38px; line-height: 1.08; }
+
+      .persona-grid { display: grid; grid-template-columns: .75fr 1.25fr; gap: 40px; margin-top: 42px; }
+      .persona { background: var(--ink); color: var(--white); border-radius: 18px; padding: 34px; min-height: 370px; }
+      .persona .initial { font-family: Georgia, serif; color: #8ec6be; font-size: 84px; line-height: 1; }
+      .persona h3 { font-size: 28px; margin: 18px 0 12px; }
+      .moment { display: flex; flex-direction: column; gap: 14px; }
+      .moment-row { display: grid; grid-template-columns: 52px 1fr; gap: 18px; align-items: start; padding: 17px 0; border-bottom: 1px solid var(--line); }
+      .moment-row:last-child { border-bottom: 0; }
+      .moment-index { font-family: Georgia, serif; color: var(--teal); font-size: 30px; }
+
+      .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 34px; }
+      .stat-card { min-height: 173px; }
+      .research-band { margin-top: 22px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; padding: 20px 24px; border: 1px solid #d5ad72; background: #f7ead5; border-radius: 14px; }
+
+      .compare { margin-top: 38px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+      .compare .card { min-height: 270px; }
+      .compare h3 { font-size: 23px; margin: 18px 0 13px; }
+      .compare ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 17px; line-height: 1.5; }
+      .compare .selected { border: 2px solid var(--teal); background: #e3efeb; transform: translateY(-10px); }
+
+      .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 54px; }
+      .flow-step { position: relative; min-height: 262px; padding: 24px 20px; border-top: 3px solid var(--teal); background: rgba(255,255,255,.38); }
+      .flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -20px; top: 105px; color: var(--teal); font-size: 26px; }
+      .flow-step .icon { font-family: Georgia, serif; color: var(--teal); font-size: 52px; }
+      .flow-step h3 { margin: 18px 0 12px; font-size: 22px; }
+
+      .product-layout { display: grid; grid-template-columns: 1.5fr .5fr; gap: 30px; margin-top: 25px; align-items: center; }
+      .shot-frame { padding: 8px; border-radius: 16px; background: #d9d2c6; box-shadow: 0 18px 45px rgba(24,32,31,.16); }
+      .shot-frame img { display: block; width: 100%; border-radius: 11px; }
+      .callouts { display: flex; flex-direction: column; gap: 14px; }
+      .callout { padding: 16px 17px; border-left: 3px solid var(--teal); background: rgba(255,255,255,.5); font-size: 16px; line-height: 1.35; }
+
+      .architecture { margin-top: 36px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 13px; align-items: stretch; }
+      .node { position: relative; padding: 18px 13px; min-height: 126px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+      .node:not(:last-child)::after { content: "›"; position: absolute; right: -12px; top: 42px; z-index: 2; color: var(--teal); font-size: 28px; font-weight: 700; }
+      .node strong { display: block; color: var(--teal-dark); font-size: 16px; margin-bottom: 10px; }
+      .node span { color: var(--muted); font-size: 13px; line-height: 1.35; }
+      .custom-chain { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+      .safety-grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 34px; margin-top: 34px; }
+      .gate-list { display: flex; flex-direction: column; gap: 12px; }
+      .gate { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 15px 16px; background: rgba(255,255,255,.5); border-radius: 11px; }
+      .check { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; color: white; background: var(--teal); font-weight: 800; }
+      .privacy-box { padding: 30px; border-radius: 18px; color: white; background: var(--ink); }
+      .privacy-box .mask { margin: 24px 0; padding: 17px; border: 1px solid #55716d; border-radius: 10px; font-family: monospace; color: #b7d9d4; font-size: 17px; }
+
+      .proof-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 34px; }
+      .proof { min-height: 180px; }
+      .proof .number { font-size: 48px; }
+      .commit-line { margin-top: 24px; padding: 18px 22px; background: var(--ink); border-radius: 12px; color: #c1d7d3; font-family: monospace; font-size: 14px; }
+
+      .adoption { display: grid; grid-template-columns: 1.05fr .95fr; gap: 30px; margin-top: 35px; }
+      .ladder { display: flex; flex-direction: column; gap: 10px; }
+      .rung { display: grid; grid-template-columns: 70px 1fr; gap: 16px; align-items: center; padding: 16px 18px; border-radius: 12px; background: rgba(255,255,255,.55); }
+      .rung strong { color: var(--teal); font-size: 14px; letter-spacing: 1px; }
+      .hypothesis { padding: 28px; border: 1px solid var(--teal); border-radius: 16px; background: #e1ece8; }
+
+      .closing { display: grid; grid-template-columns: 1.25fr .75fr; height: 100%; gap: 55px; align-items: center; padding-bottom: 42px; }
+      .closing h1 { font-size: 66px; }
+      .ask-list { display: flex; flex-direction: column; gap: 14px; margin-top: 30px; }
+      .ask { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+      .placeholder { padding: 22px; border: 1px dashed var(--amber); border-radius: 14px; background: #f6e9d4; }
+
+      @page { size: 13.333333in 7.5in; margin: 0; }
+      @media print {
+        html, body { background: white; }
+        .deck { display: block; }
+        .slide { width: 13.333333in; height: 7.5in; }
+      }
+      @media screen and (max-width: 1300px) {
+        .slide { transform-origin: top center; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide">
+        <div class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow">Tech Vision 2026 · Civic Rights & Literacy</div>
+            <h1>Понять договор аренды <span class="accent">до подписи</span></h1>
+            <p class="muted">Точный фрагмент. Официальная норма. Конкретный следующий шаг.</p>
+            <div><span class="tag teal">Работающий MVP</span> <span class="tag">PDF / DOCX</span> <span class="tag">RU + KZ</span></div>
+          </div>
+          <aside class="hero-aside">
+            <div class="eyebrow">Один момент риска</div>
+            <p class="serif">Студент уже получил договор, но ещё не поставил подпись.</p>
+            <div class="rule" style="margin: 25px 0 20px"></div>
+            <p class="small muted">QADAM AI · Social & Human Capital · online stage</p>
+          </aside>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">01 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Пользователь и боль</div>
+        <h2 style="margin-top: 15px">Не «все арендаторы». Один студент перед первым договором.</h2>
+        <div class="persona-grid">
+          <div class="persona">
+            <div class="initial">18–22</div>
+            <h3>Иногородний студент</h3>
+            <p style="color:#c7d2cf">Впервые снимает жильё вне общежития. Договор приходит перед оплатой или заселением.</p>
+            <div class="rule" style="margin: 25px 0; background:#41504e"></div>
+            <p class="small" style="color:#9eb0ac">Job: за 3–5 минут понять, что уточнить письменно до подписи.</p>
+          </div>
+          <div class="moment">
+            <div class="moment-row"><div class="moment-index">01</div><div><h3>Текст выглядит официально</h3><p class="muted small">Но депозит, ремонт и расторжение описаны неясно или односторонне.</p></div></div>
+            <div class="moment-row"><div class="moment-index">02</div><div><h3>Свободный чат не даёт уверенности</h3><p class="muted small">Непонятно, где факт из договора, где норма и где догадка модели.</p></div></div>
+            <div class="moment-row"><div class="moment-index">03</div><div><h3>Нужен не вердикт, а действие</h3><p class="muted small">Какой пункт открыть, что спросить и как зафиксировать ответ арендодателя.</p></div></div>
+          </div>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">02 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Масштаб контекста ≠ доказательство боли</div>
+        <h2 style="margin-top: 15px">Большая аудитория. Узкая, ещё проверяемая гипотеза.</h2>
+        <div class="stats-grid">
+          <div class="card stat-card"><div class="number">678,1<span style="font-size:28px"> тыс.</span></div><p style="margin-top:15px">студентов в Казахстане</p></div>
+          <div class="card stat-card"><div class="number">364,5<span style="font-size:28px"> тыс.</span></div><p style="margin-top:15px">учатся не в своём населённом пункте</p></div>
+          <div class="card stat-card"><div class="number">20,3<span style="font-size:28px"> тыс.</span></div><p style="margin-top:15px">разница между нуждающимися и живущими в общежитии*</p></div>
+        </div>
+        <div class="research-band">
+          <span class="tag red">TEAM INPUT REQUIRED</span>
+          <div><h3>До подачи: 3–5 problem interviews + usability task</h3><p class="small muted" style="margin-top:6px">Без вымышленных цитат, NPS и процентов. В репозитории готовы guide, consent и evidence matrix.</p></div>
+        </div>
+        <p class="small muted" style="margin-top:13px">* БНС РК, начало 2025–2026: нуждались 115,6 тыс.; проживали 95,3 тыс. Разность — вычисление команды.</p>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">03 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Почему существующего пути недостаточно</div>
+        <h2 style="margin-top: 15px">QADAM связывает вывод с двумя доказательствами.</h2>
+        <div class="compare">
+          <div class="card"><span class="tag">Самостоятельно</span><h3>Читать и искать статьи</h3><ul><li>медленно;</li><li>сложно сопоставить пункт и норму;</li><li>нет готового следующего шага.</li></ul></div>
+          <div class="card"><span class="tag">General AI</span><h3>Загрузить в свободный чат</h3><ul><li>риск утечки PII;</li><li>источник может быть выдуман;</li><li>ответ сложно аудировать.</li></ul></div>
+          <div class="card selected"><span class="tag teal">QADAM AI</span><h3>Пункт → норма → действие</h3><ul><li>PII masking до provider;</li><li>allow-list официальных источников;</li><li>grounding gate и письменный вопрос.</li></ul></div>
+        </div>
+        <p class="small muted" style="margin-top:22px">Не заменяем юриста и не объявляем пункт «законным/незаконным» без прямого основания.</p>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">04 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Продуктовый путь</div>
+        <h2 style="margin-top: 15px">От файла до сообщения арендодателю — четыре шага.</h2>
+        <div class="flow">
+          <div class="flow-step"><div class="icon">01</div><h3>Загрузить</h3><p class="small muted">PDF/DOCX до 10 МБ и явное согласие на обработку.</p></div>
+          <div class="flow-step"><div class="icon">02</div><h3>Увидеть приоритеты</h3><p class="small muted">Спорные и пропущенные условия с фрагментом договора.</p></div>
+          <div class="flow-step"><div class="icon">03</div><h3>Проверить основание</h3><p class="small muted">Официальная статья «Әділет» и границы уверенности.</p></div>
+          <div class="flow-step"><div class="icon">04</div><h3>Зафиксировать вопрос</h3><p class="small muted">Редактируемое вежливое сообщение по выбранному риску.</p></div>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">05 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Работающий MVP · настоящий browser journey</div>
+        <h2 style="margin-top: 12px">Отчёт не прячет доказательства за «AI summary».</h2>
+        <div class="product-layout">
+          <div class="shot-frame"><img src="../docs/assets/qadam-report.png" alt="QADAM AI report screen" /></div>
+          <div class="callouts">
+            <div class="callout"><strong>Severity</strong><br><span class="muted small">Приоритет виден текстом, не только цветом.</span></div>
+            <div class="callout"><strong>Фрагмент</strong><br><span class="muted small">Вывод привязан к условию договора.</span></div>
+            <div class="callout"><strong>Источник</strong><br><span class="muted small">Прямая ссылка на официальную статью.</span></div>
+            <div class="callout"><strong>Действие</strong><br><span class="muted small">Что согласовать до подписи.</span></div>
+          </div>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">06 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Custom AI / RAG architecture</div>
+        <h2 style="margin-top: 15px">Модель не решает, какие факты допустимы.</h2>
+        <div class="architecture">
+          <div class="node"><strong>1 · Parse</strong><span>PDF/DOCX signature, text layer, spans</span></div>
+          <div class="node"><strong>2 · Mask</strong><span>ИИН, телефон, email, карты</span></div>
+          <div class="node"><strong>3 · Rules</strong><span>14 clause families + missing terms</span></div>
+          <div class="node"><strong>4 · Retrieve</strong><span>Lexical + hash vector + metadata</span></div>
+          <div class="node"><strong>5 · Explain</strong><span>Structured schema, deterministic fallback</span></div>
+          <div class="node"><strong>6 · Ground</strong><span>Citation and clause allow-list gate</span></div>
+        </div>
+        <div class="custom-chain">
+          <div class="card"><h3>Inspectable scoring</h3><p class="small muted" style="margin-top:10px">0.45 lexical + 0.35 vector + 0.20 metadata; затем article-aware rerank.</p></div>
+          <div class="card"><h3>Versioned corpus</h3><p class="small muted" style="margin-top:10px">15 chunks · 3 официальных акта · snapshot 2026-07-17 · SHA-256 provenance.</p></div>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">07 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Grounding, privacy, отказ</div>
+        <h2 style="margin-top: 15px">Без доказательств система должна сказать «не знаю».</h2>
+        <div class="safety-grid">
+          <div class="gate-list">
+            <div class="gate"><span class="check">✓</span><div><h3>Только retrieved source ID</h3><p class="small muted">Выдуманная citation отклоняется.</p></div></div>
+            <div class="gate"><span class="check">✓</span><div><h3>High severity требует норму</h3><p class="small muted">Иначе приоритет понижается.</p></div></div>
+            <div class="gate"><span class="check">✓</span><div><h3>Три режима Q&A</h3><p class="small muted">Document — фрагмент; action — finding; unsupported — отказ без evidence.</p></div></div>
+            <div class="gate"><span class="check">✓</span><div><h3>Скан без текста — ocr_required</h3><p class="small muted">Никакого анализа пустого изображения.</p></div></div>
+          </div>
+          <div class="privacy-box">
+            <div class="eyebrow" style="color:#95cec6">До внешнего provider</div>
+            <div class="mask">ИИН 020101… → [ИИН_1]<br />+7 701… → [ТЕЛЕФОН_1]<br />student@… → [EMAIL_1]</div>
+            <p>Сырые bytes не пишутся в БД. Access token хранится только как SHA-256.</p>
+            <p class="small" style="color:#a8bbb7; margin-top:16px">Информационная помощь, не юридическое заключение.</p>
+          </div>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">08 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Техническая валидация и итерации</div>
+        <h2 style="margin-top: 15px">Проверяем не обещание, а воспроизводимый путь.</h2>
+        <div class="proof-grid">
+          <div class="card proof"><div class="number">163</div><h3 style="margin-top:14px">backend tests</h3><p class="small muted" style="margin-top:8px">rules, privacy, grounding, API, persistence</p></div>
+          <div class="card proof"><div class="number">25</div><h3 style="margin-top:14px">frontend tests</h3><p class="small muted" style="margin-top:8px">upload, report, questions, negotiation</p></div>
+          <div class="card proof"><div class="number">5×1.0</div><h3 style="margin-top:14px">Q&A gates</h3><p class="small muted" style="margin-top:8px">9 synthetic cases: fact, action, refusal, RU→KZ</p></div>
+          <div class="card proof"><div class="number">4</div><h3 style="margin-top:14px">browser E2E</h3><p class="small muted" style="margin-top:8px">Axe, report, challenge и mixed RU/KZ</p></div>
+        </div>
+        <div class="commit-line">parser → privacy → RAG → grounding → API → UI → async PostgreSQL → Docker E2E</div>
+        <p class="small muted" style="margin-top:14px">20/20 retrieval hit@5 · 24/26 clause families · Q&A 1.0 — synthetic regression, не legal accuracy</p>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">09 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Внедрение и устойчивость · гипотеза</div>
+        <h2 style="margin-top: 15px">Начинаем там, где студент уже просит помощи.</h2>
+        <div class="adoption">
+          <div class="ladder">
+            <div class="rung"><strong>PILOT</strong><p class="small">10–20 студентов через campus legal clinic / student community.</p></div>
+            <div class="rung"><strong>LEARN</strong><p class="small">Ошибки retrieval, непонятные labels, доля завершивших сообщение.</p></div>
+            <div class="rung"><strong>CURATE</strong><p class="small">Юрист подтверждает corpus и спорные failure cases.</p></div>
+            <div class="rung"><strong>SCALE</strong><p class="small">B2B2C-доступ для вузов и молодёжных центров; free student tier.</p></div>
+          </div>
+          <div class="hypothesis">
+            <span class="tag red">НЕ ПАРТНЁРСТВО</span>
+            <h3 style="font-size:25px; margin:20px 0 12px">Проверяемая модель</h3>
+            <p>Бесплатная первичная проверка для студента; организация оплачивает curated corpus, аналитику качества и сопровождение.</p>
+            <div class="rule" style="margin:22px 0"></div>
+            <p class="small muted">Главный KPI пилота: пользователь называет риск, открывает основание и формулирует письменный вопрос без подсказки.</p>
+          </div>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">10 / 11</div>
+      </section>
+
+      <section class="slide">
+        <div class="closing">
+          <div>
+            <div class="eyebrow">Следующий шаг</div>
+            <h1 style="margin-top:18px">Сделаем первый договор <span class="accent">понятным до подписи</span>.</h1>
+            <div class="ask-list">
+              <div class="ask"><span class="check">1</span><p>Доступ к 10 студентам для problem + usability interviews.</p></div>
+              <div class="ask"><span class="check">2</span><p>Юридический куратор для review корпуса и risk rules.</p></div>
+              <div class="ask"><span class="check">3</span><p>Пилот с campus legal clinic или молодёжным центром.</p></div>
+            </div>
+          </div>
+          <aside class="placeholder">
+            <span class="tag red">TEAM INPUT REQUIRED</span>
+            <h3 style="font-size:23px; margin:20px 0 15px">Перед подачей дополнить</h3>
+            <p class="small">Команда: имена и роли<br />Demo: VIDEO_OR_LIVE_URL<br />CustDev: реальные выводы</p>
+            <div class="rule" style="margin:22px 0"></div>
+            <a href="https://github.com/animcin84-dev/qadam-ai-techvision-2026" style="color:#00685f; font-size:12px; line-height:1.35; text-decoration:none">github.com/animcin84-dev/<br />qadam-ai-techvision-2026</a>
+            <p class="small muted" style="margin-top:12px">Technical backup · silent · не финальный narrated demo</p>
+            <a href="https://raw.githubusercontent.com/animcin84-dev/qadam-ai-techvision-2026/main/release/QADAM_AI_fallback_demo.mp4" style="color:#00685f; font-size:11px; line-height:1.35; text-decoration:none">raw fallback MP4</a>
+          </aside>
+        </div>
+        <div class="brand"><span class="brand-mark">Q</span> QADAM AI</div><div class="slide-no">11 / 11</div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "dataset": "QADAM labelled legal retrieval queries",
+  "language": "ru",
+  "cases": [
+    {"text": "Какие данные должны точно определять объект аренды?", "clause_type": "property", "expected_ids": ["civil-542-property-identity"]},
+    {"text": "Что такое договор имущественного найма?", "clause_type": "property", "expected_ids": ["civil-540-lease-definition"]},
+    {"text": "Что будет, если в договоре не указан срок?", "clause_type": "term", "expected_ids": ["civil-545-unspecified-term"]},
+    {"text": "Где фиксируются порядок и срок оплаты?", "clause_type": "rent", "expected_ids": ["civil-546-rent-payment"]},
+    {"text": "В каком состоянии должны передать квартиру?", "clause_type": "handover", "expected_ids": ["civil-547-handover-condition"]},
+    {"text": "Что делать, если у квартиры обнаружены недостатки?", "clause_type": "repairs", "expected_ids": ["civil-548-defects-remedies"]},
+    {"text": "Кто по умолчанию делает капитальный ремонт?", "clause_type": "repairs", "expected_ids": ["civil-552-capital-repair"]},
+    {"text": "Сохраняется ли аренда при смене собственника?", "clause_type": "termination", "expected_ids": ["civil-559-change-of-owner", "housing-24-change-of-owner"]},
+    {"text": "Нужен ли письменный договор, если хозяин не живет в квартире?", "clause_type": "term", "expected_ids": ["housing-24-written-form-and-occupancy"]},
+    {"text": "Можно ли вселить членов семьи в отдельную съемную квартиру?", "clause_type": "occupancy", "expected_ids": ["housing-24-written-form-and-occupancy"]},
+    {"text": "Нужно ли согласие хозяина на других жильцов, когда он живет рядом?", "clause_type": "occupancy", "expected_ids": ["housing-25-owner-occupied"]},
+    {"text": "Есть ли автоматическое продление при проживании собственника?", "clause_type": "term", "expected_ids": ["housing-25-owner-occupied"]},
+    {"text": "Когда допустима трансграничная передача персональных данных?", "clause_type": "other", "expected_ids": ["personal-data-16-cross-border"]},
+    {"text": "Нужно ли согласие на обработку документа?", "clause_type": "other", "expected_ids": ["personal-data-7-consent"]},
+    {"text": "Какие принципы конфиденциальности и безопасности действуют?", "clause_type": "other", "expected_ids": ["personal-data-5-principles"]},
+    {"text": "Нужно ли обезличивать данные для исследования?", "clause_type": "other", "expected_ids": ["personal-data-17-anonymisation"]},
+    {"text": "Как в договоре определить оплату коммунальных услуг?", "clause_type": "utilities", "expected_ids": ["civil-546-rent-payment"]},
+    {"text": "Как должны быть определены условия платежа и депозита?", "clause_type": "deposit", "expected_ids": ["civil-546-rent-payment"]},
+    {"text": "Как прекратить бессрочную аренду недвижимости?", "clause_type": "termination", "expected_ids": ["civil-545-unspecified-term"]},
+    {"text": "Прекращается ли договор, если квартиру продадут?", "clause_type": "termination", "expected_ids": ["civil-559-change-of-owner", "housing-24-change-of-owner"]}
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "dataset": "qadam-synthetic-document-qa-v1",
+  "synthetic": true,
+  "cases": [
+    {
+      "id": "mixed-rent-ru-to-kz",
+      "document": "qadam-mixed-language-contract.pdf",
+      "question": "Какая арендная плата?",
+      "expected_mode": "document",
+      "expected_excerpt_contains": "160 000",
+      "expected_categories": [],
+      "cross_language": true
+    },
+    {
+      "id": "mixed-actions",
+      "document": "qadam-mixed-language-contract.pdf",
+      "question": "Как решить найденные проблемы?",
+      "expected_mode": "action",
+      "expected_excerpt_contains": "",
+      "expected_categories": ["deposit", "termination"],
+      "cross_language": false
+    },
+    {
+      "id": "challenge-parking-refusal",
+      "document": "qadam-qa-challenge-contract.pdf",
+      "question": "Есть ли парковочное место?",
+      "expected_mode": "unsupported",
+      "expected_excerpt_contains": "",
+      "expected_categories": [],
+      "cross_language": false
+    },
+    {
+      "id": "risky-rent-change",
+      "document": "qadam-risky-contract.pdf",
+      "question": "Может ли арендодатель менять арендную плату?",
+      "expected_mode": "document",
+      "expected_excerpt_contains": "одностороннем порядке",
+      "expected_categories": [],
+      "cross_language": false
+    },
+    {
+      "id": "mixed-rent-kz",
+      "document": "qadam-mixed-language-contract.pdf",
+      "question": "Жалдау ақысы қанша?",
+      "expected_mode": "document",
+      "expected_excerpt_contains": "160 000",
+      "expected_categories": [],
+      "cross_language": false
+    },
+    {
+      "id": "challenge-city",
+      "document": "qadam-qa-challenge-contract.pdf",
+      "question": "В каком городе находится квартира?",
+      "expected_mode": "document",
+      "expected_excerpt_contains": "Караганда",
+      "expected_categories": [],
+      "cross_language": false
+    },
+    {
+      "id": "challenge-pet",
+      "document": "qadam-qa-challenge-contract.pdf",
+      "question": "Можно ли жить с кошкой?",
+      "expected_mode": "document",
+      "expected_excerpt_contains": "домашней кошкой",
+      "expected_categories": [],
+      "cross_language": false
+    },
+    {
+      "id": "balanced-action-refusal",
+      "document": "qadam-balanced-contract.pdf",
+      "question": "Что делать с найденными проблемами?",
+      "expected_mode": "unsupported",
+      "expected_excerpt_contains": "",
+      "expected_categories": [],
+      "cross_language": false
+    },
+    {
+      "id": "mixed-termination-action",
+      "document": "qadam-mixed-language-contract.pdf",
+      "question": "Как исправить расторжение?",
+      "expected_mode": "action",
+      "expected_excerpt_contains": "",
+      "expected_categories": ["termination"],
+      "cross_language": false
+    }
+  ]
+}

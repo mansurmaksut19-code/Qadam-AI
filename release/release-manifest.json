@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "project": "QADAM AI",
+  "stage": "Tech Vision 2026 online stage",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "kind": "text",
+      "required": true,
+      "forbid_placeholders": true
+    },
+    {
+      "path": "pitch/QADAM_AI_Pitch_Deck.pdf",
+      "kind": "pdf",
+      "required": true,
+      "max_pages": 12
+    },
+    {
+      "path": "docs/reference/Social-and-Human-Capital.pdf",
+      "kind": "pdf",
+      "required": true,
+      "sha256": "260cf13afe3215cc65de844b91679267712023a4b8111c933127a684093b7f81"
+    },
+    {
+      "path": "demo/contracts/qadam-risky-contract.pdf",
+      "kind": "pdf",
+      "required": true,
+      "sha256": "c79b7ead485644323b778555719214574dc9040092a79ada9db329b10b21f3e8"
+    },
+    {
+      "path": "docs/evaluation-results.json",
+      "kind": "file",
+      "required": true
+    },
+    {
+      "path": "docs/jury-qa.md",
+      "kind": "text",
+      "required": true,
+      "forbid_placeholders": true
+    },
+    {
+      "path": "docs/pitch-speaker-notes.md",
+      "kind": "text",
+      "required": true,
+      "forbid_placeholders": true
+    },
+    {
+      "path": "docs/submission-runbook.md",
+      "kind": "text",
+      "required": true,
+      "forbid_placeholders": true
+    },
+    {
+      "path": "release/QADAM_AI_fallback_demo.mp4",
+      "kind": "video",
+      "required": true,
+      "sha256": "2f0762127119b9b1a9bcc3b3a40d13fd99bf5e1c6892563e47c46375ffc1e8e0",
+      "max_duration_seconds": 180,
+      "video_streams": 1,
+      "video_codec": "h264",
+      "width": 1920,
+      "height": 1080,
+      "audio_streams": 0
+    },
+    {
+      "path": "release/fallback-demo-manifest.json",
+      "kind": "file",
+      "required": true,
+      "sha256": "2abae8afdd41ce8448fe7700006f3de21583c0f911da961c263c73f9412ef70f"
+    }
+  ],
+  "public_urls": [
+    "https://github.com/animcin84-dev/qadam-ai-techvision-2026",
+    "https://raw.githubusercontent.com/animcin84-dev/qadam-ai-techvision-2026/main/README.md",
+    "https://raw.githubusercontent.com/animcin84-dev/qadam-ai-techvision-2026/main/pitch/QADAM_AI_Pitch_Deck.pdf",
+    "https://raw.githubusercontent.com/animcin84-dev/qadam-ai-techvision-2026/main/release/QADAM_AI_fallback_demo.mp4"
+  ]
+}

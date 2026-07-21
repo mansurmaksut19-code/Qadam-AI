@@ -1,0 +1,36 @@
+.worktrees/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node and Next.js
+node_modules/
+.pnpm-store/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+
+# Runtime data
+.uv-cache/
+.data/
+uploads/
+*.log
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/

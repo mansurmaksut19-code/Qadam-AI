@@ -1,0 +1,38 @@
+{
+  "audio_streams": 0,
+  "duration_seconds": 48.0,
+  "height": 1080,
+  "output": "release/QADAM_AI_fallback_demo.mp4",
+  "purpose": "silent fallback technical walkthrough; not the final narrated team demo",
+  "schema_version": 1,
+  "sha256": "2f0762127119b9b1a9bcc3b3a40d13fd99bf5e1c6892563e47c46375ffc1e8e0",
+  "timeline": [
+    {
+      "duration_seconds": 10,
+      "image": "docs/assets/qadam-landing.png",
+      "image_sha256": "f1c11b43716be726ecd052fcb7cab33feb6949911e23a69c69eb1a2668bd327b",
+      "label": "1 / Problem, consent and privacy"
+    },
+    {
+      "duration_seconds": 14,
+      "image": "docs/assets/qadam-report.png",
+      "image_sha256": "0688ffe0a29436da852bc2e8985209e313807f465a120340a3be75dfc414cb41",
+      "label": "2 / Risk report with contract evidence"
+    },
+    {
+      "duration_seconds": 12,
+      "image": "docs/assets/qadam-negotiation.png",
+      "image_sha256": "8665140e86b7a63931ddd2a9e58e8cbe905cb61061bfa9f4e9cce7dc611e14be",
+      "label": "3 / A concrete next step for the tenant"
+    },
+    {
+      "duration_seconds": 12,
+      "image": "docs/assets/qadam-report.png",
+      "image_sha256": "0688ffe0a29436da852bc2e8985209e313807f465a120340a3be75dfc414cb41",
+      "label": "4 / Grounded and reproducible MVP"
+    }
+  ],
+  "video_codec": "h264",
+  "video_streams": 1,
+  "width": 1920
+}

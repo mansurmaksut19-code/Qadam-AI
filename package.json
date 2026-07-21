@@ -1,0 +1,14 @@
+{
+  "name": "qadam-ai",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.3.0",
+  "scripts": {
+    "build": "pnpm --if-present --recursive build",
+    "dev": "pnpm --if-present --recursive --parallel dev",
+    "lint": "pnpm --if-present --recursive lint && cd apps/api && uv run ruff check src tests",
+    "test": "pnpm --if-present --recursive test && cd apps/api && uv run pytest",
+    "typecheck": "pnpm --if-present --recursive typecheck && cd apps/api && uv run mypy src",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  }
+}

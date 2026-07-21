@@ -1,0 +1,111 @@
+{
+  "clause_extraction": {
+    "expected_families": 26,
+    "micro_recall": 0.9231,
+    "recovered_families": 24
+  },
+  "corpus": {
+    "chunks": 15,
+    "snapshot_date": "2026-07-17",
+    "version": "2026.07.17"
+  },
+  "dataset": {
+    "documents": 3,
+    "name": "QADAM AI synthetic rental agreements",
+    "runs_per_document": 5,
+    "synthetic": true
+  },
+  "document_question_answering": {
+    "action_finding_accuracy": 1.0,
+    "action_findings": {
+      "correct": 2,
+      "total": 2
+    },
+    "cases": 9,
+    "cross_language": {
+      "correct": 1,
+      "total": 1
+    },
+    "cross_language_accuracy": 1.0,
+    "dataset": "qadam-synthetic-document-qa-v1",
+    "expected_excerpt": {
+      "correct": 5,
+      "total": 5
+    },
+    "expected_excerpt_accuracy": 1.0,
+    "refusal_accuracy": 1.0,
+    "refusals": {
+      "correct": 2,
+      "total": 2
+    },
+    "supported_evidence": {
+      "correct": 5,
+      "total": 5
+    },
+    "supported_evidence_accuracy": 1.0,
+    "synthetic": true
+  },
+  "documents": [
+    {
+      "clause_recall": 0.8182,
+      "expected_clause_types": 11,
+      "file": "qadam-balanced-contract.pdf",
+      "findings": 0,
+      "latency_median_ms": 10.29,
+      "recovered_clause_types": 9,
+      "status": "completed"
+    },
+    {
+      "clause_recall": 1.0,
+      "expected_clause_types": 10,
+      "file": "qadam-risky-contract.pdf",
+      "findings": 5,
+      "latency_median_ms": 17.83,
+      "recovered_clause_types": 10,
+      "status": "completed"
+    },
+    {
+      "clause_recall": 1.0,
+      "expected_clause_types": 5,
+      "file": "qadam-mixed-language-contract.pdf",
+      "findings": 2,
+      "latency_median_ms": 10.59,
+      "recovered_clause_types": 5,
+      "status": "completed"
+    }
+  ],
+  "gates": {
+    "all_documents_completed": true,
+    "clause_micro_recall_at_least_0_90": true,
+    "document_qa_action_finding_accuracy_equals_1": true,
+    "document_qa_cross_language_accuracy_equals_1": true,
+    "document_qa_expected_excerpt_accuracy_equals_1": true,
+    "document_qa_refusal_accuracy_equals_1": true,
+    "document_qa_supported_evidence_accuracy_equals_1": true,
+    "grounded_clause_rate_equals_1": true,
+    "high_priority_citation_coverage_equals_1": true,
+    "pipeline_p95_below_2000_ms": true,
+    "retrieval_hit_at_5_at_least_0_90": true
+  },
+  "grounding": {
+    "citation_coverage": 0.7143,
+    "findings": 7,
+    "findings_with_citations": 5,
+    "findings_with_clause_evidence": 7,
+    "grounded_clause_rate": 1.0,
+    "high_priority_citation_coverage": 1.0,
+    "high_priority_findings": 3,
+    "high_priority_findings_with_citations": 3
+  },
+  "latency": {
+    "median_ms": 10.69,
+    "p95_ms": 21.91,
+    "samples": 15
+  },
+  "retrieval": {
+    "hit_at_5": 1.0,
+    "hits_at_5": 20,
+    "queries": 20
+  },
+  "scope": "deterministic in-process pipeline; excludes HTTP, queue, DB and network"
+}
