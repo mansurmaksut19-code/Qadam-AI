@@ -7,6 +7,7 @@ import { FindingCard } from "@/features/analysis/finding-card";
 import { NegotiationDialog } from "@/features/analysis/negotiation-dialog";
 import { ProcessingStatus } from "@/features/analysis/processing-status";
 import { QuestionPanel } from "@/features/analysis/question-panel";
+import { downloadProtocolDocx } from "@/lib/protocol-docx";
 import type { AnalysisReport, Severity } from "@/lib/report-types";
 
 const severityOrder: Record<Severity, number> = { high: 0, attention: 1, info: 2 };
@@ -115,11 +116,11 @@ export function ReportView({ onRetry, report }: ReportViewProps) {
               Free-анализ уже подсветил риски. Premium подготовит официальный DOCX, который можно отправить
               арендодателю перед подписанием.
             </p>
-            <Button disabled type="button" variant="secondary">
+            <Button onClick={() => downloadProtocolDocx(report, findings)} type="button" variant="secondary">
               <Icon icon={Download} size={17} />
               Скачать DOCX — 490 ₸
             </Button>
-            <p className="premium-note">Оплата и генерация DOCX будут подключены после выбора платежного провайдера.</p>
+            <p className="premium-note">Скачивание формирует рабочий DOCX с рисками, правками и основаниями из отчёта.</p>
             <NegotiationDialog analysisId={report.id} findings={findings} />
           </div>
         ) : null}

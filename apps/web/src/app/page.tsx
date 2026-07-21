@@ -36,6 +36,11 @@ export default function Home() {
               Проверить свой договор
               <Icon icon={ArrowDown} size={18} />
             </a>
+            <div className="hero__proof" aria-label="Ключевые условия продукта">
+              <span>Free: экспресс-анализ</span>
+              <span>Premium: DOCX за 490 ₸</span>
+              <span>PDF/DOCX до 10 МБ</span>
+            </div>
             <p className="hero__boundary">
               Информационная помощь, не замена консультации юриста и не юридическое заключение.
             </p>
@@ -51,6 +56,13 @@ export default function Home() {
             >
               Данные Бюро национальной статистики, 2025–2026
             </a>
+            <div className="document-preview" aria-hidden="true">
+              <span className="document-preview__bar" />
+              <span className="document-preview__line document-preview__line--wide" />
+              <span className="document-preview__risk" />
+              <span className="document-preview__line" />
+              <span className="document-preview__line document-preview__line--short" />
+            </div>
           </aside>
         </section>
 
