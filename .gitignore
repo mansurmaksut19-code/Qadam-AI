@@ -19,6 +19,7 @@ htmlcov/
 node_modules/
 .pnpm-store/
 .next/
+dist/
 out/
 coverage/
 playwright-report/

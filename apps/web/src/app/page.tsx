@@ -11,6 +11,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { UploadForm } from "@/features/analysis/upload-form";
+import { ProductDashboard } from "@/features/product/product-dashboard";
 
 export default function Home() {
   return (
@@ -85,14 +86,14 @@ export default function Home() {
         <section className="pricing-section" aria-labelledby="pricing-title">
           <div className="section-heading">
             <p className="eyebrow">Бизнес-модель</p>
-            <h2 id="pricing-title">Бесплатно найти риски, платно подготовить документ</h2>
+            <h2 id="pricing-title">Freemium с понятной монетизацией после результата</h2>
           </div>
           <div className="pricing-grid">
             <article className="pricing-plan">
               <Icon icon={Sparkles} size={24} />
               <span className="pricing-plan__price">Free</span>
               <h3>Экспресс-анализ договора</h3>
-              <p>Загрузка PDF/DOCX, подсветка рисков, цитаты из договора и понятные следующие шаги.</p>
+              <p>Регистрация, загрузка PDF/DOCX, подсветка рисков, история проверок и понятные следующие шаги.</p>
             </article>
             <article className="pricing-plan pricing-plan--premium">
               <Icon icon={Download} size={24} />
@@ -100,8 +101,34 @@ export default function Home() {
               <h3>Официальный протокол разногласий .DOCX</h3>
               <p>Премиум-скачивание готового DOCX, который можно отправить арендодателю перед подписанием.</p>
             </article>
+            <article className="pricing-plan">
+              <Icon icon={ShieldCheck} size={24} />
+              <span className="pricing-plan__price">B2B</span>
+              <h3>Партнёрства с вузами и legal clinics</h3>
+              <p>Пакеты проверок для студенческих офисов, общежитий и организаций поддержки студентов.</p>
+            </article>
+          </div>
+          <div className="startup-funnel" aria-label="Стартап-воронка">
+            <div>
+              <strong>Acquire</strong>
+              <span>студенты, вузы, TikTok/Telegram</span>
+            </div>
+            <div>
+              <strong>Activate</strong>
+              <span>free-анализ за минуту</span>
+            </div>
+            <div>
+              <strong>Convert</strong>
+              <span>490 ₸ за DOCX после риска</span>
+            </div>
+            <div>
+              <strong>Retain</strong>
+              <span>история договоров и повторные проверки</span>
+            </div>
           </div>
         </section>
+
+        <ProductDashboard />
 
         <section className="steps" aria-labelledby="steps-title">
           <div className="section-heading">

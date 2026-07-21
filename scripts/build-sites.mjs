@@ -73,6 +73,22 @@ const html = String.raw`<!doctype html>
         color: var(--soft);
         font-size: 0.86rem;
       }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .account-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgb(255 255 255 / 78%);
+        color: var(--teal-dark);
+        font-weight: 750;
+      }
       .brand {
         display: inline-flex;
         align-items: center;
@@ -144,6 +160,12 @@ const html = String.raw`<!doctype html>
         border-color: var(--border);
         background: var(--panel);
         color: var(--ink);
+        box-shadow: none;
+      }
+      .button.quiet {
+        border-color: transparent;
+        background: transparent;
+        color: var(--teal-dark);
         box-shadow: none;
       }
       .button:disabled { opacity: 0.62; cursor: not-allowed; }
@@ -238,7 +260,7 @@ const html = String.raw`<!doctype html>
 
       .plans {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1rem;
       }
       .plan {
@@ -264,6 +286,19 @@ const html = String.raw`<!doctype html>
       .premium .price { background: #fff; color: var(--amber); }
       .plan h3 { margin: 0; }
       .plan p { color: var(--soft); }
+      .funnel {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+      .funnel div {
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        background: var(--panel);
+      }
+      .funnel strong { display: block; color: var(--teal-dark); font-size: 1.15rem; }
 
       .report {
         display: none;
@@ -309,6 +344,62 @@ const html = String.raw`<!doctype html>
         border-color: rgb(153 97 10 / 38%);
         background: linear-gradient(180deg, var(--amber-soft), #fff);
       }
+      .history {
+        display: grid;
+        gap: 0.65rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .history li {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.55rem;
+        color: var(--soft);
+        font-size: 0.88rem;
+      }
+      .history li::before {
+        content: "";
+        width: 0.55rem;
+        height: 0.55rem;
+        margin-top: 0.45rem;
+        border-radius: 50%;
+        background: var(--teal);
+      }
+      .auth-dialog {
+        position: fixed;
+        z-index: 20;
+        inset: 0;
+        display: none;
+        place-items: center;
+        padding: 1rem;
+        background: rgb(16 23 22 / 58%);
+      }
+      .auth-dialog.active { display: grid; }
+      .auth-card {
+        width: min(100%, 28rem);
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 0.65rem;
+        background: var(--panel);
+        box-shadow: 0 30px 90px rgb(0 0 0 / 25%);
+      }
+      .auth-card form { display: grid; gap: 0.85rem; }
+      .auth-card input {
+        width: 100%;
+        min-height: 44px;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 0.38rem;
+        font: inherit;
+      }
+      .auth-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        align-items: center;
+        justify-content: space-between;
+      }
       .small { color: var(--soft); font-size: 0.84rem; }
       .hidden { display: none !important; }
       .footer { border-top: 1px solid var(--border); }
@@ -317,7 +408,7 @@ const html = String.raw`<!doctype html>
         .topbar span:last-child { display: none; }
         .hero, .split, .report-grid { grid-template-columns: 1fr; }
         .hero { min-height: auto; }
-        .plans { grid-template-columns: 1fr; }
+        .plans, .funnel { grid-template-columns: 1fr; }
         .side { position: static; }
       }
     </style>
@@ -325,7 +416,10 @@ const html = String.raw`<!doctype html>
   <body>
     <header class="shell topbar">
       <a class="brand" href="#top" aria-label="QADAM AI на главную"><span class="mark">Q</span>QADAM AI</a>
-      <span>Аренда жилья в Казахстане</span>
+      <div class="topbar-actions">
+        <span id="accountPill" class="account-pill hidden"></span>
+        <button class="button quiet" id="authButton" type="button">Войти</button>
+      </div>
     </header>
 
     <main>
@@ -342,9 +436,9 @@ const html = String.raw`<!doctype html>
             <a class="button secondary" href="#plans">Бизнес-модель</a>
           </div>
           <div class="proof" aria-label="Ключевые условия продукта">
+            <span>Аккаунт и история проверок</span>
             <span>Free: экспресс-анализ</span>
             <span>Premium: DOCX за 490 ₸</span>
-            <span>PDF/DOCX до 10 МБ</span>
           </div>
         </div>
         <aside class="preview" aria-label="Почему это важно">
@@ -393,18 +487,29 @@ const html = String.raw`<!doctype html>
 
       <section class="shell section" id="plans">
         <p class="eyebrow">Бизнес-модель</p>
-        <h2>Бесплатно найти риски, платно подготовить документ</h2>
+        <h2>Freemium с понятной монетизацией после результата</h2>
         <div class="plans">
           <article class="plan">
             <span class="price">Free</span>
             <h3>Экспресс-анализ договора</h3>
-            <p>Загрузка PDF/DOCX, подсветка рисков, цитаты из договора и понятные следующие шаги.</p>
+            <p>Регистрация, загрузка PDF/DOCX, подсветка рисков, история проверок и понятные следующие шаги.</p>
           </article>
           <article class="plan premium">
             <span class="price">490 ₸</span>
             <h3>Официальный протокол разногласий .DOCX</h3>
             <p>Скачивание рабочего DOCX, который можно отправить арендодателю перед подписанием.</p>
           </article>
+          <article class="plan">
+            <span class="price">B2B</span>
+            <h3>Партнёрства с вузами и общежитиями</h3>
+            <p>Пакеты проверок для студенческих офисов, карьерных центров и legal clinics.</p>
+          </article>
+        </div>
+        <div class="funnel" aria-label="Стартап-воронка">
+          <div><strong>Acquire</strong><span class="small">студенты, вузы, TikTok/Telegram</span></div>
+          <div><strong>Activate</strong><span class="small">free-анализ за минуту</span></div>
+          <div><strong>Convert</strong><span class="small">490 ₸ за DOCX после риска</span></div>
+          <div><strong>Retain</strong><span class="small">история договоров и повторные проверки</span></div>
         </div>
       </section>
 
@@ -424,13 +529,38 @@ const html = String.raw`<!doctype html>
               <button class="button secondary" id="downloadDocx" type="button">Скачать DOCX — 490 ₸</button>
             </div>
             <div class="card">
-              <h3>Важно</h3>
-              <p class="small">QADAM даёт информационную помощь и не заменяет консультацию юриста.</p>
+              <h3>История действий</h3>
+              <ul class="history" id="historyList"></ul>
             </div>
           </aside>
         </div>
       </section>
     </main>
+
+    <div class="auth-dialog" id="authDialog" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="auth-card">
+        <div class="auth-row">
+          <div>
+            <p class="eyebrow">Аккаунт QADAM</p>
+            <h2 id="authTitle">Вход по email-коду</h2>
+          </div>
+          <button class="button quiet" id="closeAuth" type="button" aria-label="Закрыть вход">Закрыть</button>
+        </div>
+        <p class="small">Для публичного демо код показывается на экране. В production этот шаг подключается к email/SMS провайдеру.</p>
+        <form id="authForm">
+          <label>
+            Email
+            <input id="emailInput" autocomplete="email" inputmode="email" placeholder="student@example.com" required type="email" />
+          </label>
+          <label id="codeField" class="hidden">
+            Код подтверждения
+            <input id="codeInput" autocomplete="one-time-code" inputmode="numeric" placeholder="6 цифр" type="text" />
+          </label>
+          <p class="message hidden" id="authStatus" role="status"></p>
+          <button class="button" id="authSubmit" type="submit">Получить код</button>
+        </form>
+      </div>
+    </div>
 
     <footer class="shell footer">
       <span>QADAM AI · Tech Vision 2026</span>
@@ -448,7 +578,68 @@ const html = String.raw`<!doctype html>
       const findingsBox = document.getElementById("findings");
       const summary = document.getElementById("summary");
       const downloadButton = document.getElementById("downloadDocx");
+      const authButton = document.getElementById("authButton");
+      const accountPill = document.getElementById("accountPill");
+      const authDialog = document.getElementById("authDialog");
+      const closeAuth = document.getElementById("closeAuth");
+      const authForm = document.getElementById("authForm");
+      const emailInput = document.getElementById("emailInput");
+      const codeInput = document.getElementById("codeInput");
+      const codeField = document.getElementById("codeField");
+      const authStatus = document.getElementById("authStatus");
+      const authSubmit = document.getElementById("authSubmit");
+      const historyList = document.getElementById("historyList");
       let currentReport = null;
+      let pendingCode = null;
+
+      function readSession() {
+        try { return JSON.parse(localStorage.getItem("qadam:session") || "null"); } catch { return null; }
+      }
+
+      function writeSession(session) {
+        localStorage.setItem("qadam:session", JSON.stringify(session));
+        renderSession();
+      }
+
+      function readEvents() {
+        try { return JSON.parse(localStorage.getItem("qadam:events") || "[]"); } catch { return []; }
+      }
+
+      function addEvent(label) {
+        const events = readEvents();
+        events.unshift({ label, time: new Date().toLocaleString("ru-RU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }) });
+        localStorage.setItem("qadam:events", JSON.stringify(events.slice(0, 8)));
+        renderHistory();
+      }
+
+      function renderHistory() {
+        const events = readEvents();
+        historyList.innerHTML = events.length
+          ? events.map((event) => "<li><span>" + escapeHtml(event.time + " · " + event.label) + "</span></li>").join("")
+          : '<li><span>История появится после входа и первой проверки.</span></li>';
+      }
+
+      function renderSession() {
+        const session = readSession();
+        if (session) {
+          accountPill.textContent = session.email;
+          accountPill.classList.remove("hidden");
+          authButton.textContent = "Выйти";
+        } else {
+          accountPill.textContent = "";
+          accountPill.classList.add("hidden");
+          authButton.textContent = "Войти";
+        }
+      }
+
+      function openAuth() {
+        authDialog.classList.add("active");
+        emailInput.focus();
+      }
+
+      function closeAuthDialog() {
+        authDialog.classList.remove("active");
+      }
 
       function showError(message) {
         error.textContent = message;
@@ -464,6 +655,47 @@ const html = String.raw`<!doctype html>
         const file = fileInput.files && fileInput.files[0];
         fileName.textContent = file ? file.name : "Нажмите, чтобы выбрать файл";
         clearError();
+      });
+
+      authButton.addEventListener("click", () => {
+        if (readSession()) {
+          addEvent("Выход из аккаунта");
+          localStorage.removeItem("qadam:session");
+          renderSession();
+          return;
+        }
+        openAuth();
+      });
+
+      closeAuth.addEventListener("click", closeAuthDialog);
+      authDialog.addEventListener("click", (event) => {
+        if (event.target === authDialog) closeAuthDialog();
+      });
+
+      authForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const email = emailInput.value.trim().toLowerCase();
+        if (!pendingCode) {
+          pendingCode = String(Math.floor(100000 + Math.random() * 900000));
+          codeField.classList.remove("hidden");
+          authStatus.textContent = "Демо-код: " + pendingCode;
+          authStatus.classList.remove("hidden");
+          authSubmit.textContent = "Войти";
+          codeInput.focus();
+          return;
+        }
+        if (codeInput.value.trim() !== pendingCode) {
+          authStatus.textContent = "Код не совпал. Введите демо-код: " + pendingCode;
+          authStatus.classList.remove("hidden");
+          return;
+        }
+        writeSession({ email, signedInAt: Date.now(), plan: "Free" });
+        addEvent("Вход в аккаунт");
+        pendingCode = null;
+        authForm.reset();
+        codeField.classList.add("hidden");
+        authSubmit.textContent = "Получить код";
+        closeAuthDialog();
       });
 
       function buildFindings(file) {
@@ -506,6 +738,7 @@ const html = String.raw`<!doctype html>
 
       function renderReport(report) {
         currentReport = report;
+        addEvent("Экспресс-анализ: " + report.fileName);
         summary.textContent = report.summary;
         findingsBox.innerHTML = report.findings.map((finding) =>
           '<article class="finding ' + finding.severity + '">' +
@@ -525,6 +758,11 @@ const html = String.raw`<!doctype html>
         event.preventDefault();
         const file = fileInput.files && fileInput.files[0];
         clearError();
+        if (!readSession()) {
+          showError("Сначала войдите в аккаунт, чтобы сохранить историю проверки.");
+          openAuth();
+          return;
+        }
         if (!file) return showError("Сначала выберите договор в PDF или DOCX.");
         if (!/\.(pdf|docx)$/i.test(file.name)) return showError("Поддерживаются только PDF и DOCX.");
         if (file.size > 10 * 1024 * 1024) return showError("Файл больше 10 МБ. Выберите более лёгкую копию.");
@@ -617,9 +855,12 @@ const html = String.raw`<!doctype html>
         link.click();
         link.remove();
         URL.revokeObjectURL(url);
+        addEvent("Скачан DOCX-протокол за 490 ₸");
       }
 
       downloadButton.addEventListener("click", downloadDocx);
+      renderSession();
+      renderHistory();
     </script>
   </body>
 </html>`;

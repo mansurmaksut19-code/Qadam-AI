@@ -75,6 +75,7 @@ h2 {
 .hero,
 .upload-section,
 .pricing-section,
+.auth-section,
 .steps {
   width: min(100% - 2rem, 74rem);
   margin-inline: auto;
@@ -397,7 +398,7 @@ h2 {
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-6);
 }
 
@@ -450,6 +451,105 @@ h2 {
 .pricing-plan p {
   margin: 0;
   color: var(--ink-muted);
+}
+
+.startup-funnel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.startup-funnel div {
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+}
+
+.startup-funnel strong,
+.startup-funnel span {
+  display: block;
+}
+
+.startup-funnel strong {
+  color: var(--teal-strong);
+  font-size: 1.05rem;
+}
+
+.startup-funnel span {
+  margin-top: var(--space-1);
+  color: var(--ink-muted);
+  font-size: 0.86rem;
+}
+
+.auth-section {
+  padding-block: clamp(3rem, 7vw, 5rem);
+}
+
+.auth-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.auth-panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  box-shadow: 0 10px 24px rgb(16 23 22 / 6%);
+}
+
+.auth-panel svg {
+  color: var(--teal-strong);
+}
+
+.auth-panel h3,
+.auth-panel p {
+  margin: 0;
+}
+
+.auth-panel p,
+.activity-list {
+  color: var(--ink-muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.auth-form label {
+  display: grid;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.auth-form input {
+  min-height: 44px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.activity-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.activity-list li {
+  padding-block: var(--space-2);
+  border-bottom: 1px solid var(--border);
 }
 
 .steps {
@@ -1103,6 +1203,14 @@ h2 {
   }
 
   .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .startup-funnel {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-grid {
     grid-template-columns: 1fr;
   }
 
