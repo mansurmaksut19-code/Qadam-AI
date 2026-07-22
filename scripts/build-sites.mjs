@@ -750,6 +750,15 @@ const html = String.raw`<!doctype html>
     /* Minimal report surface: keep motion and hierarchy, remove visual weight. */
     main.container { display: flex; flex-direction: column; }
     .hero { order: 1; margin-bottom: 28px; }
+    .dashboard-panel { order: 2; margin: 0 0 56px; padding: 28px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--white); }
+    .dashboard-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+    .dashboard-head h2 { margin: 4px 0 6px; color: var(--primary); font-size: 32px; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--outline-variant); border-bottom: 1px solid var(--outline-variant); }
+    .dashboard-stat { min-height: 112px; padding: 18px 16px; border-right: 1px solid var(--outline-variant); }
+    .dashboard-stat:last-child { border-right: 0; }
+    .dashboard-stat span, .dashboard-stat small { display: block; color: var(--muted); font-size: 12px; }
+    .dashboard-stat strong { display: block; margin: 10px 0 4px; color: var(--primary); font-size: 24px; }
+    .dashboard-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
     #assistant { order: 2; margin-bottom: 64px; }
     .mission-brief, #model, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 3; }
     .hero-grid { align-items: end; }
@@ -764,6 +773,8 @@ const html = String.raw`<!doctype html>
     body::before { opacity: .22; animation-duration: 28s; }
     @media (max-width: 980px) {
       .container { width: min(100% - 32px, var(--max)); }
+      .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-stat:nth-child(2) { border-right: 0; }
       .site-nav { display: none; }
       .hero-grid, .metrics-grid, .scale-grid, .product-grid, .footer-grid { grid-template-columns: 1fr; }
       .model-grid, .metrics-side, .footer-links, .mission-brief, .judge-grid, .pipeline, .security-panel, .security-grid, .auth-modal-grid, .commerce-panel, .commerce-grid { grid-template-columns: 1fr; }
@@ -774,6 +785,11 @@ const html = String.raw`<!doctype html>
       .pipe-step::after { display: none; }
     }
     @media (max-width: 640px) {
+      .dashboard-panel { padding: 20px; }
+      .dashboard-head { align-items: flex-start; flex-direction: column; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .dashboard-stat { min-height: auto; border-right: 0; border-bottom: 1px solid var(--outline-variant); }
+      .dashboard-stat:last-child { border-bottom: 0; }
       .brand-text { font-size: 19px; }
       .top-actions .btn.ghost { display: none; }
       main { padding-top: 88px; }
@@ -796,6 +812,7 @@ const html = String.raw`<!doctype html>
       </a>
       <nav class="site-nav" aria-label="Основная навигация">
         <a href="#home">Home</a>
+        <a href="#dashboard">Dashboard</a>
         <a class="active" href="#model">Commercial Model</a>
         <a href="#assistant">AI Chat Bot</a>
         <a href="#history">History</a>
@@ -827,6 +844,17 @@ const html = String.raw`<!doctype html>
           </div>
         </aside>
       </div>
+    </section>
+
+    <section class="dashboard-panel" id="dashboard" aria-labelledby="dashboard-title">
+      <div class="dashboard-head"><div><span class="eyebrow">Workspace overview</span><h2 id="dashboard-title">Панель QADAM AI</h2><p class="muted">Быстрый контроль анализа, рисков, чата и истории действий.</p></div><button class="btn" type="button" data-open-auth>Открыть кабинет</button></div>
+      <div class="dashboard-grid">
+        <div class="dashboard-stat"><span>Статус сервиса</span><strong>Работает</strong><small>Публичный demo-доступ</small></div>
+        <div class="dashboard-stat"><span>Анализ</span><strong>Free</strong><small>Риски + доказательства</small></div>
+        <div class="dashboard-stat"><span>Документ</span><strong>490 ₸</strong><small>Premium DOCX-протокол</small></div>
+        <div class="dashboard-stat"><span>История</span><strong id="dashboardHistoryCount">0</strong><small>событий в браузере</small></div>
+      </div>
+      <div class="dashboard-actions"><a class="btn" href="#assistant">Начать анализ</a><button class="btn ghost" type="button" data-open-chat>Задать вопрос AI</button><a class="btn ghost" href="#history">Открыть историю</a></div>
     </section>
 
     <section class="mission-brief" aria-labelledby="brief-title">
@@ -1260,6 +1288,8 @@ const html = String.raw`<!doctype html>
     function renderHistory() {
       const list = $("#historyList");
       $("#historyCount").textContent = String(state.events.length);
+      const dashboardCount = $("#dashboardHistoryCount");
+      if (dashboardCount) dashboardCount.textContent = String(state.events.length);
       if (!state.events.length) {
         list.innerHTML = "<li><span>История появится после первого действия.</span><strong>Ready</strong></li>";
         return;
