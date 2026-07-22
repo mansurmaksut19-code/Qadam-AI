@@ -806,6 +806,22 @@ const html = String.raw`<!doctype html>
     .dashboard-stat strong, .dashboard-details strong { color: #f4d28d; }
     .dashboard-details > div { border-color: rgba(216,240,232,.25); background: rgba(255,253,248,.06); }
     .dashboard-actions { margin-top: 0; }
+    .dashboard-panel { min-height: 560px; background: #fbfcfb; color: var(--ink); border-bottom: 1px solid #dfe6e3; }
+    .dashboard-head h2 { max-width: 560px; color: #00251e; font-size: clamp(42px, 5vw, 66px); }
+    .dashboard-head p { color: #404946; }
+    .dashboard-head .eyebrow { color: #775a19; }
+    .dashboard-visual { transition: transform .6s cubic-bezier(.22,1,.36,1); }
+    .dashboard-visual:hover { transform: translateY(-4px); }
+    .dashboard-grid { border-color: #dce5e1; }
+    .dashboard-stat { border-color: #dce5e1; transition: border-color .3s ease, background-color .3s ease, transform .3s ease; }
+    .dashboard-stat:hover { background: #f0f6f3; transform: translateY(-2px); }
+    .dashboard-stat span, .dashboard-stat small, .dashboard-details span, .dashboard-details small { color: #65736e; }
+    .dashboard-stat strong, .dashboard-details strong { color: #00251e; }
+    .dashboard-details > div { border-color: #dce5e1; background: #f0f4f2; }
+    .dashboard-actions .btn { transition: transform .35s cubic-bezier(.22,1,.36,1), background-color .3s ease, color .3s ease; }
+    .dashboard-actions .btn:hover { transform: translateY(-2px); }
+    .dashboard-note { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; }
+    .dashboard-visual:hover .dashboard-note { transform: translateY(-4px); box-shadow: 0 18px 36px rgba(0,37,30,.14); }
     #model { order: 2; margin-bottom: 28px; }
     .mission-brief, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 6; }
     #assistant { order: 3; margin-bottom: 28px; }
@@ -1356,9 +1372,9 @@ const html = String.raw`<!doctype html>
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
     const translations = {
-      ru: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Проверьте договор аренды до подписи", intro: "Премиальный AI-анализ юридических рисков с понятным отчётом и доказательствами.", cabinet: "Личный кабинет", start: "Начать анализ", ask: "Задать вопрос AI", openHistory: "Открыть историю", overview: "Рабочая панель QADAM AI", service: "Статус сервиса", analysis: "Анализ", document: "Документ", events: "История", lastCheck: "Последняя проверка", lastAction: "Последнее действие", waiting: "Ожидает документ", guest: "Гость · локальная история включена" },
-      kz: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Жалдау шартын қол қоймас бұрын тексеріңіз", intro: "Түсінікті есеп пен дәлелдерге негізделген заңды тәуекелдерді премиум AI талдауы.", cabinet: "Жеке кабинет", start: "Талдауды бастау", ask: "AI-ға сұрақ қою", openHistory: "Тарихты ашу", overview: "QADAM AI жұмыс панелі", service: "Сервис күйі", analysis: "Талдау", document: "Құжат", events: "Тарих", lastCheck: "Соңғы тексеріс", lastAction: "Соңғы әрекет", waiting: "Құжат күтілуде", guest: "Қонақ · жергілікті тарих қосулы" },
-      en: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Review your rental contract before signing", intro: "Premium AI analysis of legal risks with a clear, evidence-first report.", cabinet: "Personal Cabinet", start: "Start analysis", ask: "Ask AI a question", openHistory: "Open history", overview: "QADAM AI workspace", service: "Service status", analysis: "Analysis", document: "Document", events: "History", lastCheck: "Last review", lastAction: "Last action", waiting: "Waiting for a document", guest: "Guest · local history enabled" }
+      ru: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Проверьте договор аренды до подписи", intro: "QADAM AI подсвечивает спорные условия, объясняет риски простым языком и готовит протокол разногласий в пару кликов.", cabinet: "Личный кабинет", start: "Проверить договор", ask: "Задать вопрос AI", openHistory: "Открыть историю", overview: "QADAM AI Legal Intelligence", service: "Статус сервиса", analysis: "Free: экспресс-анализ", document: "Premium DOCX · 490 ₸", events: "История", lastCheck: "Последняя проверка", lastAction: "Последнее действие", waiting: "Ожидает документ", guest: "Гость · локальная история включена" },
+      kz: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Жалдау шартын қол қоймас бұрын тексеріңіз", intro: "QADAM AI даулы талаптарды көрсетеді, тәуекелдерді қарапайым тілмен түсіндіреді және келіспеушіліктер хаттамасын дайындайды.", cabinet: "Жеке кабинет", start: "Шартты тексеру", ask: "AI-ға сұрақ қою", openHistory: "Тарихты ашу", overview: "QADAM AI Legal Intelligence", service: "Сервис күйі", analysis: "Free: жедел талдау", document: "Premium DOCX · 490 ₸", events: "Тарих", lastCheck: "Соңғы тексеріс", lastAction: "Соңғы әрекет", waiting: "Құжат күтілуде", guest: "Қонақ · жергілікті тарих қосулы" },
+      en: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Review your rental contract before signing", intro: "QADAM AI highlights disputed clauses, explains risks in plain language, and prepares a negotiation protocol in a few clicks.", cabinet: "Personal Cabinet", start: "Review contract", ask: "Ask AI a question", openHistory: "Open history", overview: "QADAM AI Legal Intelligence", service: "Service status", analysis: "Free: express analysis", document: "Premium DOCX · 490 ₸", events: "History", lastCheck: "Last review", lastAction: "Last action", waiting: "Waiting for a document", guest: "Guest · local history enabled" }
     };
 
     function applyLanguage() {
@@ -1366,7 +1382,7 @@ const html = String.raw`<!doctype html>
       document.documentElement.lang = state.language === "kz" ? "kk" : state.language;
       const nav = $$(".site-nav a");
       [t.dashboard, t.model, t.chat, t.history].forEach((label, index) => { if (nav[index]) nav[index].textContent = label; });
-      $("#dashboard-title").textContent = t.overview;
+      $("#dashboard-title").textContent = t.title;
       const dashboardIntro = document.querySelector("#dashboard .dashboard-head p");
       if (dashboardIntro) dashboardIntro.textContent = t.intro;
       const stats = $$("#dashboard .dashboard-stat span");
