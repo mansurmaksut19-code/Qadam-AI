@@ -123,6 +123,8 @@ const html = String.raw`<!doctype html>
     .site-nav a:hover, .site-nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
     .top-actions { display: flex; align-items: center; gap: 10px; }
     .btn {
+      position: relative;
+      overflow: hidden;
       min-height: 44px;
       display: inline-flex;
       align-items: center;
@@ -140,7 +142,10 @@ const html = String.raw`<!doctype html>
       text-transform: uppercase;
       transition: transform .28s cubic-bezier(.22, 1, .36, 1), background-color .28s ease, border-color .28s ease, box-shadow .28s ease;
     }
+    .btn::after { content: ""; position: absolute; inset: 0 auto 0 -120%; width: 70%; pointer-events: none; background: linear-gradient(105deg, transparent, rgba(255,255,255,.28), transparent); transform: skewX(-18deg); transition: left .7s cubic-bezier(.22, 1, .36, 1); }
+    .btn:hover::after { left: 140%; }
     .btn:hover { transform: translateY(-1px); background: var(--primary-container); }
+    .btn:active { transform: translateY(0) scale(.985); transition-duration: .12s; }
     .btn.secondary { border-color: var(--primary); background: transparent; color: var(--primary); }
     .btn.secondary:hover { background: var(--primary-fixed); }
     .btn.gold { background: var(--secondary-container); color: #2d1b00; }
@@ -540,6 +545,13 @@ const html = String.raw`<!doctype html>
     .chat-head { padding: 28px 28px 16px; border-bottom: 1px solid var(--outline-variant); }
     .chat-log { flex: 1; display: grid; align-content: start; gap: 12px; max-height: 390px; overflow: auto; padding: 20px 28px; background: linear-gradient(180deg, var(--surface-low), var(--white)); }
     .message { max-width: 88%; padding: 13px 14px; border: 1px solid var(--outline-variant); border-radius: 10px; background: var(--white); font-size: 14px; white-space: pre-line; }
+    .message { animation: messageReveal .32s both cubic-bezier(.22, 1, .36, 1); }
+    @keyframes messageReveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .typing { display: inline-flex; align-items: center; gap: 4px; min-height: 42px; }
+    .typing span { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); animation: typingPulse 1s ease-in-out infinite; }
+    .typing span:nth-child(2) { animation-delay: .14s; }
+    .typing span:nth-child(3) { animation-delay: .28s; }
+    @keyframes typingPulse { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
     .message.user { justify-self: end; border-color: var(--primary-fixed-dim); background: var(--primary-fixed); color: #00201a; }
     .message.bot { justify-self: start; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 28px 18px; }
@@ -570,8 +582,12 @@ const html = String.raw`<!doctype html>
     .security-item span { color: var(--muted); font-size: 13px; }
 
     .history-panel { margin-bottom: 84px; padding: 32px; }
+    .history-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--outline-variant); color: var(--muted); font-size: 12px; }
+    .history-toolbar strong { color: var(--primary); font-size: 18px; }
+    .history-clear { padding: 0; border: 0; background: transparent; color: var(--primary); font-size: 12px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
     .history-list { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
-    .history-list li { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--outline-variant); color: var(--muted); }
+    .history-list li { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--outline-variant); color: var(--muted); animation: historyReveal .35s both cubic-bezier(.22, 1, .36, 1); }
+    @keyframes historyReveal { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
     .history-list strong { color: var(--primary); }
 
     footer { border-top: 1px solid var(--outline-variant); background: var(--surface-low); }
@@ -586,12 +602,16 @@ const html = String.raw`<!doctype html>
       position: fixed;
       inset: 0;
       z-index: 70;
-      display: none;
+      display: grid;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
       place-items: center;
       padding: 20px;
       background: rgba(25, 28, 30, .62);
+      transition: opacity .28s ease, visibility .28s ease;
     }
-    .modal.show { display: grid; }
+    .modal.show { visibility: visible; opacity: 1; pointer-events: auto; }
     .dialog {
       position: relative;
       width: min(100%, 560px);
@@ -601,7 +621,11 @@ const html = String.raw`<!doctype html>
       border-radius: 10px;
       background: var(--white);
       box-shadow: 0 30px 90px rgba(0,0,0,.28);
+      transform: translateY(10px) scale(.985);
+      transition: transform .34s cubic-bezier(.22, 1, .36, 1);
     }
+    .modal.show .dialog { transform: translateY(0) scale(1); }
+    :focus-visible { outline: 3px solid rgba(217, 170, 66, .7); outline-offset: 3px; }
     .dialog h2 { margin-bottom: 12px; color: var(--primary); font-size: 32px; }
     .dialog.auth-dialog { width: min(100%, 880px); }
     .auth-modal-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; }
@@ -731,6 +755,7 @@ const html = String.raw`<!doctype html>
       .workbench, .chat-head, .history-panel { padding: 22px; }
       .chat-log, .suggestions, .chat-form { padding-left: 22px; padding-right: 22px; }
       .footer-bottom { flex-direction: column; }
+      .history-toolbar { align-items: flex-start; flex-direction: column; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -1051,6 +1076,7 @@ const html = String.raw`<!doctype html>
       <span class="eyebrow">Action history</span>
       <h2>История действий</h2>
       <p class="muted">В этой версии история сохраняется в браузере судьи: вход, анализ, вопросы чат-боту и скачивание Premium DOCX.</p>
+      <div class="history-toolbar"><span><strong id="historyCount">0</strong> событий на этом устройстве</span><button class="history-clear" type="button" id="clearHistory">Очистить историю</button></div>
       <ul class="history-list" id="historyList"></ul>
     </section>
   </main>
@@ -1184,6 +1210,7 @@ const html = String.raw`<!doctype html>
       risks: [],
       score: 0,
       busy: false,
+      chatBusy: false,
       authMode: "login",
       authResendAt: 0,
       session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
@@ -1202,6 +1229,7 @@ const html = String.raw`<!doctype html>
 
     function renderHistory() {
       const list = $("#historyList");
+      $("#historyCount").textContent = String(state.events.length);
       if (!state.events.length) {
         list.innerHTML = "<li><span>История появится после первого действия.</span><strong>Ready</strong></li>";
         return;
@@ -1217,6 +1245,7 @@ const html = String.raw`<!doctype html>
       $(id).classList.add("show");
       document.body.classList.add("modal-open");
       renderSessionSummary();
+      if (id === "#authModal") setTimeout(() => $("#emailInput")?.focus(), 180);
       if (id === "#paymentModal") {
         $("#invoiceId").textContent = "QADAM-" + Date.now().toString().slice(-6) + "-490";
         if (state.session?.email && !$("#buyerEmail").value) $("#buyerEmail").value = state.session.email;
@@ -1548,12 +1577,34 @@ const html = String.raw`<!doctype html>
       $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
     }
 
-    function ask(question) {
+    function askLegacy(question) {
       const clean = question.trim();
       if (!clean) return;
       appendUser(clean);
       addEvent("Вопрос AI-чатботу");
       setTimeout(() => appendBot(answerQuestion(clean)), 240);
+    }
+
+    function ask(question) {
+      const clean = question.trim();
+      if (!clean || state.chatBusy) return;
+      state.chatBusy = true;
+      appendUser(clean);
+      addEvent("Вопрос AI-чатботу");
+      const submit = $("#chatForm button");
+      submit.disabled = true;
+      const typing = document.createElement("div");
+      typing.className = "message bot typing";
+      typing.setAttribute("aria-label", "QADAM формирует ответ");
+      typing.innerHTML = "<span></span><span></span><span></span>";
+      $("#chatLog").appendChild(typing);
+      $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
+      setTimeout(() => {
+        typing.remove();
+        appendBot(answerQuestion(clean));
+        state.chatBusy = false;
+        submit.disabled = false;
+      }, 420);
     }
 
     function textEncoder(value) {
@@ -1670,14 +1721,17 @@ const html = String.raw`<!doctype html>
     function renderSessionSummary() {
       const box = $("#sessionSummary");
       if (!box) return;
+      const authCard = document.querySelector(".auth-form-card");
       if (!state.session) {
         box.textContent = "Сессия не активна. Введите email и demo-код 490490.";
         box.classList.remove("active");
+        authCard?.classList.remove("is-verified");
         renderAuthButtons();
         return;
       }
       box.textContent = "Активная сессия: " + state.session.email + " · " + state.session.role + " · device trusted · audit enabled";
       box.classList.add("active");
+      authCard?.classList.add("is-verified");
       renderAuthButtons();
     }
 
@@ -1710,6 +1764,12 @@ const html = String.raw`<!doctype html>
     $$("[data-open-chat]").forEach((button) => button.addEventListener("click", scrollChat));
     $$("[data-close]").forEach((button) => button.addEventListener("click", closeModals));
     $$(".modal").forEach((modal) => modal.addEventListener("click", (event) => { if (event.target === modal) closeModals(); }));
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModals(); });
+    $("#clearHistory").addEventListener("click", () => {
+      state.events = [];
+      localStorage.removeItem("qadam:events");
+      renderHistory();
+    });
     $("#fileInput").addEventListener("change", () => {
       const file = $("#fileInput").files[0];
       $("#fileName").textContent = file ? file.name : "Файл не выбран";
