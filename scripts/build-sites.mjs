@@ -72,6 +72,23 @@ const html = String.raw`<!doctype html>
       line-height: 1.5;
       text-rendering: optimizeLegibility;
     }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 64px 0 auto;
+      z-index: -1;
+      height: 520px;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 18% 10%, rgba(217, 170, 66, .13), transparent 42%),
+        radial-gradient(ellipse at 82% 0%, rgba(214, 234, 223, .42), transparent 45%);
+      opacity: .72;
+      animation: surfaceDrift 18s ease-in-out infinite alternate;
+    }
+    @keyframes surfaceDrift {
+      from { transform: translate3d(-1.5%, 0, 0) scale(1); opacity: .58; }
+      to { transform: translate3d(1.5%, 12px, 0) scale(1.035); opacity: .82; }
+    }
     body.modal-open { overflow: hidden; }
     h1, h2, h3, p { margin-top: 0; }
     h1, h2, .serif { font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, "Times New Roman", serif; letter-spacing: 0; }
@@ -121,7 +138,7 @@ const html = String.raw`<!doctype html>
       letter-spacing: .08em;
       text-decoration: none;
       text-transform: uppercase;
-      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+      transition: transform .28s cubic-bezier(.22, 1, .36, 1), background-color .28s ease, border-color .28s ease, box-shadow .28s ease;
     }
     .btn:hover { transform: translateY(-1px); background: var(--primary-container); }
     .btn.secondary { border-color: var(--primary); background: transparent; color: var(--primary); }
@@ -476,7 +493,8 @@ const html = String.raw`<!doctype html>
     .field textarea { min-height: 112px; resize: vertical; }
     .result-grid { display: none; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-top: 22px; }
     .result-grid.show { display: grid; }
-    .result-card { padding: 16px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--surface-low); }
+    .result-card { padding: 16px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--surface-low); transition: transform .35s cubic-bezier(.22, 1, .36, 1), background-color .35s ease; }
+    .result-card:hover { transform: translateY(-2px); background: var(--white); }
     .result-card strong { display: block; color: var(--primary); }
     .product-topline {
       display: grid;
@@ -494,11 +512,29 @@ const html = String.raw`<!doctype html>
     .topline-card span { color: var(--muted); font-size: 12px; }
     .risk-list { display: none; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
     .risk-list.show { display: grid; }
-    .risk-list li { padding: 16px; border: 1px solid #ead7aa; border-left: 4px solid var(--secondary-container); border-radius: 0 8px 8px 0; background: #fff8e3; box-shadow: 0 10px 22px rgba(61, 47, 24, .06); }
+    .risk-list li { padding: 18px; border: 1px solid #ead7aa; border-left: 4px solid var(--secondary-container); border-radius: 0 8px 8px 0; background: #fff8e3; box-shadow: 0 10px 22px rgba(61, 47, 24, .06); animation: riskReveal .5s both cubic-bezier(.22, 1, .36, 1); }
+    .risk-list li:nth-child(2) { animation-delay: .06s; }
+    .risk-list li:nth-child(3) { animation-delay: .12s; }
+    .risk-list li:nth-child(4) { animation-delay: .18s; }
+    .risk-list li:nth-child(5) { animation-delay: .24s; }
+    @keyframes riskReveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .risk-list li.high { border-left-color: var(--danger); background: var(--danger-soft); }
     .risk-list li.low { border-left-color: var(--success); background: #e7f7e3; }
     .risk-list p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
     .risk-list em { display: block; margin-top: 9px; color: #433827; font-style: normal; font-size: 12px; font-weight: 700; }
+    .risk-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .risk-action { margin-top: 14px; padding: 0; border: 0; background: transparent; color: var(--primary); font-size: 12px; font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
+    .analysis-status { min-height: 22px; margin: 12px 0 0; color: var(--muted); font-size: 12px; }
+    .analysis-status.loading { color: var(--primary); }
+    .analysis-status.success { color: var(--success); }
+    .file-meta, .textarea-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
+    .file-meta { width: 100%; max-width: 520px; margin: -4px auto 16px; }
+    .file-meta strong { color: var(--primary); }
+    .sample-link { padding: 0; border: 0; background: transparent; color: var(--primary); font-size: 12px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+    .textarea-footer { margin-top: 7px; }
+    .workbench.is-loading { box-shadow: 0 22px 50px rgba(6, 56, 47, .16); }
+    .workbench.is-loading .upload-zone { border-color: var(--primary); background: #edf8f2; }
+    .chat-form button:disabled, .btn:disabled { cursor: wait; opacity: .65; transform: none; }
 
     .chat-panel { display: flex; min-height: 640px; flex-direction: column; overflow: hidden; }
     .chat-head { padding: 28px 28px 16px; border-bottom: 1px solid var(--outline-variant); }
@@ -507,7 +543,8 @@ const html = String.raw`<!doctype html>
     .message.user { justify-self: end; border-color: var(--primary-fixed-dim); background: var(--primary-fixed); color: #00201a; }
     .message.bot { justify-self: start; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 28px 18px; }
-    .suggestions button { min-height: 34px; padding: 7px 10px; border: 1px solid var(--outline-variant); border-radius: 999px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 700; }
+    .suggestions button { min-height: 34px; padding: 7px 10px; border: 1px solid var(--outline-variant); border-radius: 999px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 700; transition: background-color .28s ease, border-color .28s ease, transform .28s cubic-bezier(.22, 1, .36, 1); }
+    .suggestions button:hover { transform: translateY(-2px); border-color: var(--primary); background: var(--primary-fixed); }
     .chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 18px 28px 28px; border-top: 1px solid var(--outline-variant); }
     .chat-form input { min-height: 44px; padding: 12px; border: 1px solid var(--outline-variant); border-radius: 6px; }
 
@@ -672,6 +709,9 @@ const html = String.raw`<!doctype html>
       .workbench, .chat-head, .history-panel { padding: 22px; }
       .chat-log, .suggestions, .chat-form { padding-left: 22px; padding-right: 22px; }
       .footer-bottom { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
   </style>
 </head>
@@ -913,6 +953,7 @@ const html = String.raw`<!doctype html>
             <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.txt">
           </label>
         </div>
+        <div class="file-meta" aria-live="polite"><strong id="fileName">Файл не выбран</strong><span id="fileHint">PDF, DOCX или TXT · до 10 МБ</span></div>
         <label class="agreement-row">
           <input type="checkbox" id="consentInput" checked>
           <span>Я согласен на обработку документа для анализа. QADAM маскирует ИИН, телефоны и email перед AI-обработкой.</span>
@@ -921,11 +962,13 @@ const html = String.raw`<!doctype html>
           Текст или ключевые условия
           <textarea id="contractText" placeholder="Например: депозит не возвращается, арендодатель может заходить без предупреждения, штраф за досрочное расторжение..."></textarea>
         </label>
+        <div class="textarea-footer"><button class="sample-link" type="button" id="sampleContract">Вставить пример договора</button><span id="textCount">0 символов</span></div>
         <div class="actions">
           <button class="btn full" type="button" id="runAnalysis">Проверить договор</button>
           <button class="btn gold" type="button" id="downloadDocx">Premium 490 ₸: оформить DOCX</button>
         </div>
         <div class="browser-note"><span>♙</span><span>Не публикуйте ссылку на полный отчёт: доступ защищён приватным токеном в этом браузере.</span></div>
+        <p class="analysis-status" id="analysisStatus" role="status">Готово к проверке. Для точного результата вставьте текст условий или выберите файл.</p>
         <div class="result-grid" id="resultGrid" aria-live="polite">
           <div class="result-card"><strong id="riskScore">0/100</strong><span>Risk score</span></div>
           <div class="result-card"><strong id="riskCount">0</strong><span>Найдено рисков</span></div>
@@ -1111,6 +1154,7 @@ const html = String.raw`<!doctype html>
     const state = {
       risks: [],
       score: 0,
+      busy: false,
       session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
       events: JSON.parse(localStorage.getItem("qadam:events") || "[]")
     };
@@ -1360,7 +1404,7 @@ const html = String.raw`<!doctype html>
       return risks.sort((a, b) => order[a.level] - order[b.level] || b.confidence - a.confidence).slice(0, 7);
     }
 
-    function runAnalysis() {
+    function runAnalysisCore() {
       if (!$("#consentInput").checked) {
         appendBot("Перед анализом нужно подтвердить согласие на обработку документа. QADAM маскирует персональные данные до AI-обработки.");
         addEvent("Анализ остановлен: нет согласия");
@@ -1383,6 +1427,48 @@ const html = String.raw`<!doctype html>
       }).join("");
       addEvent("Free-анализ договора: " + state.risks.length + " рисков");
       appendBot("Экспресс-анализ готов.\nГлавный риск: " + state.risks[0].title + ".\nЧто сделать: " + state.risks[0].fix + "\nСпросите меня: \"составь формулировку для протокола\" или \"что сказать арендодателю\".");
+    }
+
+    function decorateRiskActions() {
+      const list = $("#riskList");
+      if (!list || !state.risks.length) return;
+      list.querySelectorAll("li").forEach((item, index) => {
+        if (item.querySelector("[data-risk-action]")) return;
+        const action = document.createElement("button");
+        action.type = "button";
+        action.className = "risk-action";
+        action.dataset.riskAction = "true";
+        action.textContent = "Обсудить этот пункт в чате →";
+        action.addEventListener("click", () => {
+          const risk = state.risks[index];
+          if (risk) { scrollChat(); ask(risk.question); }
+        });
+        item.appendChild(action);
+      });
+    }
+
+    function runAnalysis() {
+      if (state.busy) return;
+      state.busy = true;
+      const workbench = document.querySelector(".workbench");
+      const button = $("#runAnalysis");
+      workbench.classList.add("is-loading");
+      button.disabled = true;
+      button.textContent = "Анализируем условия...";
+      const status = $("#analysisStatus");
+      status.className = "analysis-status loading";
+      status.textContent = "Шаг 1 из 3 · маскируем данные и выделяем условия...";
+      setTimeout(() => { status.textContent = "Шаг 2 из 3 · проверяем договор по профилю аренды..."; }, 180);
+      setTimeout(() => {
+        runAnalysisCore();
+        decorateRiskActions();
+        status.className = "analysis-status success";
+        status.textContent = state.risks.length ? "Готово · начните с пунктов высокого риска, затем подготовьте протокол." : "Готово · явных рисков не найдено, но проверьте оплату, сроки и расторжение вручную.";
+        state.busy = false;
+        workbench.classList.remove("is-loading");
+        button.disabled = false;
+        button.textContent = "Проверить договор";
+      }, 420);
     }
 
     function answerQuestion(question) {
@@ -1593,6 +1679,21 @@ const html = String.raw`<!doctype html>
     $$("[data-open-chat]").forEach((button) => button.addEventListener("click", scrollChat));
     $$("[data-close]").forEach((button) => button.addEventListener("click", closeModals));
     $$(".modal").forEach((modal) => modal.addEventListener("click", (event) => { if (event.target === modal) closeModals(); }));
+    $("#fileInput").addEventListener("change", () => {
+      const file = $("#fileInput").files[0];
+      $("#fileName").textContent = file ? file.name : "Файл не выбран";
+      $("#fileHint").textContent = file ? Math.ceil(file.size / 1024) + " KB · готов к проверке" : "PDF, DOCX или TXT · до 10 МБ";
+      $("#analysisStatus").textContent = file ? "Файл выбран. Запустите бесплатную проверку, чтобы увидеть риски." : "Готово к проверке.";
+    });
+    $("#contractText").addEventListener("input", () => {
+      $("#textCount").textContent = $("#contractText").value.length.toLocaleString("ru-RU") + " символов";
+    });
+    $("#sampleContract").addEventListener("click", () => {
+      $("#contractText").value = "Депозит не возвращается ни при каких обстоятельствах. Арендодатель вправе заходить в квартиру без предварительного уведомления. Арендатор оплачивает любой ремонт и все коммунальные расходы. Договор может быть расторгнут в одностороннем порядке в любое время.";
+      $("#contractText").dispatchEvent(new Event("input"));
+      $("#analysisStatus").textContent = "Пример добавлен. Нажмите «Проверить договор».";
+      $("#contractText").focus();
+    });
     $("#runAnalysis").addEventListener("click", runAnalysis);
     $("#downloadDocx").addEventListener("click", () => {
       if (!state.risks.length) runAnalysis();
