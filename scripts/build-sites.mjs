@@ -653,6 +653,28 @@ const html = String.raw`<!doctype html>
       box-shadow: 0 16px 32px rgba(61, 47, 24, .1);
     }
     .otp-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .auth-stepper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+    .auth-stepper-item { display: grid; gap: 5px; padding: 10px 8px; border-bottom: 2px solid var(--outline-variant); color: var(--muted); font-size: 11px; font-weight: 800; text-align: center; }
+    .auth-stepper-item b { color: var(--outline); font-size: 10px; }
+    .auth-stepper-item.active { border-bottom-color: var(--primary); color: var(--primary); }
+    .auth-stepper-item.active b { color: var(--secondary); }
+    .auth-helper { display: flex; justify-content: space-between; gap: 12px; margin: -4px 0 16px; color: var(--muted); font-size: 12px; }
+    .auth-helper strong { color: var(--primary); }
+    .otp-actions input:disabled { background: var(--surface-low); color: var(--muted); cursor: not-allowed; }
+    .otp-toggle { min-width: 42px; padding: 0 10px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 800; }
+    .auth-status { min-height: 20px; margin: 14px 0 0; font-size: 12px; }
+    .auth-status.error { color: var(--danger); }
+    .auth-status.success { color: var(--success); }
+    .auth-form-card.is-verified { border-color: #9fc7a4; box-shadow: 0 18px 38px rgba(0, 83, 18, .12); }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 20px; padding: 4px; border-radius: 8px; background: var(--surface-low); }
+    .auth-tab { min-height: 38px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .auth-tab.active { background: var(--white); color: var(--primary); box-shadow: 0 3px 10px rgba(61, 47, 24, .08); }
+    .auth-password { position: relative; }
+    .auth-password input { padding-right: 76px; }
+    .password-toggle { position: absolute; right: 8px; bottom: 7px; min-height: 30px; padding: 4px 8px; border: 0; border-radius: 4px; background: var(--surface-low); color: var(--primary); font-size: 11px; font-weight: 800; }
+    .register-only { display: none; }
+    .register-only.show { display: block; }
+    .login-only.hide { display: none; }
     .session-card {
       margin-top: 14px;
       padding: 16px;
@@ -1075,6 +1097,11 @@ const html = String.raw`<!doctype html>
           </div>
         </div>
         <div class="auth-form-card">
+          <div class="auth-tabs" role="tablist" aria-label="Режим аккаунта">
+            <button class="auth-tab active" type="button" data-auth-mode="login">Войти</button>
+            <button class="auth-tab" type="button" data-auth-mode="register">Создать аккаунт</button>
+          </div>
+          <div class="auth-helper"><span id="authModeHint">Вернитесь к сохранённому аккаунту</span><strong>SQLite-ready</strong></div>
           <label class="field">Email <input id="emailInput" type="email" placeholder="judge@example.com" autocomplete="email"></label>
           <label class="field">Роль
             <select id="roleInput">
@@ -1083,6 +1110,8 @@ const html = String.raw`<!doctype html>
               <option value="University admin">University admin</option>
             </select>
           </label>
+          <label class="field auth-password"><span id="passwordLabel">Пароль</span><input id="passwordInput" type="password" minlength="8" placeholder="Не менее 8 символов" autocomplete="current-password"><button class="password-toggle" type="button" id="togglePassword">Показать</button></label>
+          <label class="field register-only" id="confirmPasswordField">Повторите пароль <input id="confirmPasswordInput" type="password" minlength="8" placeholder="Повторите пароль" autocomplete="new-password"></label>
           <div class="otp-actions">
             <label class="field" style="margin:0">OTP-код <input id="otpInput" type="text" inputmode="numeric" placeholder="490490" autocomplete="one-time-code"></label>
             <button class="btn ghost small" type="button" id="resendOtp">Resend</button>
@@ -1155,6 +1184,8 @@ const html = String.raw`<!doctype html>
       risks: [],
       score: 0,
       busy: false,
+      authMode: "login",
+      authResendAt: 0,
       session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
       events: JSON.parse(localStorage.getItem("qadam:events") || "[]")
     };
@@ -1732,7 +1763,76 @@ const html = String.raw`<!doctype html>
       input.value = "";
     });
     $$(".suggestions button").forEach((button) => button.addEventListener("click", () => ask(button.dataset.question || "")));
-    $("#loginBtn").addEventListener("click", () => {
+    async function hashPassword(value) {
+      const bytes = new TextEncoder().encode(value);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    function setAuthStatus(message, kind) {
+      const status = $("#authStatus");
+      status.className = "auth-status" + (kind ? " " + kind : "");
+      status.textContent = message;
+    }
+
+    function setAuthMode(mode) {
+      state.authMode = mode;
+      const register = mode === "register";
+      $$('[data-auth-mode]').forEach((tab) => tab.classList.toggle("active", tab.dataset.authMode === mode));
+      $("#confirmPasswordField").classList.toggle("show", register);
+      $("#authModeHint").textContent = register ? "Создайте аккаунт для сохранения истории" : "Вернитесь к сохранённому аккаунту";
+      $("#passwordLabel").textContent = register ? "Придумайте пароль" : "Пароль";
+      $("#passwordInput").autocomplete = register ? "new-password" : "current-password";
+      $("#loginBtn").textContent = register ? "Создать аккаунт" : "Войти в аккаунт";
+      $("#otpInput").closest(".otp-actions").style.opacity = register ? ".55" : "1";
+      setAuthStatus(register ? "Пароль не передаётся в историю действий и хранится только как хэш." : "Введите email и пароль. Для demo-доступа можно использовать код 490490.");
+    }
+
+    async function handleAuthSubmit() {
+      const email = $("#emailInput").value.trim().toLowerCase();
+      const role = $("#roleInput").value;
+      const password = $("#passwordInput").value;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setAuthStatus("Введите корректный email.", "error");
+        $("#emailInput").focus();
+        return;
+      }
+      const users = JSON.parse(localStorage.getItem("qadam:users") || "[]");
+      if (state.authMode === "register") {
+        if (password.length < 8) { setAuthStatus("Пароль должен содержать минимум 8 символов.", "error"); return; }
+        if (password !== $("#confirmPasswordInput").value) { setAuthStatus("Пароли не совпадают.", "error"); return; }
+        if (users.some((user) => user.email === email)) { setAuthStatus("Аккаунт уже существует. Переключитесь на «Войти».", "error"); return; }
+        users.push({ email, role, passwordHash: await hashPassword(password), createdAt: new Date().toISOString() });
+        localStorage.setItem("qadam:users", JSON.stringify(users));
+        state.session = { email, role, authMethod: "password", trustedAt: new Date().toISOString() };
+        localStorage.setItem("qadam:session", JSON.stringify(state.session));
+        setAuthStatus("Аккаунт создан. Вы вошли в QADAM AI.", "success");
+        renderSessionSummary();
+        addEvent("Регистрация аккаунта: " + role + " · " + email);
+        return;
+      }
+      const user = users.find((item) => item.email === email);
+      const code = $("#otpInput").value.trim();
+      const passwordMatches = user && password ? await hashPassword(password) === user.passwordHash : false;
+      if (!user && code !== "490490") { setAuthStatus("Аккаунт не найден. Сначала создайте аккаунт или используйте demo-код 490490.", "error"); return; }
+      if (user && !passwordMatches && code !== "490490") { setAuthStatus("Неверный пароль. Проверьте данные и попробуйте снова.", "error"); return; }
+      state.session = { email, role: user?.role || role, authMethod: passwordMatches ? "password" : "demo-otp", trustedAt: new Date().toISOString() };
+      localStorage.setItem("qadam:session", JSON.stringify(state.session));
+      setAuthStatus("Вход выполнен. Сессия и история действий активны.", "success");
+      renderSessionSummary();
+      addEvent("Вход в аккаунт: " + state.session.role + " · " + email);
+    }
+
+    $$('[data-auth-mode]').forEach((tab) => tab.addEventListener("click", () => setAuthMode(tab.dataset.authMode)));
+    $("#togglePassword").addEventListener("click", () => {
+      const input = $("#passwordInput");
+      const visible = input.type === "text";
+      input.type = visible ? "password" : "text";
+      $("#togglePassword").textContent = visible ? "Показать" : "Скрыть";
+    });
+    $("#loginBtn").addEventListener("click", handleAuthSubmit);
+
+    function legacyLoginHandler() {
       const email = $("#emailInput").value.trim();
       const code = $("#otpInput").value.trim();
       const role = $("#roleInput").value;
@@ -1745,7 +1845,7 @@ const html = String.raw`<!doctype html>
       $("#authStatus").textContent = "Вход выполнен. Включены role-aware session, device trust и audit trail.";
       renderSessionSummary();
       addEvent("Secure login: " + role + " · " + email);
-    });
+    }
     $("#resendOtp").addEventListener("click", () => {
       $("#authStatus").textContent = "Demo OTP повторно отправлен: 490490. В production здесь будет email/SMS delivery.";
       addEvent("OTP resend requested");

@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from qadam_api.api.routes import analyses, feedback, questions
+from qadam_api.api.routes import analyses, auth, feedback, questions
 from qadam_api.settings import get_settings
 
 
@@ -20,9 +20,10 @@ def create_app() -> FastAPI:
         allow_origins=get_settings().allowed_origins,
         allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Content-Type", "X-Analysis-Token"],
+        allow_headers=["Content-Type", "Authorization", "X-Analysis-Token"],
     )
     application.include_router(analyses.router)
+    application.include_router(auth.router)
     application.include_router(questions.router)
     application.include_router(feedback.router)
 
