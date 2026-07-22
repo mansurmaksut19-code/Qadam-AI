@@ -1,11 +1,12 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const web = join(root, "apps", "web");
 const dist = join(root, "dist");
+const logoDataUrl = `data:image/png;base64,${readFileSync(join(web, "public", "qadam-logo.png")).toString("base64")}`;
 
 execFileSync(
   process.execPath,
@@ -84,16 +85,14 @@ const html = String.raw`<!doctype html>
     }
     .nav-row { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
     .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
-    .brand-mark {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border: 2px solid var(--primary);
-      border-radius: 50%;
-      color: var(--primary);
-      font-weight: 900;
-      line-height: 1;
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      border: 1px solid var(--outline-variant);
+      border-radius: 8px;
+      background: var(--white);
+      box-shadow: 0 8px 18px rgba(0, 52, 43, .08);
     }
     .brand-text { color: var(--primary); font-family: Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1; }
     .site-nav { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
@@ -148,10 +147,27 @@ const html = String.raw`<!doctype html>
       line-height: 1.12;
     }
     .lead { max-width: 760px; color: var(--muted); font-size: 18px; line-height: 1.55; }
-    .hero-meta { display: flex; align-items: center; gap: 16px; padding-bottom: 8px; }
-    .hero-meta div { display: grid; justify-items: end; gap: 2px; }
-    .hero-meta small { color: var(--outline); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .hero-meta strong { color: var(--primary); }
+    .hero-panel {
+      width: min(100%, 380px);
+      padding: 24px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 0 18px 38px rgba(0, 52, 43, .08);
+    }
+    .hero-panel strong { display: block; color: var(--primary); font-size: 34px; line-height: 1; }
+    .hero-panel span { color: var(--muted); font-size: 13px; }
+    .hero-status-grid { display: grid; gap: 10px; margin-top: 22px; }
+    .hero-status-grid div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 0;
+      border-top: 1px solid var(--outline-variant);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hero-status-grid b { color: var(--primary); }
     .divider { width: 1px; height: 40px; background: var(--outline-variant); }
 
     .mission-brief {
@@ -261,18 +277,6 @@ const html = String.raw`<!doctype html>
       border-radius: var(--radius);
       background: var(--primary);
       color: var(--white);
-    }
-    .target-card::after {
-      content: "";
-      position: absolute;
-      right: -70px;
-      bottom: -70px;
-      width: 210px;
-      height: 210px;
-      border-radius: 50%;
-      background: var(--primary-container);
-      filter: blur(24px);
-      opacity: .7;
     }
     .target-card > * { position: relative; z-index: 1; }
     .target-card .eyebrow { color: var(--primary-fixed); }
@@ -537,8 +541,7 @@ const html = String.raw`<!doctype html>
       .site-nav { display: none; }
       .hero-grid, .metrics-grid, .scale-grid, .product-grid, .footer-grid { grid-template-columns: 1fr; }
       .model-grid, .metrics-side, .footer-links, .mission-brief, .judge-grid, .pipeline, .security-panel, .security-grid, .auth-modal-grid { grid-template-columns: 1fr; }
-      .hero-meta { justify-content: flex-start; }
-      .hero-meta div { justify-items: start; }
+      .hero-panel { width: 100%; }
       .model-card { min-height: auto; }
       .scale-card { padding: 28px; }
       .result-grid { grid-template-columns: 1fr; }
@@ -558,7 +561,7 @@ const html = String.raw`<!doctype html>
   <header class="topbar">
     <div class="container nav-row">
       <a class="brand" href="#home" aria-label="QADAM AI">
-        <span class="brand-mark">Q</span>
+        <img alt="" class="brand-logo" src="${logoDataUrl}">
         <span class="brand-text">QADAM AI</span>
       </a>
       <nav class="site-nav" aria-label="Основная навигация">
@@ -582,11 +585,17 @@ const html = String.raw`<!doctype html>
           <h1>Официальная модель монетизации QADAM</h1>
           <p class="lead">Институциональное решение для юридической поддержки студентов. Масштабируемая модель сочетает бесплатный экспресс-анализ, AI-чат для правовых вопросов, Premium DOCX-протокол за 490 ₸ и B2B-лицензии для вузов.</p>
         </div>
-        <div class="hero-meta" aria-label="Статус проекта">
-          <div><small>Region</small><strong>Kazakhstan</strong></div>
-          <span class="divider"></span>
-          <div><small>Status</small><strong>Active Growth</strong></div>
-        </div>
+        <aside class="hero-panel" aria-label="Готовность проекта к отбору">
+          <span class="eyebrow">Submission readiness</span>
+          <strong>30/30</strong>
+          <span>Онлайн-критерии закрыты: исследование, инженерия, работающий MVP.</span>
+          <div class="hero-status-grid">
+            <div><span>Track</span><b>Social & Human Capital</b></div>
+            <div><span>Problem zone</span><b>Civic Rights</b></div>
+            <div><span>Live demo</span><b>Public URL</b></div>
+            <div><span>Repository</span><b>GitHub ready</b></div>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -769,7 +778,7 @@ const html = String.raw`<!doctype html>
         </label>
         <div class="actions">
           <button class="btn" type="button" id="runAnalysis">Запустить Free-анализ</button>
-          <button class="btn gold" type="button" id="downloadDocx">Premium 490 ₸: скачать DOCX</button>
+          <button class="btn gold" type="button" id="downloadDocx">Premium 490 ₸: оформить DOCX</button>
         </div>
         <div class="result-grid" id="resultGrid" aria-live="polite">
           <div class="result-card"><strong id="riskScore">0/100</strong><span>Risk score</span></div>
@@ -887,6 +896,22 @@ const html = String.raw`<!doctype html>
       <h2 id="demoTitle">Сценарий для судей</h2>
       <p class="muted">1) войдите кодом 490490, 2) запустите Free-анализ, 3) задайте вопрос чат-боту, 4) скачайте Premium DOCX за 490 ₸ в демо-режиме.</p>
       <button class="btn full" type="button" data-close>Понятно, начать</button>
+    </div>
+  </div>
+
+  <div class="modal" id="paymentModal" role="dialog" aria-modal="true" aria-labelledby="paymentTitle">
+    <div class="dialog">
+      <button class="close" type="button" data-close>×</button>
+      <span class="eyebrow">Premium checkout</span>
+      <h2 id="paymentTitle">DOCX-протокол разногласий</h2>
+      <p class="muted">Демо-платёж имитирует реальную модель: пользователь сначала получает бесплатный риск-анализ, затем платит 490 ₸ за официальный документ для переговоров.</p>
+      <div class="brief-grid" style="margin-top:18px">
+        <div><strong>Product</strong><span>Протокол разногласий .DOCX</span></div>
+        <div><strong>Price</strong><span>490 ₸, разовый микроплатёж</span></div>
+        <div><strong>Includes</strong><span>Риски, формулировки, следующий шаг, audit event</span></div>
+        <div><strong>Status</strong><span>Demo payment approved for judges</span></div>
+      </div>
+      <button class="btn gold full" type="button" id="confirmPremium" style="margin-top:20px">Подтвердить demo-оплату и скачать DOCX</button>
     </div>
   </div>
 
@@ -1158,7 +1183,15 @@ const html = String.raw`<!doctype html>
     $$("[data-close]").forEach((button) => button.addEventListener("click", closeModals));
     $$(".modal").forEach((modal) => modal.addEventListener("click", (event) => { if (event.target === modal) closeModals(); }));
     $("#runAnalysis").addEventListener("click", runAnalysis);
-    $("#downloadDocx").addEventListener("click", downloadDocx);
+    $("#downloadDocx").addEventListener("click", () => {
+      if (!state.risks.length) runAnalysis();
+      openModal("#paymentModal");
+      addEvent("Premium checkout открыт: 490 ₸");
+    });
+    $("#confirmPremium").addEventListener("click", () => {
+      downloadDocx();
+      closeModals();
+    });
     $("[data-download-pitch]").addEventListener("click", downloadPitch);
     $("#chatForm").addEventListener("submit", (event) => {
       event.preventDefault();

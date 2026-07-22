@@ -1,6 +1,6 @@
 # QADAM AI
 
-[![Quality and release evidence](https://github.com/animcin84-dev/qadam-ai-techvision-2026/actions/workflows/quality.yml/badge.svg)](https://github.com/animcin84-dev/qadam-ai-techvision-2026/actions/workflows/quality.yml)
+[![Quality and release evidence](https://github.com/mansurmaksut19-code/Qadam-AI/actions/workflows/quality.yml/badge.svg)](https://github.com/mansurmaksut19-code/Qadam-AI/actions/workflows/quality.yml)
 
 > Понять договор аренды до подписи — с точным фрагментом, официальным источником и
 > конкретным следующим шагом.
@@ -11,7 +11,7 @@ QADAM AI — работающий MVP для одного пользовател
 находит риски, связывает выводы с версионированными нормами права РК и помогает сформулировать
 вопрос арендодателю.
 
-Публичный репозиторий: [animcin84-dev/qadam-ai-techvision-2026](https://github.com/animcin84-dev/qadam-ai-techvision-2026).
+Публичный репозиторий: [mansurmaksut19-code/Qadam-AI](https://github.com/mansurmaksut19-code/Qadam-AI).
 
 Проект создан с 17 июля 2026 года для онлайн-этапа Tech Vision 2026, направление Social & Human
 Capital, проблемная зона «Гражданская грамотность». Официальный бриф требует работающий код,
@@ -125,7 +125,7 @@ pnpm --filter web exec playwright install chromium
 make e2e
 ```
 
-Текущий проверяемый набор: 163 backend tests, 25 frontend component/client tests, 20 labelled
+Текущий проверяемый набор: 164 backend tests, 25 frontend component/client tests, 20 labelled
 legal-retrieval queries и четыре Playwright-сценария: Axe-аудит, полный пользовательский путь,
 Q&A по challenge-договору и смешанный RU/KZ journey с фактами и действиями. Порог legal retrieval
 hit@5 — `≥0.90`; все 20 текущих запросов находят ожидаемый официальный фрагмент в top-5.

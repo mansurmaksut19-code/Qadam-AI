@@ -8,13 +8,13 @@
 |---|---|---|---|
 | Работающий MVP | `make up`, web `:3000`, API `:8000` | 3 healthy services + 4 Playwright E2E | Готово |
 | Pitch PDF ≤12 слайдов | `pitch/QADAM_AI_Pitch_Deck.pdf` | 11 страниц, 16:9, tagged PDF | Готово |
-| Public repository + README | [animcin84-dev/qadam-ai-techvision-2026](https://github.com/animcin84-dev/qadam-ai-techvision-2026) | `PUBLIC`, `main`; repository и raw README доступны без авторизации | Готово |
-| Demo ≤3:00 или live URL | `docs/demo-script.md` + 48-секундный `release/QADAM_AI_fallback_demo.mp4` | локальный fallback проверен; публичная озвученная запись отсутствует | `TEAM INPUT REQUIRED` |
+| Public repository + README | [mansurmaksut19-code/Qadam-AI](https://github.com/mansurmaksut19-code/Qadam-AI) | `PUBLIC`, `main`; repository и raw README доступны без авторизации | Готово |
+| Demo ≤3:00 или live URL | `docs/demo-script.md` + live deploy | live URL доступен: `https://qadam-ai-techvision.staivi367.chatgpt.site`; озвученная запись остаётся optional backup | Готово |
 
 ## Финальные поля команды
 
 - [x] Создать подтверждённый public repository:
-  `animcin84-dev/qadam-ai-techvision-2026`.
+  `mansurmaksut19-code/Qadam-AI`.
 - [ ] Добавить имена и роли участников на слайд 11.
 - [ ] Провести 3–5 интервью по `docs/research/interview-guide.md`; минимум 2–3 разговора требует
   официальный бриф.
@@ -50,7 +50,7 @@ git diff --check
 
 Зафиксированный результат 17 июля 2026:
 
-- 163/163 backend tests;
+- 164/164 backend tests;
 - 25/25 frontend tests;
 - 20/20 release/security tooling tests, включая настоящий короткий ffmpeg render, network retry и
   final-submission validator;

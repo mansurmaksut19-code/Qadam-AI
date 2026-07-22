@@ -115,7 +115,7 @@ analysis lifecycle и браузерный путь. Он запускается
 
 ### Какие метрики уже воспроизводимы?
 
-- 163 backend и 25 frontend тестов;
+- 164 backend и 25 frontend тестов;
 - 20/20 labelled retrieval queries находят ожидаемый официальный фрагмент в top-5;
 - micro-recall семейств клауз — 0.9231;
 - high-priority citation coverage — 1.0;

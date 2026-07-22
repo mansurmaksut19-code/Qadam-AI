@@ -50,7 +50,7 @@
 
 «Внутри — parser, privacy masking, 14 типов условий, risk rules, hybrid legal retrieval,
 structured provider и отдельные grounding gates для правовых выводов и вопросов к документу. MVP
-проверен 163 backend и 25 frontend тестами, 20 из 20 legal-retrieval queries и четырьмя Docker E2E.
+проверен 164 backend и 25 frontend тестами, 20 из 20 legal-retrieval queries и четырьмя Docker E2E.
 Отдельный synthetic Q&A set проверяет 9 фактов, действий и отказов; это regression proof, а не
 обещание юридической точности. QADAM — понятный следующий шаг до подписи».
 

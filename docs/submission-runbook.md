@@ -130,7 +130,7 @@ python scripts/check_release.py --online
 
 ```bash
 review_dir=$(mktemp -d)
-git clone --depth 1 https://github.com/animcin84-dev/qadam-ai-techvision-2026.git "$review_dir/qadam"
+git clone --depth 1 https://github.com/mansurmaksut19-code/Qadam-AI.git "$review_dir/qadam"
 cd "$review_dir/qadam"
 python scripts/check_release.py
 ```
@@ -147,7 +147,7 @@ python scripts/check_release.py
 4. **Проблема:** иногородний студент перед первой подписью не понимает рискованные условия аренды
    и не знает, что уточнить письменно.
 5. **Решение:** пункт договора → официальная норма → конкретный следующий шаг.
-6. **Repository URL:** `https://github.com/animcin84-dev/qadam-ai-techvision-2026`.
+6. **Repository URL:** `https://github.com/mansurmaksut19-code/Qadam-AI`.
 7. **Pitch:** финальный PDF после проверки страниц.
 8. **Demo/live URL:** только ссылка, открытая без авторизации.
 

@@ -49,7 +49,7 @@ Overall citation coverage 5/7 не является failure: два attention-в
 
 | Gate | Свежий результат | Вывод |
 |---|---:|---|
-| Backend tests | 163/163 | Проходит |
+| Backend tests | 164/164 | Проходит |
 | Frontend tests | 25/25 | Проходит |
 | Browser E2E | 4/4 | Проходит |
 | Accessibility | Axe: no serious/critical на landing и report | Проходит в заявленном scope |

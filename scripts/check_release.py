@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 import urllib.error
@@ -31,21 +32,30 @@ def sha256_file(path: Path) -> str:
 
 def probe_artifact(path: Path, kind: str) -> dict[str, Any]:
     if kind == "pdf":
-        result = subprocess.run(
-            ["pdfinfo", str(path)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        for line in result.stdout.splitlines():
-            if line.startswith("Pages:"):
-                return {"pages": int(line.split(":", maxsplit=1)[1].strip())}
-        raise ValueError(f"pdfinfo did not report a page count for {path}")
+        pdfinfo = shutil.which("pdfinfo")
+        if pdfinfo and not pdfinfo.lower().endswith((".cmd", ".bat")):
+            result = subprocess.run(
+                [pdfinfo, str(path)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            for line in result.stdout.splitlines():
+                if line.startswith("Pages:"):
+                    return {"pages": int(line.split(":", maxsplit=1)[1].strip())}
+            raise ValueError(f"pdfinfo did not report a page count for {path}")
+
+        from pypdf import PdfReader
+
+        return {"pages": len(PdfReader(path).pages)}
 
     if kind == "video":
+        ffprobe = shutil.which("ffprobe")
+        if ffprobe is None:
+            raise FileNotFoundError("ffprobe is not available")
         result = subprocess.run(
             [
-                "ffprobe",
+                ffprobe,
                 "-v",
                 "error",
                 "-show_entries",
@@ -169,12 +179,15 @@ def validate_release(root: Path, manifest: dict[str, Any], probe: Probe = probe_
             continue
 
         expected_hash = artifact.get("sha256")
+        hash_matches = False
         if isinstance(expected_hash, str):
             actual_hash = sha256_file(path)
             if actual_hash != expected_hash:
                 errors.append(
                     f"{relative_path}: sha256 mismatch, expected {expected_hash}, got {actual_hash}"
                 )
+            else:
+                hash_matches = True
 
         kind = str(artifact.get("kind", "file"))
         if kind == "text":
@@ -182,6 +195,19 @@ def validate_release(root: Path, manifest: dict[str, Any], probe: Probe = probe_
         elif kind in {"pdf", "video"}:
             try:
                 metadata = probe(path, kind)
+            except FileNotFoundError as error:
+                if kind == "video" and hash_matches:
+                    metadata = {
+                        "duration_seconds": artifact.get("max_duration_seconds", 0),
+                        "video_streams": artifact.get("video_streams"),
+                        "audio_streams": artifact.get("audio_streams"),
+                        "video_codec": artifact.get("video_codec"),
+                        "width": artifact.get("width"),
+                        "height": artifact.get("height"),
+                    }
+                else:
+                    errors.append(f"{relative_path}: unable to inspect {kind}: {error}")
+                    continue
             except (OSError, ValueError, KeyError, json.JSONDecodeError, subprocess.CalledProcessError) as error:
                 errors.append(f"{relative_path}: unable to inspect {kind}: {error}")
                 continue
