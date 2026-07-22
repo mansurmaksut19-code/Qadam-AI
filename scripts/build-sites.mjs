@@ -370,6 +370,10 @@ const html = String.raw`<!doctype html>
     }
     .architecture-head h2 { margin: 0; color: var(--primary); font-size: 34px; }
     .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .architecture-line { display: flex; align-items: center; gap: 9px; overflow-x: auto; padding: 18px 0 22px; color: var(--primary); font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .architecture-line span { min-width: max-content; padding: 10px 12px; border: 1px solid var(--outline-variant); border-radius: 4px; background: var(--surface-low); text-align: center; }
+    .architecture-line small { color: var(--muted); font-size: 10px; font-weight: 600; }
+    .architecture-line i { color: var(--secondary); font-style: normal; font-size: 18px; }
     .pipe-step {
       position: relative;
       min-height: 148px;
@@ -749,8 +753,12 @@ const html = String.raw`<!doctype html>
 
     /* Minimal report surface: keep motion and hierarchy, remove visual weight. */
     main.container { display: flex; flex-direction: column; }
-    .hero { order: 1; margin-bottom: 28px; }
-    .dashboard-panel { order: 2; margin: 0 0 56px; padding: 28px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--white); }
+    .dashboard-panel { order: 1; margin: 0 0 24px; padding: 28px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--white); }
+    .access-strip { order: 2; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 56px; padding: 24px 28px; border-left: 4px solid var(--secondary); border-top: 1px solid var(--outline-variant); border-bottom: 1px solid var(--outline-variant); background: var(--surface-low); }
+    .access-strip h2 { margin: 4px 0 6px; color: var(--primary); font-size: 25px; }
+    .access-strip p { margin: 0; max-width: 660px; }
+    .access-actions { display: flex; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
+    .hero { order: 5; margin-bottom: 28px; }
     .dashboard-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
     .dashboard-head h2 { margin: 4px 0 6px; color: var(--primary); font-size: 32px; }
     .dashboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--outline-variant); border-bottom: 1px solid var(--outline-variant); }
@@ -759,14 +767,16 @@ const html = String.raw`<!doctype html>
     .dashboard-stat span, .dashboard-stat small { display: block; color: var(--muted); font-size: 12px; }
     .dashboard-stat strong { display: block; margin: 10px 0 4px; color: var(--primary); font-size: 24px; }
     .dashboard-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-    #assistant { order: 2; margin-bottom: 64px; }
-    .mission-brief, #model, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 3; }
+    #model { order: 4; }
+    .mission-brief, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 6; }
+    #assistant { order: 7; margin-bottom: 64px; }
     .hero-grid { align-items: end; }
     .hero-panel { border-radius: 6px; background: var(--white); }
     .workbench { border-top: 4px solid var(--primary); }
     .workbench h2 { font-size: clamp(36px, 5vw, 58px); }
     .risk-list li { padding: 20px 22px; }
     .hero-panel, .workbench, .chat-panel, .history-panel, .model-card, .info-card, .chart-card, .commerce-panel, .security-panel, .brief-card { box-shadow: none; }
+    .pipeline { display: none; }
     .model-card:hover, .result-card:hover { transform: none; box-shadow: none; }
     .risk-list li { box-shadow: none; border-radius: 4px; }
     .model-card, .info-card, .chart-card, .brief-card, .topline-card { border-radius: 6px; }
@@ -783,10 +793,12 @@ const html = String.raw`<!doctype html>
       .scale-card { padding: 28px; }
       .result-grid { grid-template-columns: 1fr; }
       .pipe-step::after { display: none; }
+      .architecture-line { padding-bottom: 18px; }
     }
     @media (max-width: 640px) {
       .dashboard-panel { padding: 20px; }
       .dashboard-head { align-items: flex-start; flex-direction: column; }
+      .access-strip { align-items: flex-start; flex-direction: column; padding: 20px; }
       .dashboard-grid { grid-template-columns: 1fr; }
       .dashboard-stat { min-height: auto; border-right: 0; border-bottom: 1px solid var(--outline-variant); }
       .dashboard-stat:last-child { border-bottom: 0; }
@@ -855,6 +867,11 @@ const html = String.raw`<!doctype html>
         <div class="dashboard-stat"><span>История</span><strong id="dashboardHistoryCount">0</strong><small>событий в браузере</small></div>
       </div>
       <div class="dashboard-actions"><a class="btn" href="#assistant">Начать анализ</a><button class="btn ghost" type="button" data-open-chat>Задать вопрос AI</button><a class="btn ghost" href="#history">Открыть историю</a></div>
+    </section>
+
+    <section class="access-strip" aria-labelledby="access-title">
+      <div><span class="eyebrow">Secure workspace</span><h2 id="access-title">Сохраните анализ в личном кабинете</h2><p class="muted">Регистрация открывает историю договоров, вопросов AI и скачанных протоколов на этом устройстве.</p></div>
+      <div class="access-actions"><button class="btn" type="button" data-open-auth>Войти</button><button class="btn ghost" type="button" data-open-auth>Создать аккаунт</button></div>
     </section>
 
     <section class="mission-brief" aria-labelledby="brief-title">
@@ -1005,6 +1022,9 @@ const html = String.raw`<!doctype html>
           <h2 id="architecture-title">AI-цепочка, которую можно объяснить на Q&A</h2>
         </div>
         <button class="btn ghost" type="button" data-open-demo>Сценарий защиты</button>
+      </div>
+      <div class="architecture-line" aria-label="QADAM AI architecture">
+        <span>Загрузка<br><small>PDF / DOCX</small></span><i>→</i><span>PII Masking<br><small>ИИН, карты</small></span><i>→</i><span>Clause Extractor</span><i>→</i><span>Rules Engine</span><i>→</i><span>Legal Retrieval<br><small>+ Reranker</small></span><i>→</i><span>Grounding Gate</span><i>→</i><span>UI Report</span>
       </div>
       <div class="pipeline">
         <div class="pipe-step"><span>01</span><h4>Ingest</h4><p>PDF/DOCX/TXT или текст условия попадает в локальный анализатор.</p></div>
