@@ -767,9 +767,11 @@ const html = String.raw`<!doctype html>
     .dashboard-stat span, .dashboard-stat small { display: block; color: var(--muted); font-size: 12px; }
     .dashboard-stat strong { display: block; margin: 10px 0 4px; color: var(--primary); font-size: 24px; }
     .dashboard-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-    #model { order: 4; }
+    #model { order: 2; margin-bottom: 28px; }
     .mission-brief, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 6; }
-    #assistant { order: 7; margin-bottom: 64px; }
+    #assistant { order: 3; margin-bottom: 28px; }
+    #history { order: 4; margin-bottom: 28px; }
+    .hero, .access-strip, .mission-brief, .commerce-panel, .metrics, .architecture-card, .scale-card { display: none; }
     .hero-grid { align-items: end; }
     .hero-panel { border-radius: 6px; background: var(--white); }
     .workbench { border-top: 4px solid var(--primary); }
@@ -825,7 +827,8 @@ const html = String.raw`<!doctype html>
       <nav class="site-nav" aria-label="Основная навигация">
         <a href="#home">Home</a>
         <a href="#dashboard">Dashboard</a>
-        <a class="active" href="#model">Commercial Model</a>
+        <a class="active" href="#dashboard">Dashboard</a>
+        <a href="#model">Commercial Model</a>
         <a href="#assistant">AI Chat Bot</a>
         <a href="#history">History</a>
       </nav>
