@@ -121,8 +121,8 @@ const html = String.raw`<!doctype html>
     .site-nav { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
     .site-nav a { padding: 22px 0 18px; border-bottom: 2px solid transparent; text-decoration: none; }
     .language-switcher { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--outline-variant); border-radius: 4px; background: var(--white); }
-    .language-switcher button { min-width: 30px; padding: 5px 6px; border: 0; border-radius: 2px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 800; cursor: pointer; }
-    .language-switcher button.active { background: var(--primary); color: var(--white); }
+    .language-switcher button, .language-switcher a { min-width: 30px; padding: 5px 6px; border: 0; border-radius: 2px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 800; cursor: pointer; text-align: center; text-decoration: none; }
+    .language-switcher button.active, .language-switcher a.active { background: var(--primary); color: var(--white); }
     .site-nav a:hover, .site-nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
     .top-actions { display: flex; align-items: center; gap: 10px; }
     .btn {
@@ -895,7 +895,7 @@ const html = String.raw`<!doctype html>
         <a href="#assistant">AI Chat Bot</a>
         <a href="#history">History</a>
       </nav>
-      <div class="language-switcher" role="group" aria-label="Language"><button type="button" data-lang="ru" onclick="window.setQadamLanguage('ru')" class="active">RU</button><button type="button" data-lang="kz" onclick="window.setQadamLanguage('kz')">KZ</button><button type="button" data-lang="en" onclick="window.setQadamLanguage('en')">EN</button></div>
+      <div class="language-switcher" role="group" aria-label="Language"><a href="?lang=ru#dashboard" data-lang="ru" onclick="window.setQadamLanguage('ru')" class="active">RU</a><a href="?lang=kz#dashboard" data-lang="kz" onclick="window.setQadamLanguage('kz')">KZ</a><a href="?lang=en#dashboard" data-lang="en" onclick="window.setQadamLanguage('en')">EN</a></div>
       <div class="top-actions">
         <button class="btn ghost" type="button" data-open-chat>AI чат</button>
         <button class="btn" type="button" data-open-auth>Личный кабинет</button>
@@ -1356,6 +1356,8 @@ const html = String.raw`<!doctype html>
   </div>
 
   <script>
+    const requestedLanguage = new URLSearchParams(window.location?.search || "").get("lang");
+    const initialLanguage = ["ru", "kz", "en"].includes(requestedLanguage) ? requestedLanguage : (localStorage.getItem("qadam:language") || "ru");
     const state = {
       risks: [],
       score: 0,
@@ -1363,7 +1365,7 @@ const html = String.raw`<!doctype html>
       chatBusy: false,
       authMode: "login",
       authResendAt: 0,
-      language: localStorage.getItem("qadam:language") || "ru",
+      language: initialLanguage,
       session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
       events: JSON.parse(localStorage.getItem("qadam:events") || "[]")
     };
