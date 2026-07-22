@@ -25,6 +25,9 @@ const html = String.raw`<!doctype html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="QADAM AI - Legal AI Platform для экспресс-анализа договоров, AI-консультаций и DOCX-протокола разногласий за 490 ₸.">
   <title>QADAM AI - Legal AI Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #06382f;
@@ -51,7 +54,7 @@ const html = String.raw`<!doctype html>
       --radius: 8px;
       --max: 1440px;
       --margin: 48px;
-      font-family: "Segoe UI", Inter, Arial, sans-serif;
+      font-family: Manrope, "Segoe UI", Inter, Arial, sans-serif;
       color: var(--ink);
       background:
         linear-gradient(180deg, rgba(255, 253, 248, .72), transparent 430px),
@@ -71,7 +74,7 @@ const html = String.raw`<!doctype html>
     }
     body.modal-open { overflow: hidden; }
     h1, h2, h3, p { margin-top: 0; }
-    h1, h2, .serif { font-family: "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    h1, h2, .serif { font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, "Times New Roman", serif; letter-spacing: 0; }
     a { color: inherit; }
     button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
@@ -97,7 +100,7 @@ const html = String.raw`<!doctype html>
       background: var(--white);
       box-shadow: 0 8px 18px rgba(0, 52, 43, .08);
     }
-    .brand-text { color: var(--primary); font-family: "Palatino Linotype", Palatino, Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1; }
+    .brand-text { color: var(--primary); font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, Georgia, serif; font-size: 25px; font-weight: 700; line-height: 1; }
     .site-nav { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
     .site-nav a { padding: 22px 0 18px; border-bottom: 2px solid transparent; text-decoration: none; }
     .site-nav a:hover, .site-nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
@@ -491,13 +494,16 @@ const html = String.raw`<!doctype html>
     .topline-card span { color: var(--muted); font-size: 12px; }
     .risk-list { display: none; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
     .risk-list.show { display: grid; }
-    .risk-list li { padding: 14px; border-left: 4px solid var(--secondary-container); border-radius: 0 6px 6px 0; background: #fff8e3; }
+    .risk-list li { padding: 16px; border: 1px solid #ead7aa; border-left: 4px solid var(--secondary-container); border-radius: 0 8px 8px 0; background: #fff8e3; box-shadow: 0 10px 22px rgba(61, 47, 24, .06); }
     .risk-list li.high { border-left-color: var(--danger); background: var(--danger-soft); }
+    .risk-list li.low { border-left-color: var(--success); background: #e7f7e3; }
+    .risk-list p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .risk-list em { display: block; margin-top: 9px; color: #433827; font-style: normal; font-size: 12px; font-weight: 700; }
 
     .chat-panel { display: flex; min-height: 640px; flex-direction: column; overflow: hidden; }
     .chat-head { padding: 28px 28px 16px; border-bottom: 1px solid var(--outline-variant); }
     .chat-log { flex: 1; display: grid; align-content: start; gap: 12px; max-height: 390px; overflow: auto; padding: 20px 28px; background: linear-gradient(180deg, var(--surface-low), var(--white)); }
-    .message { max-width: 88%; padding: 13px 14px; border: 1px solid var(--outline-variant); border-radius: 10px; background: var(--white); font-size: 14px; }
+    .message { max-width: 88%; padding: 13px 14px; border: 1px solid var(--outline-variant); border-radius: 10px; background: var(--white); font-size: 14px; white-space: pre-line; }
     .message.user { justify-self: end; border-color: var(--primary-fixed-dim); background: var(--primary-fixed); color: #00201a; }
     .message.bot { justify-self: start; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 28px 18px; }
@@ -1152,28 +1158,206 @@ const html = String.raw`<!doctype html>
       $("#chatInput").focus();
     }
 
+    function normalizeText(value) {
+      return String(value || "")
+        .replace(/\s+/g, " ")
+        .replace(/[ёЁ]/g, "е")
+        .trim();
+    }
+
+    function maskSensitive(value) {
+      return normalizeText(value)
+        .replace(/\b\d{12}\b/g, "[ИИН скрыт]")
+        .replace(/\+?\d[\d\s().-]{8,}\d/g, "[телефон скрыт]")
+        .replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, "[email скрыт]")
+        .replace(/\b\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{4}\b/g, "[карта скрыта]");
+    }
+
+    function evidenceFor(text, pattern) {
+      const source = maskSensitive(text);
+      const match = source.match(pattern);
+      if (!match) return "Условие не найдено явно. Риск отмечен как пробел договора.";
+      const index = Math.max(0, match.index - 80);
+      return source.slice(index, Math.min(source.length, match.index + match[0].length + 120)).trim();
+    }
+
+    function has(text, pattern) {
+      return pattern.test(text);
+    }
+
+    function addRisk(risks, risk) {
+      if (!risks.some((item) => item.title === risk.title)) risks.push(risk);
+    }
+
     function detectRisks(text, fileName) {
-      const source = (text + " " + fileName).toLowerCase();
+      const clean = maskSensitive(text);
+      const source = (clean + " " + fileName).toLowerCase();
       const risks = [];
+
       if (!source || source.trim().length < 8) {
-        risks.push({ level: "medium", title: "Недостаточно текста для точной проверки", body: "Добавьте текст договора или загрузите файл. Сейчас QADAM показывает демо-структуру анализа." });
+        return [{
+          level: "medium",
+          title: "Недостаточно текста для юридически точного вывода",
+          body: "Файл принят, но браузерная demo-версия не всегда извлекает текст из PDF/DOCX. Вставьте 1-2 спорных пункта в поле текста, и QADAM покажет предметный риск.",
+          evidence: "Нет извлеченного текста договора.",
+          fix: "Для live-demo вставьте пункт о депозите, доступе владельца, ремонте или расторжении.",
+          question: "Какой пункт договора вызывает сомнение?",
+          confidence: 0.62
+        }];
       }
-      if (/депозит|залог|возврат/.test(source)) {
-        risks.push({ level: "high", title: "Риск невозврата депозита", body: "Нужно указать срок возврата, основания удержания и акт приёма-передачи. Без этого спор будет сложнее доказать." });
+
+      if (has(source, /депозит|залог|обеспечительн|кепіл|залоговая сумма/)) {
+        const hasDeadline = has(source, /(?:в течение|не позднее|до)\s+(?:\d+|трех|пяти|семи|десяти|3|5|7|10)\s+(?:рабоч|календар|дн)/);
+        const hasAct = has(source, /акт|прием|передач|осмотр|состояни/);
+        if (!hasDeadline || !hasAct || has(source, /не возвращ|удерживается полностью|по усмотрению|без объяснения/)) {
+          addRisk(risks, {
+            level: "high",
+            title: "Депозит можно удержать без прозрачной процедуры",
+            body: "Для студента это главный денежный риск: без срока возврата, акта состояния жилья и закрытого списка удержаний спор будет трудно доказать.",
+            evidence: evidenceFor(clean, /депозит|залог|обеспечительн|кепіл|удерж/iu),
+            fix: "Добавить: депозит возвращается в течение 5 рабочих дней после подписания акта возврата; удержания возможны только по подтвержденному ущербу с фото/чеками.",
+            question: "Укажем срок возврата депозита, акт состояния жилья и закрытый список удержаний?",
+            confidence: hasDeadline && hasAct ? 0.74 : 0.91
+          });
+        }
+      } else {
+        addRisk(risks, {
+          level: "medium",
+          title: "Условие о депозите не найдено",
+          body: "Если депозит передается отдельно, его нужно включить в договор: сумма, срок возврата, основания удержания и акт приема-передачи.",
+          evidence: "Пункт о депозите отсутствует в найденном тексте.",
+          fix: "Внести отдельный пункт: сумма депозита, дата оплаты, возврат до 5 рабочих дней, удержания только по акту.",
+          question: "Будет ли депозит и где именно он зафиксирован?",
+          confidence: 0.76
+        });
       }
-      if (/заход|доступ|посещ|ключ/.test(source)) {
-        risks.push({ level: "high", title: "Доступ арендодателя без предупреждения", body: "Рекомендуется требовать письменное уведомление минимум за 24 часа, кроме аварийных ситуаций." });
+
+      if (has(source, /заход|вход|доступ|посещ|ключ|визит|кіру|иесі/)) {
+        if (has(source, /без\s+(?:предварительного\s+)?уведомлен|в любое время|самостоятельно|свободн|имеет право входить/)) {
+          addRisk(risks, {
+            level: "high",
+            title: "Владелец может входить без предупреждения",
+            body: "Это риск приватности и давления на арендатора. Для гражданской грамотности важно показать: доступ должен быть предсказуемым и документированным.",
+            evidence: evidenceFor(clean, /без\s+(?:предварительного\s+)?уведомлен|в любое время|имеет право входить|доступ|ключ/iu),
+            fix: "Доступ только по письменному уведомлению минимум за 24 часа; исключение - авария или угроза имуществу.",
+            question: "Согласуем вход только по уведомлению за 24 часа, кроме аварии?",
+            confidence: 0.9
+          });
+        }
       }
-      if (/штраф|пеня|неустойк|досроч/.test(source)) {
-        risks.push({ level: "medium", title: "Несбалансированный штраф", body: "Штраф должен быть соразмерным и понятным. Для протокола стоит предложить фиксированный лимит ответственности." });
+
+      if (has(source, /арендн.*плат|плата|стоимость|цена|жалға алу ақы|төлем/)) {
+        if (has(source, /односторон|в любое время|по своему усмотрению|без согласия|повысить/)) {
+          addRisk(risks, {
+            level: "high",
+            title: "Цена аренды может изменяться односторонне",
+            body: "Студент планирует бюджет на семестр. Одностороннее повышение ломает финансовую предсказуемость и снижает защищенность договора.",
+            evidence: evidenceFor(clean, /односторон|в любое время|по своему усмотрению|повысить|изменить.*плат/iu),
+            fix: "Изменение платы только по письменному соглашению сторон или не чаще одного раза в 12 месяцев с уведомлением за 30 дней и понятным пределом.",
+            question: "Зафиксируем цену и запретим одностороннее повышение без письменного соглашения?",
+            confidence: 0.88
+          });
+        }
       }
-      if (/ремонт|полом|ущерб/.test(source)) {
-        risks.push({ level: "medium", title: "Не разделена ответственность за ремонт", body: "Нужно отделить текущий мелкий ремонт от капитального ремонта и скрытых дефектов объекта." });
+
+      if (has(source, /штраф|пеня|неустойк|санкц|ответственн/)) {
+        addRisk(risks, {
+          level: has(source, /за каждый день|любое наруш|без ограничения|полностью/) ? "high" : "medium",
+          title: "Штрафы могут быть несоразмерными",
+          body: "Штраф должен быть понятным, ограниченным и применяться симметрично. Если ответственность есть только у арендатора, это слабое место договора.",
+          evidence: evidenceFor(clean, /штраф|пеня|неустойк|санкц|ответственн/iu),
+          fix: "Ограничить штраф фиксированной суммой или процентом, добавить срок на устранение нарушения и зеркальную ответственность владельца.",
+          question: "Добавим лимит штрафа и одинаковую ответственность сторон?",
+          confidence: 0.82
+        });
       }
+
+      if (has(source, /расторж|досроч|выселен|прекращ|бұзу|тоқтат/)) {
+        if (has(source, /немедлен|без уведомлен|в любое время|по требованию арендодателя/)) {
+          addRisk(risks, {
+            level: "high",
+            title: "Расторжение может быть внезапным",
+            body: "Для первого жилья критично иметь время на поиск новой квартиры. Договор должен давать понятный срок уведомления и одинаковые правила для сторон.",
+            evidence: evidenceFor(clean, /немедлен|без уведомлен|в любое время|расторж|досроч/iu),
+            fix: "Расторжение по инициативе стороны - письменное уведомление за 30 дней; немедленно только при существенном нарушении или аварийной угрозе.",
+            question: "Установим взаимное уведомление за 30 дней до расторжения?",
+            confidence: 0.89
+          });
+        }
+      } else {
+        addRisk(risks, {
+          level: "medium",
+          title: "Порядок расторжения не найден",
+          body: "Если порядок выхода из договора не прописан, студент может оказаться без понятного срока на переезд или возврата денег.",
+          evidence: "Пункт о расторжении не найден явно.",
+          fix: "Добавить порядок уведомления, возврата ключей, оплаты последнего месяца и возврата депозита.",
+          question: "Как каждая сторона может прекратить договор и за сколько дней предупреждает?",
+          confidence: 0.72
+        });
+      }
+
+      if (has(source, /ремонт|полом|ущерб|скрыт|жөндеу/)) {
+        addRisk(risks, {
+          level: has(source, /любой ремонт|капитальн.*арендатор|за счет арендатора|все расходы/) ? "high" : "medium",
+          title: "Ремонт и скрытые дефекты описаны нечетко",
+          body: "Нужно отделить мелкий текущий ремонт от капитального ремонта и дефектов, которые были до заселения.",
+          evidence: evidenceFor(clean, /ремонт|полом|ущерб|капитальн|скрыт|жөндеу/iu),
+          fix: "Текущий мелкий ремонт - арендатор; капитальный ремонт и скрытые дефекты - владелец, если ущерб не причинен арендатором.",
+          question: "Разделим текущий ремонт, капитальный ремонт и скрытые дефекты?",
+          confidence: 0.84
+        });
+      }
+
+      if (!has(source, /коммунал|свет|электр|вода|газ|интернет|счетчик|услуг|су|жарық/)) {
+        addRisk(risks, {
+          level: "medium",
+          title: "Коммунальные платежи не распределены",
+          body: "Без перечня платежей легко получить неожиданные расходы после подписания.",
+          evidence: "Пункт о коммунальных услугах не найден явно.",
+          fix: "Указать, кто платит за воду, свет, газ, отопление, интернет, ОСИ/КСК и как передаются показания счетчиков.",
+          question: "Какие коммунальные платежи входят в аренду, а какие оплачиваются отдельно?",
+          confidence: 0.75
+        });
+      }
+
+      if (!has(source, /адрес|квартира|помещен|объект|город|улиц|мекенжай|пәтер/)) {
+        addRisk(risks, {
+          level: "high",
+          title: "Объект аренды недостаточно идентифицирован",
+          body: "Если адрес и описание жилья не указаны точно, сложнее доказать, какое помещение передавалось и в каком состоянии.",
+          evidence: "Точный адрес или описание объекта не найдено.",
+          fix: "Добавить полный адрес, номер квартиры, площадь/комнаты и приложение с фото состояния.",
+          question: "Укажем полный адрес, описание объекта и фото-приложение к акту?",
+          confidence: 0.78
+        });
+      }
+
+      if (!has(source, /срок|месяц|год|дата|с .* по |мерзім/)) {
+        addRisk(risks, {
+          level: "medium",
+          title: "Срок проживания не найден",
+          body: "Для студента важны даты начала, окончания и правила продления, особенно если аренда привязана к учебному семестру.",
+          evidence: "Пункт о сроке договора не найден явно.",
+          fix: "Указать дату начала, дату окончания, порядок продления и момент передачи ключей.",
+          question: "На какой срок заключается договор и как он продлевается?",
+          confidence: 0.73
+        });
+      }
+
       if (!risks.length) {
-        risks.push({ level: "low", title: "Критических рисков не найдено", body: "Проверьте сроки оплаты, возврат депозита, порядок расторжения и уведомления. Для официальной версии скачайте DOCX-протокол." });
+        risks.push({
+          level: "low",
+          title: "Критических рисков не найдено по базовым правилам",
+          body: "Договор выглядит спокойнее, но перед подписанием всё равно проверьте депозит, доступ владельца, коммунальные платежи, расторжение и акт приема-передачи.",
+          evidence: "Базовый pre-signing чек не нашел красных флагов.",
+          fix: "Скачайте Premium DOCX, чтобы получить официальный чек-лист и протокол разногласий.",
+          question: "Хотите сформировать официальный протокол разногласий?",
+          confidence: 0.68
+        });
       }
-      return risks.slice(0, 5);
+
+      const order = { high: 0, medium: 1, low: 2 };
+      return risks.sort((a, b) => order[a.level] - order[b.level] || b.confidence - a.confidence).slice(0, 7);
     }
 
     function runAnalysis() {
@@ -1185,41 +1369,56 @@ const html = String.raw`<!doctype html>
       const fileName = $("#fileInput").files[0]?.name || "";
       const text = $("#contractText").value || "";
       state.risks = detectRisks(text, fileName);
-      state.score = Math.min(96, 28 + state.risks.length * 17 + state.risks.filter((risk) => risk.level === "high").length * 12);
+      const high = state.risks.filter((risk) => risk.level === "high").length;
+      const medium = state.risks.filter((risk) => risk.level === "medium").length;
+      state.score = Math.min(98, 18 + high * 22 + medium * 11 + Math.max(0, state.risks.length - high - medium) * 4);
       $("#riskScore").textContent = state.score + "/100";
       $("#riskCount").textContent = String(state.risks.length);
       $("#nextStep").textContent = state.risks.some((risk) => risk.level === "high") ? "Протокол" : "Проверить";
       $("#resultGrid").classList.add("show");
       $("#riskList").classList.add("show");
-      $("#riskList").innerHTML = state.risks.map((risk) => "<li class='" + (risk.level === "high" ? "high" : "") + "'><strong>" + escapeHtml(risk.title) + "</strong><br>" + escapeHtml(risk.body) + "</li>").join("");
+      $("#riskList").innerHTML = state.risks.map((risk) => {
+        const label = risk.level === "high" ? "Высокий риск" : risk.level === "medium" ? "Требует внимания" : "Низкий риск";
+        return "<li class='" + escapeHtml(risk.level) + "'><strong>" + escapeHtml(label + " - " + risk.title) + "</strong><p>" + escapeHtml(risk.body) + "</p><em>Доказательство: " + escapeHtml(risk.evidence) + "</em><p><b>Как исправить:</b> " + escapeHtml(risk.fix) + "</p></li>";
+      }).join("");
       addEvent("Free-анализ договора: " + state.risks.length + " рисков");
-      appendBot("Я завершил экспресс-анализ. Самый важный следующий шаг: " + state.risks[0].title + ". Можете спросить меня, как сформулировать правку.");
+      appendBot("Экспресс-анализ готов.\nГлавный риск: " + state.risks[0].title + ".\nЧто сделать: " + state.risks[0].fix + "\nСпросите меня: \"составь формулировку для протокола\" или \"что сказать арендодателю\".");
     }
 
     function answerQuestion(question) {
       const q = question.toLowerCase();
+      const risks = state.risks.length ? state.risks : detectRisks($("#contractText").value, $("#fileInput").files[0]?.name || "");
+      const first = risks[0];
+      const byTopic = risks.find((risk) =>
+        (/депозит|залог|возврат/.test(q) && /депозит|залог/i.test(risk.title + risk.body)) ||
+        (/доступ|заход|ключ|арендодатель|владелец/.test(q) && /доступ|вход|владелец/i.test(risk.title + risk.body)) ||
+        (/штраф|пеня|неустойк/.test(q) && /штраф|пеня|неустойк/i.test(risk.title + risk.body)) ||
+        (/ремонт|полом|ущерб/.test(q) && /ремонт|дефект|ущерб/i.test(risk.title + risk.body)) ||
+        (/расторж|высел|досроч/.test(q) && /расторж|внезап/i.test(risk.title + risk.body)) ||
+        (/коммун|свет|вода|газ|интернет/.test(q) && /коммун|платеж/i.test(risk.title + risk.body))
+      ) || first;
       if (/критер|жюри|отбор|балл|финал/.test(q)) {
-        return "Для отбора QADAM показывает три вещи: глубокий фокус на Civic Rights, работающий MVP с анализом/чатом/DOCX и объяснимую AI-архитектуру. Это прямо соответствует критериям онлайн-этапа: исследование, инженерия и техническая валидация.";
+        return "Для отбора QADAM закрывает три критерия.\n1. Исследование: один пользователь - студент 16-23 лет, который впервые снимает жилье и теряется перед подписанием договора.\n2. Инженерия: не пустая обертка, а цепочка PII-masking, rule engine, evidence-first риски, grounded chat и DOCX-протокол.\n3. Валидация: live MVP, история действий, Premium 490 ₸ и B2B-лицензия для вузов.";
       }
       if (/архитект|ai|ии|цепоч|безопас/.test(q)) {
-        return "Архитектура объясняется как цепочка: загрузка документа, маскирование персональных данных, классификация рисков, grounded-ответ чат-бота и генерация DOCX. Это не пустая оболочка над API, а понятный workflow для защиты.";
+        return "AI-chain QADAM: загрузка договора -> маскирование ИИН/телефона/email -> извлечение условий -> rule engine по жилью -> ранжирование рисков -> ответ чат-бота только по найденным пунктам -> DOCX-протокол разногласий. Backend-логика объяснима: каждый вывод имеет evidence, confidence, question и proposed fix.";
       }
-      if (/депозит|залог|возврат/.test(q)) {
-        return "По депозиту нужно зафиксировать сумму, срок возврата, исчерпывающий список удержаний и обязательный акт состояния жилья. В протоколе разногласий предложите срок возврата 3-5 рабочих дней после выезда.";
+      if (/протокол|docx|разноглас|составь|формулировк|официальн/.test(q)) {
+        return "Формулировка для протокола:\n\"Предлагаем изложить пункт в следующей редакции: " + byTopic.fix + "\"\nОснование: " + byTopic.body + "\nДоказательство из договора: " + byTopic.evidence + "\nВопрос второй стороне: " + byTopic.question;
       }
-      if (/заход|доступ|ключ|арендодатель/.test(q)) {
-        return "Арендодатель не должен свободно заходить без предупреждения. Корректная формулировка: доступ только по предварительному письменному уведомлению за 24 часа, кроме аварии или угрозы имуществу.";
+      if (/что делать|как исправить|как решить|что сказать|арендодател|владельц/.test(q)) {
+        return "Коротко: не подписывать этот пункт без письменной правки.\nГлавный риск: " + byTopic.title + ".\nПочему: " + byTopic.body + "\nЧто предложить: " + byTopic.fix + "\nКак спросить: " + byTopic.question;
       }
-      if (/протокол|docx|разноглас/.test(q)) {
-        return "В DOCX-протокол стоит включить: пункт договора, риск, вашу редакцию, обоснование и срок ответа. Premium за 490 ₸ скачивает такой документ автоматически.";
+      if (/депозит|залог|возврат|доступ|заход|ключ|арендодатель|владелец|штраф|пеня|расторж|ремонт|полом|ущерб|коммун/.test(q)) {
+        return "По вашему вопросу найдено:\nРиск: " + byTopic.title + ".\nДоказательство: " + byTopic.evidence + "\nРекомендация: " + byTopic.fix + "\nУровень уверенности: " + Math.round((byTopic.confidence || 0.7) * 100) + "%.";
       }
-      if (/штраф|пеня|расторж/.test(q)) {
-        return "Проверьте, есть ли баланс ответственности сторон. Если штраф есть только для студента, добавьте зеркальную ответственность арендодателя и ограничьте размер штрафа разумным пределом.";
+      if (/бизнес|модель|деньги|монетизац|490|premium|рынок/.test(q)) {
+        return "Официальная бизнес-модель: Free дает экспресс-анализ и показывает ценность до подписания. Premium за 490 ₸ продает конкретный результат - официальный DOCX-протокол разногласий. B2B-лицензия масштабирует продукт через университеты, общежития и legal clinics. Cost structure: hosting, document processing, AI/rule maintenance, support and partnerships.";
       }
-      if (state.risks.length) {
-        return "С учётом вашего анализа главный риск: " + state.risks[0].title + ". Рекомендация: запросить письменную редакцию спорного пункта и не подписывать договор до фиксации условия.";
+      if (risks.length) {
+        return "Я вижу " + risks.length + " пунктов для проверки. Самый важный: " + first.title + ".\nДоказательство: " + first.evidence + "\nСледующий шаг: " + first.fix + "\nЭто информационная помощь, финальный юридический вывод лучше подтвердить у юриста.";
       }
-      return "Я могу помочь с депозитом, доступом арендодателя, штрафами, расторжением и протоколом разногласий. Для ответа по вашему договору сначала запустите Free-анализ или вставьте текст условия.";
+      return "Я могу помочь с депозитом, доступом владельца, штрафами, расторжением, ремонтом, коммунальными платежами и DOCX-протоколом. Вставьте пункт договора, и я отвечу с доказательством и правкой.";
     }
 
     function appendUser(text) {
@@ -1316,8 +1515,15 @@ const html = String.raw`<!doctype html>
 
     function makeDocx() {
       const risks = state.risks.length ? state.risks : detectRisks($("#contractText").value, $("#fileInput").files[0]?.name || "");
-      const rows = risks.map((risk, index) => "<w:p><w:r><w:t>" + (index + 1) + ". " + escapeXml(risk.title + " - " + risk.body) + "</w:t></w:r></w:p>").join("");
-      const documentXml = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><w:document xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'><w:body><w:p><w:r><w:t>QADAM AI - Протокол разногласий</w:t></w:r></w:p><w:p><w:r><w:t>Premium: 490 ₸. Демо-оплата подтверждена.</w:t></w:r></w:p>" + rows + "<w:p><w:r><w:t>Рекомендация: направить протокол второй стороне и получить письменный ответ до подписания договора.</w:t></w:r></w:p><w:sectPr/></w:body></w:document>";
+      const rows = risks.map((risk, index) => [
+        "<w:p><w:r><w:t>" + (index + 1) + ". " + escapeXml(risk.title) + "</w:t></w:r></w:p>",
+        "<w:p><w:r><w:t>Уровень: " + escapeXml(risk.level === "high" ? "Высокий" : risk.level === "medium" ? "Внимание" : "Низкий") + ". Уверенность: " + Math.round((risk.confidence || 0.7) * 100) + "%.</w:t></w:r></w:p>",
+        "<w:p><w:r><w:t>Почему это риск: " + escapeXml(risk.body) + "</w:t></w:r></w:p>",
+        "<w:p><w:r><w:t>Доказательство из договора: " + escapeXml(risk.evidence) + "</w:t></w:r></w:p>",
+        "<w:p><w:r><w:t>Предлагаемая редакция: " + escapeXml(risk.fix) + "</w:t></w:r></w:p>",
+        "<w:p><w:r><w:t>Вопрос второй стороне: " + escapeXml(risk.question) + "</w:t></w:r></w:p>"
+      ].join("")).join("");
+      const documentXml = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><w:document xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'><w:body><w:p><w:r><w:t>QADAM AI - Официальный протокол разногласий</w:t></w:r></w:p><w:p><w:r><w:t>Premium: 490 ₸. Документ подготовлен по результатам pre-signing анализа договора аренды жилья.</w:t></w:r></w:p><w:p><w:r><w:t>Целевой пользователь: студент 16-23 лет, который впервые снимает жилье и хочет понять риски до подписания.</w:t></w:r></w:p>" + rows + "<w:p><w:r><w:t>Рекомендация: направить протокол второй стороне и получить письменный ответ до подписания договора. QADAM AI предоставляет информационную помощь и не заменяет консультацию юриста.</w:t></w:r></w:p><w:sectPr/></w:body></w:document>";
       return makeZip([
         { name: "[Content_Types].xml", content: "<?xml version='1.0' encoding='UTF-8'?><Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'><Default Extension='rels' ContentType='application/vnd.openxmlformats-package.relationships+xml'/><Default Extension='xml' ContentType='application/xml'/><Override PartName='/word/document.xml' ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'/></Types>" },
         { name: "_rels/.rels", content: "<?xml version='1.0' encoding='UTF-8'?><Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'><Relationship Id='rId1' Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument' Target='word/document.xml'/></Relationships>" },

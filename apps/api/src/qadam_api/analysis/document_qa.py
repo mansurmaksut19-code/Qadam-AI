@@ -295,7 +295,12 @@ def _answer_from_findings(
         for citation in finding.citations
     }
     answer_lines = [
-        f"{index}. {finding.title}: {finding.action}"
+        (
+            f"{index}. {finding.title}\n"
+            f"Почему это риск: {finding.explanation}\n"
+            f"Что изменить: {finding.action}\n"
+            f"Вопрос арендодателю: {finding.landlord_question}"
+        )
         for index, finding in enumerate(selected_findings, start=1)
     ]
     return GroundedQuestionAnswer(

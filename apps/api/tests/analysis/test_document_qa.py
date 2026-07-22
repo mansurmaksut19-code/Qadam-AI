@@ -259,6 +259,8 @@ def test_generic_action_question_reuses_grounded_findings(question: str) -> None
     assert result is not None
     assert result.mode == "action"
     assert result.finding_ids == tuple(item.id for item in report.findings)
+    assert "Почему это риск" in result.answer
+    assert "Вопрос арендодателю" in result.answer
     assert "Зафиксируйте срок возврата" in result.answer
     assert "Согласуйте взаимный письменный срок" in result.answer
     assert {item.block.block_index for item in result.evidence} == {30, 31}
