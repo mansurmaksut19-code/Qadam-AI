@@ -895,7 +895,7 @@ const html = String.raw`<!doctype html>
         <a href="#assistant">AI Chat Bot</a>
         <a href="#history">History</a>
       </nav>
-      <div class="language-switcher" role="group" aria-label="Language"><button type="button" data-lang="ru" class="active">RU</button><button type="button" data-lang="kz">KZ</button><button type="button" data-lang="en">EN</button></div>
+      <div class="language-switcher" role="group" aria-label="Language"><button type="button" data-lang="ru" onclick="window.setQadamLanguage('ru')" class="active">RU</button><button type="button" data-lang="kz" onclick="window.setQadamLanguage('kz')">KZ</button><button type="button" data-lang="en" onclick="window.setQadamLanguage('en')">EN</button></div>
       <div class="top-actions">
         <button class="btn ghost" type="button" data-open-chat>AI чат</button>
         <button class="btn" type="button" data-open-auth>Личный кабинет</button>
@@ -1401,6 +1401,12 @@ const html = String.raw`<!doctype html>
       $$("[data-lang]").forEach((button) => button.classList.toggle("active", button.dataset.lang === state.language));
       renderDashboard();
     }
+
+    window.setQadamLanguage = (language) => {
+      state.language = Object.prototype.hasOwnProperty.call(translations, language) ? language : "ru";
+      localStorage.setItem("qadam:language", state.language);
+      applyLanguage();
+    };
 
     function addEvent(label) {
       const time = new Date().toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -2163,11 +2169,6 @@ const html = String.raw`<!doctype html>
       addEvent("Secure logout");
     });
 
-    $$('[data-lang]').forEach((button) => button.addEventListener('click', () => {
-      state.language = button.dataset.lang;
-      localStorage.setItem('qadam:language', state.language);
-      applyLanguage();
-    }));
     applyLanguage();
     renderHistory();
     renderSessionSummary();
