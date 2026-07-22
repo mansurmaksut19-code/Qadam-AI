@@ -825,8 +825,6 @@ const html = String.raw`<!doctype html>
         <span class="brand-text">QADAM AI</span>
       </a>
       <nav class="site-nav" aria-label="Основная навигация">
-        <a href="#home">Home</a>
-        <a href="#dashboard">Dashboard</a>
         <a class="active" href="#dashboard">Dashboard</a>
         <a href="#model">Commercial Model</a>
         <a href="#assistant">AI Chat Bot</a>
