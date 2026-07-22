@@ -532,6 +532,16 @@ const html = String.raw`<!doctype html>
     .analysis-status { min-height: 22px; margin: 12px 0 0; color: var(--muted); font-size: 12px; }
     .analysis-status.loading { color: var(--primary); }
     .analysis-status.success { color: var(--success); }
+    .analysis-summary { display: none; margin-top: 18px; padding: 20px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--white); }
+    .analysis-summary.show { display: grid; gap: 18px; animation: riskReveal .45s both cubic-bezier(.22, 1, .36, 1); }
+    .analysis-summary h3 { margin: 4px 0 6px; color: var(--ink); font-family: "Cormorant Garamond", Georgia, serif; font-size: 28px; line-height: 1; }
+    .analysis-summary p { max-width: 720px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .summary-grid div { padding: 12px; border-top: 2px solid var(--outline-variant); }
+    .summary-grid strong { display: block; color: var(--primary); font-size: 22px; }
+    .summary-grid span { color: var(--muted); font-size: 11px; }
+    .action-plan { display: grid; gap: 8px; margin: 0; padding-left: 20px; color: var(--ink); font-size: 13px; line-height: 1.5; }
+    .action-plan li::marker { color: var(--secondary); font-weight: 800; }
     .file-meta, .textarea-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
     .file-meta { width: 100%; max-width: 520px; margin: -4px auto 16px; }
     .file-meta strong { color: var(--primary); }
@@ -737,6 +747,12 @@ const html = String.raw`<!doctype html>
       font-weight: 900;
     }
 
+    /* Minimal report surface: keep motion and hierarchy, remove visual weight. */
+    .hero-panel, .workbench, .chat-panel, .history-panel, .model-card, .info-card, .chart-card, .commerce-panel, .security-panel, .brief-card { box-shadow: none; }
+    .model-card:hover, .result-card:hover { transform: none; box-shadow: none; }
+    .risk-list li { box-shadow: none; border-radius: 4px; }
+    .model-card, .info-card, .chart-card, .brief-card, .topline-card { border-radius: 6px; }
+    body::before { opacity: .22; animation-duration: 28s; }
     @media (max-width: 980px) {
       .container { width: min(100% - 32px, var(--max)); }
       .site-nav { display: none; }
@@ -1021,6 +1037,11 @@ const html = String.raw`<!doctype html>
           <div class="result-card"><strong id="riskCount">0</strong><span>Найдено рисков</span></div>
           <div class="result-card"><strong id="nextStep">Готово</strong><span>Следующий шаг</span></div>
         </div>
+        <section class="analysis-summary" id="analysisSummary" aria-live="polite">
+          <div><span class="eyebrow">Итог проверки</span><h3 id="analysisVerdict">Готово</h3><p id="analysisSummaryText">После проверки здесь появится краткое юридическое заключение.</p></div>
+          <div class="summary-grid"><div><strong id="highCount">0</strong><span>Высокий приоритет</span></div><div><strong id="mediumCount">0</strong><span>Нужно уточнить</span></div><div><strong id="missingCount">0</strong><span>Пропущенные условия</span></div></div>
+          <ol class="action-plan" id="actionPlan"></ol>
+        </section>
         <ul class="risk-list" id="riskList"></ul>
       </article>
 
@@ -1464,6 +1485,26 @@ const html = String.raw`<!doctype html>
       return risks.sort((a, b) => order[a.level] - order[b.level] || b.confidence - a.confidence).slice(0, 7);
     }
 
+    function buildAnalysisSummary(risks) {
+      const high = risks.filter((risk) => risk.level === "high").length;
+      const medium = risks.filter((risk) => risk.level === "medium").length;
+      const missing = risks.filter((risk) => /не найден|не указан|не распредел|не описан|недостаточно/i.test(risk.title)).length;
+      const verdict = high ? "Подписание стоит приостановить" : medium ? "Условия нужно уточнить до подписи" : "Критических флагов не найдено";
+      const text = high ? "В договоре есть условия, которые могут привести к прямым расходам или потере контроля. Сначала запросите письменную правку и подтверждение второй стороны." : medium ? "Критических запретов не найдено, но часть условий оставляет пространство для спора. Зафиксируйте сроки, платежи, доступ и ответственность до подписания." : "Базовая проверка пройдена. Перед подписью сверьте реквизиты, акт приёма-передачи и фактическое состояние объекта.";
+      const actions = risks.slice(0, 3).map((risk) => risk.level === "high" ? "Приоритет 1: не подписывать пункт без письменной редакции. " + risk.fix : risk.level === "medium" ? "Приоритет 2: уточнить формулировку и добавить срок или лимит. " + risk.fix : "Приоритет 3: проверить подтверждающие документы. " + risk.fix);
+      return { high, medium, missing, verdict, text, actions };
+    }
+
+    function renderAnalysisSummary(summary) {
+      $("#analysisVerdict").textContent = summary.verdict;
+      $("#analysisSummaryText").textContent = summary.text;
+      $("#highCount").textContent = String(summary.high);
+      $("#mediumCount").textContent = String(summary.medium);
+      $("#missingCount").textContent = String(summary.missing);
+      $("#actionPlan").innerHTML = summary.actions.map((action) => "<li>" + escapeHtml(action) + "</li>").join("");
+      $("#analysisSummary").classList.add("show");
+    }
+
     function runAnalysisCore() {
       if (!$("#consentInput").checked) {
         appendBot("Перед анализом нужно подтвердить согласие на обработку документа. QADAM маскирует персональные данные до AI-обработки.");
@@ -1473,12 +1514,14 @@ const html = String.raw`<!doctype html>
       const fileName = $("#fileInput").files[0]?.name || "";
       const text = $("#contractText").value || "";
       state.risks = detectRisks(text, fileName);
+      state.summary = buildAnalysisSummary(state.risks);
+      renderAnalysisSummary(state.summary);
       const high = state.risks.filter((risk) => risk.level === "high").length;
       const medium = state.risks.filter((risk) => risk.level === "medium").length;
-      state.score = Math.min(98, 18 + high * 22 + medium * 11 + Math.max(0, state.risks.length - high - medium) * 4);
+      state.score = Math.min(98, high * 24 + medium * 12 + Math.max(0, state.risks.length - high - medium) * 3);
       $("#riskScore").textContent = state.score + "/100";
       $("#riskCount").textContent = String(state.risks.length);
-      $("#nextStep").textContent = state.risks.some((risk) => risk.level === "high") ? "Протокол" : "Проверить";
+      $("#nextStep").textContent = state.summary.verdict;
       $("#resultGrid").classList.add("show");
       $("#riskList").classList.add("show");
       $("#riskList").innerHTML = state.risks.map((risk) => {
@@ -1535,6 +1578,10 @@ const html = String.raw`<!doctype html>
       const q = question.toLowerCase();
       const risks = state.risks.length ? state.risks : detectRisks($("#contractText").value, $("#fileInput").files[0]?.name || "");
       const first = risks[0];
+      if (/все риски|сводк|итог|план переговор|следующ/.test(q)) {
+        const summary = state.summary || buildAnalysisSummary(risks);
+        return summary.verdict + ".\n" + summary.text + "\n\nПлан действий:\n" + summary.actions.map((action, index) => (index + 1) + ". " + action).join("\n") + "\n\nГлавное доказательство: " + first.evidence;
+      }
       const byTopic = risks.find((risk) =>
         (/депозит|залог|возврат/.test(q) && /депозит|залог/i.test(risk.title + risk.body)) ||
         (/доступ|заход|ключ|арендодатель|владелец/.test(q) && /доступ|вход|владелец/i.test(risk.title + risk.body)) ||
