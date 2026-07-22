@@ -748,6 +748,15 @@ const html = String.raw`<!doctype html>
     }
 
     /* Minimal report surface: keep motion and hierarchy, remove visual weight. */
+    main.container { display: flex; flex-direction: column; }
+    .hero { order: 1; margin-bottom: 28px; }
+    #assistant { order: 2; margin-bottom: 64px; }
+    .mission-brief, #model, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 3; }
+    .hero-grid { align-items: end; }
+    .hero-panel { border-radius: 6px; background: var(--white); }
+    .workbench { border-top: 4px solid var(--primary); }
+    .workbench h2 { font-size: clamp(36px, 5vw, 58px); }
+    .risk-list li { padding: 20px 22px; }
     .hero-panel, .workbench, .chat-panel, .history-panel, .model-card, .info-card, .chart-card, .commerce-panel, .security-panel, .brief-card { box-shadow: none; }
     .model-card:hover, .result-card:hover { transform: none; box-shadow: none; }
     .risk-list li { box-shadow: none; border-radius: 4px; }
@@ -1314,6 +1323,15 @@ const html = String.raw`<!doctype html>
       if (!risks.some((item) => item.title === risk.title)) risks.push(risk);
     }
 
+    function legalBasisFor(risk) {
+      const title = (risk.title + " " + risk.body).toLowerCase();
+      if (/объект|идентифиц|адрес|описан/.test(title)) return "ГК РК, Особенная часть, ст. 542: данные об объекте найма должны позволять его определить.";
+      if (/депозит|платеж|арендн|коммунал|штраф|пен/.test(title)) return "ГК РК, Особенная часть, ст. 546: условия и форма арендной платы должны быть зафиксированы договором.";
+      if (/ремонт|дефект|содержан|ущерб/.test(title)) return "ГК РК, Особенная часть, ст. 552: обязанности по содержанию и ремонту имущества нужно распределить.";
+      if (/расторж|срок|прекрат|уведом/.test(title)) return "ГК РК, Особенная часть, ст. 556: изменение и прекращение договора требуют проверяемого основания и порядка.";
+      return "ГК РК, Особенная часть, глава 29 (ст. 540–560): точная норма зависит от вида найма и текста пункта.";
+    }
+
     function detectRisks(text, fileName) {
       const clean = maskSensitive(text);
       const source = (clean + " " + fileName).toLowerCase();
@@ -1482,7 +1500,7 @@ const html = String.raw`<!doctype html>
       }
 
       const order = { high: 0, medium: 1, low: 2 };
-      return risks.sort((a, b) => order[a.level] - order[b.level] || b.confidence - a.confidence).slice(0, 7);
+      return risks.sort((a, b) => order[a.level] - order[b.level] || b.confidence - a.confidence).slice(0, 7).map((risk) => ({ ...risk, legalBasis: risk.legalBasis || legalBasisFor(risk) }));
     }
 
     function buildAnalysisSummary(risks) {
@@ -1491,7 +1509,7 @@ const html = String.raw`<!doctype html>
       const missing = risks.filter((risk) => /не найден|не указан|не распредел|не описан|недостаточно/i.test(risk.title)).length;
       const verdict = high ? "Подписание стоит приостановить" : medium ? "Условия нужно уточнить до подписи" : "Критических флагов не найдено";
       const text = high ? "В договоре есть условия, которые могут привести к прямым расходам или потере контроля. Сначала запросите письменную правку и подтверждение второй стороны." : medium ? "Критических запретов не найдено, но часть условий оставляет пространство для спора. Зафиксируйте сроки, платежи, доступ и ответственность до подписания." : "Базовая проверка пройдена. Перед подписью сверьте реквизиты, акт приёма-передачи и фактическое состояние объекта.";
-      const actions = risks.slice(0, 3).map((risk) => risk.level === "high" ? "Приоритет 1: не подписывать пункт без письменной редакции. " + risk.fix : risk.level === "medium" ? "Приоритет 2: уточнить формулировку и добавить срок или лимит. " + risk.fix : "Приоритет 3: проверить подтверждающие документы. " + risk.fix);
+      const actions = risks.slice(0, 3).map((risk) => (risk.level === "high" ? "Приоритет 1: не подписывать пункт без письменной редакции. " : risk.level === "medium" ? "Приоритет 2: уточнить формулировку и добавить срок или лимит. " : "Приоритет 3: проверить подтверждающие документы. ") + risk.fix + " Правовая опора: " + (risk.legalBasis || legalBasisFor(risk)));
       return { high, medium, missing, verdict, text, actions };
     }
 
@@ -1513,7 +1531,7 @@ const html = String.raw`<!doctype html>
       }
       const fileName = $("#fileInput").files[0]?.name || "";
       const text = $("#contractText").value || "";
-      state.risks = detectRisks(text, fileName);
+      state.risks = detectRisks(text, fileName).map((risk) => ({ ...risk, legalBasis: risk.legalBasis || legalBasisFor(risk) }));
       state.summary = buildAnalysisSummary(state.risks);
       renderAnalysisSummary(state.summary);
       const high = state.risks.filter((risk) => risk.level === "high").length;
@@ -1526,7 +1544,7 @@ const html = String.raw`<!doctype html>
       $("#riskList").classList.add("show");
       $("#riskList").innerHTML = state.risks.map((risk) => {
         const label = risk.level === "high" ? "Высокий риск" : risk.level === "medium" ? "Требует внимания" : "Низкий риск";
-        return "<li class='" + escapeHtml(risk.level) + "'><strong>" + escapeHtml(label + " - " + risk.title) + "</strong><p>" + escapeHtml(risk.body) + "</p><em>Доказательство: " + escapeHtml(risk.evidence) + "</em><p><b>Как исправить:</b> " + escapeHtml(risk.fix) + "</p></li>";
+        return "<li class='" + escapeHtml(risk.level) + "'><strong>" + escapeHtml(label + " - " + risk.title) + "</strong><div class='risk-meta'><span>Правовая опора</span></div><p>" + escapeHtml(risk.body) + "</p><em>Доказательство: " + escapeHtml(risk.evidence) + "</em><p><b>Применимая норма:</b> " + escapeHtml(risk.legalBasis) + "</p><p><b>Как исправить:</b> " + escapeHtml(risk.fix) + "</p></li>";
       }).join("");
       addEvent("Free-анализ договора: " + state.risks.length + " рисков");
       appendBot("Экспресс-анализ готов.\nГлавный риск: " + state.risks[0].title + ".\nЧто сделать: " + state.risks[0].fix + "\nСпросите меня: \"составь формулировку для протокола\" или \"что сказать арендодателю\".");
@@ -1580,7 +1598,7 @@ const html = String.raw`<!doctype html>
       const first = risks[0];
       if (/все риски|сводк|итог|план переговор|следующ/.test(q)) {
         const summary = state.summary || buildAnalysisSummary(risks);
-        return summary.verdict + ".\n" + summary.text + "\n\nПлан действий:\n" + summary.actions.map((action, index) => (index + 1) + ". " + action).join("\n") + "\n\nГлавное доказательство: " + first.evidence;
+        return summary.verdict + ".\n" + summary.text + "\n\nПлан действий:\n" + summary.actions.map((action, index) => (index + 1) + ". " + action).join("\n") + "\n\nГлавное доказательство: " + first.evidence + "\nПравовая опора: " + (first.legalBasis || legalBasisFor(first));
       }
       const byTopic = risks.find((risk) =>
         (/депозит|залог|возврат/.test(q) && /депозит|залог/i.test(risk.title + risk.body)) ||
