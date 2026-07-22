@@ -27,22 +27,22 @@ const html = String.raw`<!doctype html>
   <title>QADAM AI - Legal AI Platform</title>
   <style>
     :root {
-      --primary: #00342b;
-      --primary-container: #004d40;
-      --primary-fixed: #afefdd;
-      --primary-fixed-dim: #94d3c1;
-      --secondary: #7e5700;
-      --secondary-container: #feb300;
-      --surface: #f8f9fb;
-      --surface-low: #f2f4f6;
-      --surface-container: #eceef0;
-      --surface-high: #e6e8ea;
-      --surface-highest: #e0e3e5;
-      --white: #ffffff;
-      --ink: #191c1e;
-      --muted: #3f4945;
-      --outline: #707975;
-      --outline-variant: #bfc9c4;
+      --primary: #06382f;
+      --primary-container: #0b5145;
+      --primary-fixed: #d6eadf;
+      --primary-fixed-dim: #b9d8ca;
+      --secondary: #8a641d;
+      --secondary-container: #d9aa42;
+      --surface: #f4efe5;
+      --surface-low: #eee5d6;
+      --surface-container: #e8dcc9;
+      --surface-high: #ded1bb;
+      --surface-highest: #d4c4aa;
+      --white: #fffdf8;
+      --ink: #1d1b17;
+      --muted: #585044;
+      --outline: #766d5f;
+      --outline-variant: #cbbda8;
       --danger: #ba1a1a;
       --danger-soft: #ffdad6;
       --success: #005312;
@@ -51,9 +51,12 @@ const html = String.raw`<!doctype html>
       --radius: 8px;
       --max: 1440px;
       --margin: 48px;
-      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-family: "Segoe UI", Inter, Arial, sans-serif;
       color: var(--ink);
-      background: var(--surface);
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, .72), transparent 430px),
+        radial-gradient(circle at 16% 0%, rgba(217, 170, 66, .13), transparent 360px),
+        var(--surface);
     }
 
     * { box-sizing: border-box; }
@@ -68,7 +71,7 @@ const html = String.raw`<!doctype html>
     }
     body.modal-open { overflow: hidden; }
     h1, h2, h3, p { margin-top: 0; }
-    h1, h2, .serif { font-family: Georgia, "Source Serif 4", "Times New Roman", serif; letter-spacing: 0; }
+    h1, h2, .serif { font-family: "Palatino Linotype", Palatino, "Iowan Old Style", Georgia, "Times New Roman", serif; letter-spacing: 0; }
     a { color: inherit; }
     button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
@@ -80,7 +83,7 @@ const html = String.raw`<!doctype html>
       z-index: 40;
       height: 64px;
       border-bottom: 1px solid var(--outline-variant);
-      background: rgba(248, 249, 251, 0.94);
+      background: rgba(244, 239, 229, 0.94);
       backdrop-filter: blur(10px);
     }
     .nav-row { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -94,7 +97,7 @@ const html = String.raw`<!doctype html>
       background: var(--white);
       box-shadow: 0 8px 18px rgba(0, 52, 43, .08);
     }
-    .brand-text { color: var(--primary); font-family: Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1; }
+    .brand-text { color: var(--primary); font-family: "Palatino Linotype", Palatino, Georgia, serif; font-size: 24px; font-weight: 700; line-height: 1; }
     .site-nav { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
     .site-nav a { padding: 22px 0 18px; border-bottom: 2px solid transparent; text-decoration: none; }
     .site-nav a:hover, .site-nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
@@ -120,8 +123,8 @@ const html = String.raw`<!doctype html>
     .btn:hover { transform: translateY(-1px); background: var(--primary-container); }
     .btn.secondary { border-color: var(--primary); background: transparent; color: var(--primary); }
     .btn.secondary:hover { background: var(--primary-fixed); }
-    .btn.gold { background: var(--secondary-container); color: #281900; }
-    .btn.gold:hover { background: #ffba38; }
+    .btn.gold { background: var(--secondary-container); color: #2d1b00; }
+    .btn.gold:hover { background: #e6bc5c; }
     .btn.ghost { border-color: var(--outline-variant); background: var(--white); color: var(--primary); }
     .btn.full { width: 100%; }
     .btn.small { min-height: 36px; padding: 8px 12px; font-size: 11px; }
@@ -152,8 +155,8 @@ const html = String.raw`<!doctype html>
       padding: 24px;
       border: 1px solid var(--outline-variant);
       border-radius: 12px;
-      background: var(--white);
-      box-shadow: 0 18px 38px rgba(0, 52, 43, .08);
+      background: linear-gradient(180deg, var(--white), #faf5eb);
+      box-shadow: 0 18px 38px rgba(61, 47, 24, .11);
     }
     .hero-panel strong { display: block; color: var(--primary); font-size: 34px; line-height: 1; }
     .hero-panel span { color: var(--muted); font-size: 13px; }
@@ -260,6 +263,41 @@ const html = String.raw`<!doctype html>
     .price-line { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--outline-variant); }
     .price-line strong { font-family: Georgia, serif; font-size: 26px; }
     .price-line span { color: var(--outline); font-size: 12px; font-weight: 700; }
+
+    .commerce-panel {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 24px;
+      margin: -38px 0 84px;
+      padding: 34px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 14px;
+      background:
+        linear-gradient(135deg, rgba(255,253,248,.92), rgba(238,229,214,.86)),
+        var(--white);
+      box-shadow: 0 22px 46px rgba(61, 47, 24, .12);
+    }
+    .commerce-panel h2 { margin-bottom: 12px; color: var(--primary); font-size: 36px; }
+    .commerce-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .commerce-item {
+      padding: 18px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 10px;
+      background: rgba(255,253,248,.86);
+    }
+    .commerce-item strong { display: block; color: var(--primary); font-size: 22px; }
+    .commerce-item span { color: var(--muted); font-size: 13px; }
+    .commerce-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .procurement-card {
+      padding: 22px;
+      border: 1px solid var(--primary-fixed-dim);
+      border-radius: 12px;
+      background: #f8f4e9;
+    }
+    .procurement-card h3 { margin: 0 0 14px; color: var(--primary); font-size: 20px; }
+    .procurement-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .procurement-list li { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-top: 1px solid var(--outline-variant); color: var(--muted); font-size: 13px; }
+    .procurement-list b { color: var(--primary); }
 
     .section-title { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
     .section-title h2 { margin: 0; color: var(--primary); font-size: 28px; line-height: 1.2; }
@@ -477,6 +515,12 @@ const html = String.raw`<!doctype html>
     .dialog h2 { margin-bottom: 12px; color: var(--primary); font-size: 32px; }
     .dialog.auth-dialog { width: min(100%, 880px); }
     .auth-modal-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; }
+    .auth-hero-panel {
+      padding: 20px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fffdf8, #f5ecd9);
+    }
     .auth-steps { display: grid; gap: 10px; margin-top: 18px; }
     .auth-step {
       display: grid;
@@ -499,6 +543,26 @@ const html = String.raw`<!doctype html>
     }
     .auth-step strong { display: block; color: var(--primary); }
     .auth-step span { color: var(--muted); font-size: 13px; }
+    .auth-trust {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--primary-fixed-dim);
+      border-radius: 10px;
+      background: rgba(214, 234, 223, .72);
+    }
+    .trust-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--primary); font-size: 13px; font-weight: 800; }
+    .trust-meter { height: 8px; overflow: hidden; border-radius: 999px; background: rgba(6, 56, 47, .12); }
+    .trust-meter span { display: block; width: 92%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--primary), var(--secondary-container)); }
+    .auth-form-card {
+      padding: 20px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 0 16px 32px rgba(61, 47, 24, .1);
+    }
+    .otp-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
     .session-card {
       margin-top: 14px;
       padding: 16px;
@@ -508,6 +572,7 @@ const html = String.raw`<!doctype html>
       color: var(--primary);
       font-size: 14px;
     }
+    .session-card.active { background: #eef8ef; border-color: #9fc7a4; }
     .close {
       position: absolute;
       top: 14px;
@@ -540,7 +605,7 @@ const html = String.raw`<!doctype html>
       .container { width: min(100% - 32px, var(--max)); }
       .site-nav { display: none; }
       .hero-grid, .metrics-grid, .scale-grid, .product-grid, .footer-grid { grid-template-columns: 1fr; }
-      .model-grid, .metrics-side, .footer-links, .mission-brief, .judge-grid, .pipeline, .security-panel, .security-grid, .auth-modal-grid { grid-template-columns: 1fr; }
+      .model-grid, .metrics-side, .footer-links, .mission-brief, .judge-grid, .pipeline, .security-panel, .security-grid, .auth-modal-grid, .commerce-panel, .commerce-grid { grid-template-columns: 1fr; }
       .hero-panel { width: 100%; }
       .model-card { min-height: auto; }
       .scale-card { padding: 28px; }
@@ -673,6 +738,32 @@ const html = String.raw`<!doctype html>
         </ul>
         <div class="price-line"><strong>Custom</strong> <span>/ yearly</span></div>
       </article>
+    </section>
+
+    <section class="commerce-panel" aria-labelledby="commerce-title">
+      <div>
+        <span class="eyebrow">Official commercial offer</span>
+        <h2 id="commerce-title">Бизнес-модель, которую можно купить</h2>
+        <p class="muted">QADAM работает как понятная legal-tech воронка: бесплатная диагностика создаёт доверие, Premium-документ монетизирует срочную боль, а campus license масштабирует продукт через университеты и общежития.</p>
+        <div class="commerce-actions">
+          <button class="btn gold" type="button" id="buyModel">Купить Premium за 490 ₸</button>
+          <button class="btn secondary" type="button" id="requestLicense">Запросить B2B-лицензию</button>
+        </div>
+      </div>
+      <div class="procurement-card">
+        <h3>Procurement summary</h3>
+        <div class="commerce-grid" style="margin-bottom:14px">
+          <div class="commerce-item"><strong>0 ₸</strong><span>Free acquisition</span></div>
+          <div class="commerce-item"><strong>490 ₸</strong><span>Premium DOCX</span></div>
+          <div class="commerce-item"><strong>B2B</strong><span>Campus license</span></div>
+        </div>
+        <ul class="procurement-list">
+          <li><span>Primary buyer</span><b>Student / tenant</b></li>
+          <li><span>Institutional buyer</span><b>University / dormitory</b></li>
+          <li><span>Revenue stream</span><b>Micro-payment + license</b></li>
+          <li><span>Delivery</span><b>Instant DOCX + audit trail</b></li>
+        </ul>
+      </div>
     </section>
 
     <section class="metrics" aria-labelledby="metrics-title">
@@ -861,17 +952,22 @@ const html = String.raw`<!doctype html>
     <div class="dialog auth-dialog">
       <button class="close" type="button" data-close>×</button>
       <div class="auth-modal-grid">
-        <div>
+        <div class="auth-hero-panel">
           <span class="eyebrow">Secure workspace</span>
           <h2 id="authTitle">Passwordless-вход QADAM</h2>
           <p class="muted">Demo OTP: 490490. На защите можно объяснить production-логику: одноразовые коды, rate limiting, role-based доступ и audit trail без хранения паролей.</p>
+          <div class="auth-trust" aria-label="Статус безопасности">
+            <div class="trust-row"><span>Security posture</span><strong>92%</strong></div>
+            <div class="trust-meter"><span></span></div>
+            <p class="muted" style="margin:0;font-size:13px">OTP, trusted device, audit trail и privacy boundary включены для demo-сессии.</p>
+          </div>
           <div class="auth-steps" aria-label="Шаги аутентификации">
             <div class="auth-step"><b>1</b><div><strong>Идентификация</strong><span>Email, роль и устройство фиксируются в сессии.</span></div></div>
             <div class="auth-step"><b>2</b><div><strong>OTP challenge</strong><span>Код 490490 имитирует email/SMS OTP для live-demo.</span></div></div>
             <div class="auth-step"><b>3</b><div><strong>Audit log</strong><span>Вход, анализ и DOCX сохраняются в истории действий.</span></div></div>
           </div>
         </div>
-        <div>
+        <div class="auth-form-card">
           <label class="field">Email <input id="emailInput" type="email" placeholder="judge@example.com" autocomplete="email"></label>
           <label class="field">Роль
             <select id="roleInput">
@@ -880,8 +976,12 @@ const html = String.raw`<!doctype html>
               <option value="University admin">University admin</option>
             </select>
           </label>
-          <label class="field">OTP-код <input id="otpInput" type="text" inputmode="numeric" placeholder="490490" autocomplete="one-time-code"></label>
+          <div class="otp-actions">
+            <label class="field" style="margin:0">OTP-код <input id="otpInput" type="text" inputmode="numeric" placeholder="490490" autocomplete="one-time-code"></label>
+            <button class="btn ghost small" type="button" id="resendOtp">Resend</button>
+          </div>
           <button class="btn full" type="button" id="loginBtn">Подтвердить защищённый вход</button>
+          <button class="btn secondary full" type="button" id="logoutBtn">Завершить сессию</button>
           <div class="session-card" id="sessionSummary">Сессия не активна. Введите email и demo-код 490490.</div>
           <p class="muted" id="authStatus" style="margin-top:14px"></p>
         </div>
@@ -905,13 +1005,41 @@ const html = String.raw`<!doctype html>
       <span class="eyebrow">Premium checkout</span>
       <h2 id="paymentTitle">DOCX-протокол разногласий</h2>
       <p class="muted">Демо-платёж имитирует реальную модель: пользователь сначала получает бесплатный риск-анализ, затем платит 490 ₸ за официальный документ для переговоров.</p>
+      <label class="field">Email покупателя <input id="buyerEmail" type="email" placeholder="student@example.com" autocomplete="email"></label>
+      <label class="field">Способ оплаты
+        <select id="paymentMethod">
+          <option>Kaspi / QR</option>
+          <option>Банковская карта</option>
+          <option>University voucher</option>
+        </select>
+      </label>
       <div class="brief-grid" style="margin-top:18px">
         <div><strong>Product</strong><span>Протокол разногласий .DOCX</span></div>
         <div><strong>Price</strong><span>490 ₸, разовый микроплатёж</span></div>
         <div><strong>Includes</strong><span>Риски, формулировки, следующий шаг, audit event</span></div>
-        <div><strong>Status</strong><span>Demo payment approved for judges</span></div>
+        <div><strong>Invoice</strong><span id="invoiceId">QADAM-490-DEMO</span></div>
       </div>
       <button class="btn gold full" type="button" id="confirmPremium" style="margin-top:20px">Подтвердить demo-оплату и скачать DOCX</button>
+    </div>
+  </div>
+
+  <div class="modal" id="licenseModal" role="dialog" aria-modal="true" aria-labelledby="licenseTitle">
+    <div class="dialog">
+      <button class="close" type="button" data-close>×</button>
+      <span class="eyebrow">B2B campus license</span>
+      <h2 id="licenseTitle">Запрос коммерческого предложения</h2>
+      <p class="muted">Для вузов и общежитий QADAM продаётся как лицензия: пакет проверок, кабинет администратора, аналитика рисков и white-label доступ.</p>
+      <label class="field">Организация <input id="orgInput" type="text" placeholder="Nazarbayev University / Dormitory"></label>
+      <label class="field">Контактный email <input id="licenseEmail" type="email" placeholder="admin@example.edu.kz"></label>
+      <label class="field">Пакет
+        <select id="licensePlan">
+          <option>Campus Starter · до 500 проверок</option>
+          <option>Campus Pro · до 5 000 проверок</option>
+          <option>White-label Enterprise</option>
+        </select>
+      </label>
+      <button class="btn full" type="button" id="submitLicense">Сформировать request</button>
+      <div class="session-card" id="licenseStatus">Коммерческий запрос будет сохранён в истории действий.</div>
     </div>
   </div>
 
@@ -950,6 +1078,10 @@ const html = String.raw`<!doctype html>
       $(id).classList.add("show");
       document.body.classList.add("modal-open");
       renderSessionSummary();
+      if (id === "#paymentModal") {
+        $("#invoiceId").textContent = "QADAM-" + Date.now().toString().slice(-6) + "-490";
+        if (state.session?.email && !$("#buyerEmail").value) $("#buyerEmail").value = state.session.email;
+      }
     }
 
     function closeModals() {
@@ -1154,9 +1286,19 @@ const html = String.raw`<!doctype html>
       if (!box) return;
       if (!state.session) {
         box.textContent = "Сессия не активна. Введите email и demo-код 490490.";
+        box.classList.remove("active");
+        renderAuthButtons();
         return;
       }
       box.textContent = "Активная сессия: " + state.session.email + " · " + state.session.role + " · device trusted · audit enabled";
+      box.classList.add("active");
+      renderAuthButtons();
+    }
+
+    function renderAuthButtons() {
+      $$("[data-open-auth]").forEach((button) => {
+        button.textContent = state.session ? "Кабинет: " + state.session.role : "Личный кабинет";
+      });
     }
 
     function downloadPitch() {
@@ -1189,10 +1331,30 @@ const html = String.raw`<!doctype html>
       addEvent("Premium checkout открыт: 490 ₸");
     });
     $("#confirmPremium").addEventListener("click", () => {
+      const buyer = $("#buyerEmail").value.trim() || state.session?.email || "demo-buyer";
+      const method = $("#paymentMethod").value;
+      addEvent("Premium purchase approved: 490 ₸ · " + method + " · " + buyer);
       downloadDocx();
       closeModals();
     });
     $("[data-download-pitch]").addEventListener("click", downloadPitch);
+    $("#buyModel").addEventListener("click", () => {
+      if (!state.risks.length) runAnalysis();
+      openModal("#paymentModal");
+      addEvent("Открыта покупка Premium DOCX за 490 ₸");
+    });
+    $("#requestLicense").addEventListener("click", () => {
+      openModal("#licenseModal");
+      addEvent("Открыт B2B license request");
+    });
+    $("#submitLicense").addEventListener("click", () => {
+      const org = $("#orgInput").value.trim() || "Demo university";
+      const plan = $("#licensePlan").value;
+      $("#licenseStatus").textContent = "Request сформирован: " + org + " · " + plan + ". Следующий шаг: отправить коммерческое предложение.";
+      $("#licenseStatus").classList.add("active");
+      addEvent("B2B license request: " + org + " · " + plan);
+      appendBot("B2B-запрос сохранён. Для защиты можно объяснить его как второй revenue stream: лицензия для вузов и общежитий.");
+    });
     $("#chatForm").addEventListener("submit", (event) => {
       event.preventDefault();
       const input = $("#chatInput");
@@ -1204,8 +1366,8 @@ const html = String.raw`<!doctype html>
       const email = $("#emailInput").value.trim();
       const code = $("#otpInput").value.trim();
       const role = $("#roleInput").value;
-      if (!email || code !== "490490") {
-        $("#authStatus").textContent = "Введите email и demo-код 490490.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || code !== "490490") {
+        $("#authStatus").textContent = "Введите корректный email и demo-код 490490.";
         return;
       }
       state.session = { email, role, trustedAt: new Date().toISOString() };
@@ -1213,6 +1375,17 @@ const html = String.raw`<!doctype html>
       $("#authStatus").textContent = "Вход выполнен. Включены role-aware session, device trust и audit trail.";
       renderSessionSummary();
       addEvent("Secure login: " + role + " · " + email);
+    });
+    $("#resendOtp").addEventListener("click", () => {
+      $("#authStatus").textContent = "Demo OTP повторно отправлен: 490490. В production здесь будет email/SMS delivery.";
+      addEvent("OTP resend requested");
+    });
+    $("#logoutBtn").addEventListener("click", () => {
+      state.session = null;
+      localStorage.removeItem("qadam:session");
+      $("#authStatus").textContent = "Сессия завершена. Доступ к истории остался только в этом браузере.";
+      renderSessionSummary();
+      addEvent("Secure logout");
     });
 
     renderHistory();
