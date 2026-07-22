@@ -767,6 +767,42 @@ const html = String.raw`<!doctype html>
     .dashboard-stat span, .dashboard-stat small { display: block; color: var(--muted); font-size: 12px; }
     .dashboard-stat strong { display: block; margin: 10px 0 4px; color: var(--primary); font-size: 24px; }
     .dashboard-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .dashboard-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .dashboard-details > div { min-height: 92px; padding: 16px; border: 1px solid var(--outline-variant); border-radius: 4px; background: var(--surface-low); }
+    .dashboard-details span, .dashboard-details small { display: block; color: var(--muted); font-size: 11px; }
+    .dashboard-details strong { display: block; margin: 7px 0 4px; overflow: hidden; color: var(--primary); font-size: 16px; text-overflow: ellipsis; white-space: nowrap; }
+    .dashboard-panel { display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: 36px; min-height: 540px; padding: clamp(36px, 6vw, 76px) clamp(24px, 6vw, 76px); border: 0; border-radius: 0; background: #001f19; color: var(--white); }
+    .dashboard-head { grid-column: 1; grid-row: 1; display: flex; align-items: flex-start; flex-direction: column; justify-content: center; gap: 24px; margin: 0; }
+    .dashboard-head h2 { max-width: 560px; margin: 6px 0 12px; color: #d8f0e8; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(44px, 5vw, 70px); line-height: .98; }
+    .dashboard-head p { max-width: 500px; color: rgba(255,253,248,.72); font-size: 16px; }
+    .dashboard-head .eyebrow { color: #d9aa42; }
+    .dashboard-head > .btn { display: none; }
+    .dashboard-visual { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+    .dashboard-window { position: relative; min-height: 360px; overflow: hidden; border: 1px solid rgba(216,240,232,.28); border-radius: 8px; background: #f7f8f5; box-shadow: 0 24px 60px rgba(0,0,0,.22); }
+    .window-bar { display: flex; align-items: center; gap: 7px; padding: 14px 16px; border-bottom: 1px solid #dce4df; color: #65736e; font-size: 11px; }
+    .window-bar span { width: 7px; height: 7px; border-radius: 50%; background: #b2c3bd; }
+    .window-bar b { margin-left: 10px; font-weight: 700; }
+    .window-body { display: grid; grid-template-columns: 42px 1fr 132px; min-height: 300px; }
+    .window-sidebar { display: grid; align-content: start; gap: 20px; padding: 22px 16px; background: #edf3ef; }
+    .window-sidebar i { display: block; width: 12px; height: 12px; border-radius: 3px; background: #9bb9ad; }
+    .window-sidebar i:first-child { background: var(--secondary); }
+    .window-document { padding: 28px 24px; color: #173b31; }
+    .window-document strong { display: block; margin-bottom: 22px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; }
+    .document-line { width: 82%; height: 9px; margin: 15px 0; border-radius: 2px; background: #d9e2dd; }
+    .document-line.wide { width: 96%; }
+    .document-line.highlight { background: #bfe7d5; }
+    .window-status { display: grid; align-content: start; gap: 8px; padding: 24px 16px; border-left: 1px solid #dce4df; color: #687771; font-size: 11px; }
+    .window-status strong { color: #176b52; font-family: "Cormorant Garamond", Georgia, serif; font-size: 34px; }
+    .window-status small { color: #9a6d1d; }
+    .dashboard-note { position: absolute; left: 14%; bottom: 18px; display: flex; align-items: center; gap: 10px; max-width: 260px; padding: 14px 16px; border: 1px solid rgba(192,200,196,.48); border-radius: 6px; background: rgba(255,253,248,.9); color: #24443a; font-size: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.1); }
+    .dashboard-note b { color: var(--secondary); font-size: 18px; }
+    .dashboard-grid, .dashboard-details, .dashboard-actions { grid-column: 1 / -1; }
+    .dashboard-grid { border-color: rgba(216,240,232,.25); }
+    .dashboard-stat { border-color: rgba(216,240,232,.25); }
+    .dashboard-stat span, .dashboard-stat small, .dashboard-details span, .dashboard-details small { color: rgba(255,253,248,.6); }
+    .dashboard-stat strong, .dashboard-details strong { color: #f4d28d; }
+    .dashboard-details > div { border-color: rgba(216,240,232,.25); background: rgba(255,253,248,.06); }
+    .dashboard-actions { margin-top: 0; }
     #model { order: 2; margin-bottom: 28px; }
     .mission-brief, .commerce-panel, .metrics, .architecture-card, .scale-card { order: 6; }
     #assistant { order: 3; margin-bottom: 28px; }
@@ -785,7 +821,12 @@ const html = String.raw`<!doctype html>
     body::before { opacity: .22; animation-duration: 28s; }
     @media (max-width: 980px) {
       .container { width: min(100% - 32px, var(--max)); }
+      .dashboard-panel { grid-template-columns: 1fr; }
+      .dashboard-visual { grid-column: 1; grid-row: 2; }
+      .dashboard-head { grid-column: 1; grid-row: 1; }
+      .dashboard-grid, .dashboard-details, .dashboard-actions { grid-column: 1; }
       .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-details { grid-template-columns: 1fr; }
       .dashboard-stat:nth-child(2) { border-right: 0; }
       .site-nav { display: none; }
       .hero-grid, .metrics-grid, .scale-grid, .product-grid, .footer-grid { grid-template-columns: 1fr; }
@@ -798,10 +839,15 @@ const html = String.raw`<!doctype html>
       .architecture-line { padding-bottom: 18px; }
     }
     @media (max-width: 640px) {
-      .dashboard-panel { padding: 20px; }
+      .dashboard-panel { gap: 24px; min-height: 0; padding: 36px 20px; }
+      .dashboard-head h2 { font-size: 44px; }
+      .window-body { grid-template-columns: 28px 1fr; }
+      .window-status { display: none; }
+      .dashboard-note { left: 8%; right: 8%; max-width: none; }
       .dashboard-head { align-items: flex-start; flex-direction: column; }
       .access-strip { align-items: flex-start; flex-direction: column; padding: 20px; }
       .dashboard-grid { grid-template-columns: 1fr; }
+      .dashboard-details { grid-template-columns: 1fr; }
       .dashboard-stat { min-height: auto; border-right: 0; border-bottom: 1px solid var(--outline-variant); }
       .dashboard-stat:last-child { border-bottom: 0; }
       .brand-text { font-size: 19px; }
@@ -861,11 +907,16 @@ const html = String.raw`<!doctype html>
 
     <section class="dashboard-panel" id="dashboard" aria-labelledby="dashboard-title">
       <div class="dashboard-head"><div><span class="eyebrow">Workspace overview</span><h2 id="dashboard-title">Панель QADAM AI</h2><p class="muted">Быстрый контроль анализа, рисков, чата и истории действий.</p></div><button class="btn" type="button" data-open-auth>Открыть кабинет</button></div>
+      <div class="dashboard-visual" aria-label="Предпросмотр юридического отчёта"><div class="dashboard-window"><div class="window-bar"><span></span><span></span><span></span><b>QADAM AI / Legal Report</b></div><div class="window-body"><div class="window-sidebar"><i></i><i></i><i></i><i></i></div><div class="window-document"><strong>Договор аренды</strong><div class="document-line wide"></div><div class="document-line"></div><div class="document-line highlight"></div><div class="document-line wide highlight"></div><div class="document-line"></div><div class="document-line highlight"></div></div><div class="window-status"><span>Risk score</span><strong id="dashboardVisualScore">—</strong><small>Evidence-first</small></div></div><div class="dashboard-note"><b>✓</b><span>Проверка условий и доказательств в одном отчёте</span></div></div></div>
       <div class="dashboard-grid">
         <div class="dashboard-stat"><span>Статус сервиса</span><strong>Работает</strong><small>Публичный demo-доступ</small></div>
         <div class="dashboard-stat"><span>Анализ</span><strong>Free</strong><small>Риски + доказательства</small></div>
         <div class="dashboard-stat"><span>Документ</span><strong>490 ₸</strong><small>Premium DOCX-протокол</small></div>
         <div class="dashboard-stat"><span>История</span><strong id="dashboardHistoryCount">0</strong><small>событий в браузере</small></div>
+      </div>
+      <div class="dashboard-details">
+        <div><span>Последняя проверка</span><strong id="dashboardAnalysisState">Ожидает документ</strong><small id="dashboardAnalysisDetail">Загрузите договор или вставьте условия для запуска анализа.</small></div>
+        <div><span>Последнее действие</span><strong id="dashboardLastAction">Нет действий</strong><small id="dashboardSessionState">Гость · локальная история включена</small></div>
       </div>
       <div class="dashboard-actions"><a class="btn" href="#assistant">Начать анализ</a><button class="btn ghost" type="button" data-open-chat>Задать вопрос AI</button><a class="btn ghost" href="#history">Открыть историю</a></div>
     </section>
@@ -1306,11 +1357,34 @@ const html = String.raw`<!doctype html>
       renderHistory();
     }
 
+    function renderDashboard() {
+      const historyCount = $("#dashboardHistoryCount");
+      if (historyCount) historyCount.textContent = String(state.events.length);
+      const analysisState = $("#dashboardAnalysisState");
+      const analysisDetail = $("#dashboardAnalysisDetail");
+      if (analysisState && analysisDetail) {
+        if (!state.risks.length) {
+          analysisState.textContent = "Ожидает документ";
+          analysisDetail.textContent = "Загрузите договор или вставьте условия для запуска анализа.";
+        } else {
+          analysisState.textContent = state.summary?.verdict || "Проверка завершена";
+          analysisDetail.textContent = state.score + "/100 risk score · " + state.risks.length + " пунктов для проверки";
+        }
+      }
+      const visualScore = $("#dashboardVisualScore");
+      if (visualScore) visualScore.textContent = state.risks.length ? state.score + "/100" : "—";
+      const lastAction = $("#dashboardLastAction");
+      if (lastAction) lastAction.textContent = state.events[0]?.label || "Нет действий";
+      const sessionState = $("#dashboardSessionState");
+      if (sessionState) sessionState.textContent = state.session ? "Вход выполнен · история синхронизируется локально" : "Гость · локальная история включена";
+    }
+
     function renderHistory() {
       const list = $("#historyList");
       $("#historyCount").textContent = String(state.events.length);
       const dashboardCount = $("#dashboardHistoryCount");
       if (dashboardCount) dashboardCount.textContent = String(state.events.length);
+      renderDashboard();
       if (!state.events.length) {
         list.innerHTML = "<li><span>История появится после первого действия.</span><strong>Ready</strong></li>";
         return;
@@ -1588,6 +1662,7 @@ const html = String.raw`<!doctype html>
       const high = state.risks.filter((risk) => risk.level === "high").length;
       const medium = state.risks.filter((risk) => risk.level === "medium").length;
       state.score = Math.min(98, high * 24 + medium * 12 + Math.max(0, state.risks.length - high - medium) * 3);
+      renderDashboard();
       $("#riskScore").textContent = state.score + "/100";
       $("#riskCount").textContent = String(state.risks.length);
       $("#nextStep").textContent = state.summary.verdict;
@@ -1852,6 +1927,7 @@ const html = String.raw`<!doctype html>
     }
 
     function renderAuthButtons() {
+      renderDashboard();
       $$("[data-open-auth]").forEach((button) => {
         button.textContent = state.session ? "Кабинет: " + state.session.role : "Личный кабинет";
       });
