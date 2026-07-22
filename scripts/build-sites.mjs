@@ -120,6 +120,9 @@ const html = String.raw`<!doctype html>
     .brand-text { color: var(--primary); font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, Georgia, serif; font-size: 25px; font-weight: 700; line-height: 1; }
     .site-nav { display: flex; align-items: center; gap: 32px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
     .site-nav a { padding: 22px 0 18px; border-bottom: 2px solid transparent; text-decoration: none; }
+    .language-switcher { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--outline-variant); border-radius: 4px; background: var(--white); }
+    .language-switcher button { min-width: 30px; padding: 5px 6px; border: 0; border-radius: 2px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 800; cursor: pointer; }
+    .language-switcher button.active { background: var(--primary); color: var(--white); }
     .site-nav a:hover, .site-nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
     .top-actions { display: flex; align-items: center; gap: 10px; }
     .btn {
@@ -771,7 +774,7 @@ const html = String.raw`<!doctype html>
     .dashboard-details > div { min-height: 92px; padding: 16px; border: 1px solid var(--outline-variant); border-radius: 4px; background: var(--surface-low); }
     .dashboard-details span, .dashboard-details small { display: block; color: var(--muted); font-size: 11px; }
     .dashboard-details strong { display: block; margin: 7px 0 4px; overflow: hidden; color: var(--primary); font-size: 16px; text-overflow: ellipsis; white-space: nowrap; }
-    .dashboard-panel { display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: 36px; min-height: 540px; padding: clamp(36px, 6vw, 76px) clamp(24px, 6vw, 76px); border: 0; border-radius: 0; background: #001f19; color: var(--white); }
+    .dashboard-panel { display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: 36px; min-height: 540px; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: clamp(36px, 6vw, 76px) max(24px, calc((100vw - 1280px) / 2)); border: 0; border-radius: 0; background: #001f19; color: var(--white); }
     .dashboard-head { grid-column: 1; grid-row: 1; display: flex; align-items: flex-start; flex-direction: column; justify-content: center; gap: 24px; margin: 0; }
     .dashboard-head h2 { max-width: 560px; margin: 6px 0 12px; color: #d8f0e8; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(44px, 5vw, 70px); line-height: .98; }
     .dashboard-head p { max-width: 500px; color: rgba(255,253,248,.72); font-size: 16px; }
@@ -876,6 +879,7 @@ const html = String.raw`<!doctype html>
         <a href="#assistant">AI Chat Bot</a>
         <a href="#history">History</a>
       </nav>
+      <div class="language-switcher" role="group" aria-label="Language"><button type="button" data-lang="ru" class="active">RU</button><button type="button" data-lang="kz">KZ</button><button type="button" data-lang="en">EN</button></div>
       <div class="top-actions">
         <button class="btn ghost" type="button" data-open-chat>AI чат</button>
         <button class="btn" type="button" data-open-auth>Личный кабинет</button>
@@ -1343,12 +1347,44 @@ const html = String.raw`<!doctype html>
       chatBusy: false,
       authMode: "login",
       authResendAt: 0,
+      language: localStorage.getItem("qadam:language") || "ru",
       session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
       events: JSON.parse(localStorage.getItem("qadam:events") || "[]")
     };
 
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    const translations = {
+      ru: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Проверьте договор аренды до подписи", intro: "Премиальный AI-анализ юридических рисков с понятным отчётом и доказательствами.", cabinet: "Личный кабинет", start: "Начать анализ", ask: "Задать вопрос AI", openHistory: "Открыть историю", overview: "Рабочая панель QADAM AI", service: "Статус сервиса", analysis: "Анализ", document: "Документ", events: "История", lastCheck: "Последняя проверка", lastAction: "Последнее действие", waiting: "Ожидает документ", guest: "Гость · локальная история включена" },
+      kz: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Жалдау шартын қол қоймас бұрын тексеріңіз", intro: "Түсінікті есеп пен дәлелдерге негізделген заңды тәуекелдерді премиум AI талдауы.", cabinet: "Жеке кабинет", start: "Талдауды бастау", ask: "AI-ға сұрақ қою", openHistory: "Тарихты ашу", overview: "QADAM AI жұмыс панелі", service: "Сервис күйі", analysis: "Талдау", document: "Құжат", events: "Тарих", lastCheck: "Соңғы тексеріс", lastAction: "Соңғы әрекет", waiting: "Құжат күтілуде", guest: "Қонақ · жергілікті тарих қосулы" },
+      en: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Review your rental contract before signing", intro: "Premium AI analysis of legal risks with a clear, evidence-first report.", cabinet: "Personal Cabinet", start: "Start analysis", ask: "Ask AI a question", openHistory: "Open history", overview: "QADAM AI workspace", service: "Service status", analysis: "Analysis", document: "Document", events: "History", lastCheck: "Last review", lastAction: "Last action", waiting: "Waiting for a document", guest: "Guest · local history enabled" }
+    };
+
+    function applyLanguage() {
+      const t = translations[state.language] || translations.ru;
+      document.documentElement.lang = state.language === "kz" ? "kk" : state.language;
+      const nav = $$(".site-nav a");
+      [t.dashboard, t.model, t.chat, t.history].forEach((label, index) => { if (nav[index]) nav[index].textContent = label; });
+      $("#dashboard-title").textContent = t.overview;
+      const dashboardIntro = document.querySelector("#dashboard .dashboard-head p");
+      if (dashboardIntro) dashboardIntro.textContent = t.intro;
+      const stats = $$("#dashboard .dashboard-stat span");
+      [t.service, t.analysis, t.document, t.events].forEach((label, index) => { if (stats[index]) stats[index].textContent = label; });
+      const details = $$("#dashboard .dashboard-details span");
+      [t.lastCheck, t.lastAction].forEach((label, index) => { if (details[index]) details[index].textContent = label; });
+      const actions = $$("#dashboard .dashboard-actions .btn");
+      [t.start, t.ask, t.openHistory].forEach((label, index) => { if (actions[index]) actions[index].textContent = label; });
+      const modelLabel = document.querySelector("#model .model-card h3");
+      if (modelLabel) modelLabel.textContent = t.model;
+      const chatTitle = $("#chat-title");
+      if (chatTitle) chatTitle.textContent = t.chat;
+      const historyTitle = $("#history h2");
+      if (historyTitle) historyTitle.textContent = t.history;
+      $$("[data-open-auth]").forEach((button) => { if (!state.session) button.textContent = t.cabinet; });
+      $$("[data-lang]").forEach((button) => button.classList.toggle("active", button.dataset.lang === state.language));
+      renderDashboard();
+    }
 
     function addEvent(label) {
       const time = new Date().toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -1358,14 +1394,15 @@ const html = String.raw`<!doctype html>
     }
 
     function renderDashboard() {
+      const t = translations[state.language] || translations.ru;
       const historyCount = $("#dashboardHistoryCount");
       if (historyCount) historyCount.textContent = String(state.events.length);
       const analysisState = $("#dashboardAnalysisState");
       const analysisDetail = $("#dashboardAnalysisDetail");
       if (analysisState && analysisDetail) {
         if (!state.risks.length) {
-          analysisState.textContent = "Ожидает документ";
-          analysisDetail.textContent = "Загрузите договор или вставьте условия для запуска анализа.";
+          analysisState.textContent = t.waiting;
+          analysisDetail.textContent = t.intro;
         } else {
           analysisState.textContent = state.summary?.verdict || "Проверка завершена";
           analysisDetail.textContent = state.score + "/100 risk score · " + state.risks.length + " пунктов для проверки";
@@ -1376,7 +1413,7 @@ const html = String.raw`<!doctype html>
       const lastAction = $("#dashboardLastAction");
       if (lastAction) lastAction.textContent = state.events[0]?.label || "Нет действий";
       const sessionState = $("#dashboardSessionState");
-      if (sessionState) sessionState.textContent = state.session ? "Вход выполнен · история синхронизируется локально" : "Гость · локальная история включена";
+      if (sessionState) sessionState.textContent = state.session ? "Signed in · local history enabled" : t.guest;
     }
 
     function renderHistory() {
@@ -2110,6 +2147,12 @@ const html = String.raw`<!doctype html>
       addEvent("Secure logout");
     });
 
+    $$('[data-lang]').forEach((button) => button.addEventListener('click', () => {
+      state.language = button.dataset.lang;
+      localStorage.setItem('qadam:language', state.language);
+      applyLanguage();
+    }));
+    applyLanguage();
     renderHistory();
     renderSessionSummary();
   </script>
