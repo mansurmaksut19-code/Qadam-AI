@@ -390,28 +390,75 @@ const html = String.raw`<!doctype html>
     .bar:nth-child(6) { background: var(--primary); }
     .chart-labels { display: flex; justify-content: space-between; margin-top: 14px; color: var(--outline); font-size: 11px; font-weight: 700; }
 
-    .product-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr); gap: 24px; margin-bottom: 84px; }
-    .workbench, .chat-panel, .history-panel {
+    .product-grid { display: grid; grid-template-columns: minmax(420px, .92fr) minmax(300px, .78fr); gap: clamp(28px, 6vw, 92px); align-items: center; margin-bottom: 84px; }
+    .workbench, .chat-panel, .history-panel, .privacy-side {
       border: 1px solid var(--outline-variant);
-      border-radius: var(--radius);
+      border-radius: 12px;
       background: var(--white);
-      box-shadow: 0 12px 26px rgba(0, 52, 43, .06);
+      box-shadow: 0 18px 42px rgba(61, 47, 24, .1);
     }
-    .workbench { padding: 32px; }
-    .workbench h2, .chat-panel h2, .history-panel h2 { margin-bottom: 10px; color: var(--primary); font-size: 30px; }
+    .workbench { padding: 28px; }
+    .workbench h2 { margin-bottom: 8px; color: var(--ink); font-family: "Palatino Linotype", Palatino, Georgia, serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.02; }
+    .chat-panel h2, .history-panel h2 { margin-bottom: 10px; color: var(--primary); font-size: 30px; }
     .muted { color: var(--muted); }
     .upload-zone {
       display: grid;
       place-items: center;
-      min-height: 190px;
-      margin: 24px 0;
-      padding: 28px;
-      border: 1px dashed var(--primary);
-      border-radius: var(--radius);
-      background: var(--surface-low);
+      min-height: 162px;
+      margin: 24px 0 18px;
+      padding: 24px;
+      border: 1px dashed #8cb8ad;
+      border-radius: 10px;
+      background: #dcefeb;
       text-align: center;
     }
     .upload-zone input { max-width: 100%; }
+    .upload-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 8px;
+      color: var(--primary);
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .upload-primary-label { display: block; color: var(--ink); font-size: 14px; font-weight: 800; }
+    .upload-secondary-label { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+    .agreement-row, .browser-note {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .agreement-row { margin: 10px 0 16px; }
+    .agreement-row input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--primary); }
+    .browser-note { margin-top: 14px; }
+    .side-stack { display: grid; gap: 22px; align-content: center; }
+    .privacy-side {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    .privacy-side-icon {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-size: 19px;
+      line-height: 1;
+    }
+    .privacy-side h3 { margin: 0 0 8px; color: var(--ink); font-size: 16px; }
+    .privacy-side p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
     .field { display: grid; gap: 8px; margin: 14px 0; font-weight: 800; color: var(--primary); }
     .field input, .field textarea, .field select {
       width: 100%;
@@ -849,28 +896,30 @@ const html = String.raw`<!doctype html>
 
     <section class="product-grid" id="assistant" aria-label="Рабочий продукт">
       <article class="workbench">
-        <span class="eyebrow">Free + Premium рабочая модель</span>
-        <h2>Экспресс-анализ договора</h2>
-        <p class="muted">Загрузите PDF/DOCX или вставьте текст. Free покажет риски, Premium за 490 ₸ скачает официальный протокол разногласий.</p>
-        <div class="product-topline" aria-label="Продуктовые метрики">
-          <div class="topline-card"><strong>~45 сек</strong><span>демо-путь от текста до риска</span></div>
-          <div class="topline-card"><strong>5 классов</strong><span>типовые риски аренды</span></div>
-          <div class="topline-card"><strong>490 ₸</strong><span>микроплатёж за DOCX</span></div>
-        </div>
+        <span class="eyebrow">Проверка до подписания</span>
+        <h2>Загрузите договор</h2>
+        <p class="muted">PDF или DOCX до 10 МБ. Фото и сканы без текста пока не поддерживаются.</p>
         <div class="upload-zone">
-          <label class="field" style="width:100%;max-width:520px">
-            Файл договора
+          <label style="width:100%;max-width:520px">
+            <span class="upload-icon">↥</span>
+            <span class="upload-primary-label">Выберите договор</span>
+            <span class="upload-secondary-label">Нажмите, чтобы выбрать файл</span>
             <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.txt">
           </label>
         </div>
+        <label class="agreement-row">
+          <input type="checkbox" id="consentInput" checked>
+          <span>Я согласен на обработку документа для анализа. QADAM маскирует ИИН, телефоны и email перед AI-обработкой.</span>
+        </label>
         <label class="field">
           Текст или ключевые условия
           <textarea id="contractText" placeholder="Например: депозит не возвращается, арендодатель может заходить без предупреждения, штраф за досрочное расторжение..."></textarea>
         </label>
         <div class="actions">
-          <button class="btn" type="button" id="runAnalysis">Запустить Free-анализ</button>
+          <button class="btn full" type="button" id="runAnalysis">Проверить договор</button>
           <button class="btn gold" type="button" id="downloadDocx">Premium 490 ₸: оформить DOCX</button>
         </div>
+        <div class="browser-note"><span>♙</span><span>Не публикуйте ссылку на полный отчёт: доступ защищён приватным токеном в этом браузере.</span></div>
         <div class="result-grid" id="resultGrid" aria-live="polite">
           <div class="result-card"><strong id="riskScore">0/100</strong><span>Risk score</span></div>
           <div class="result-card"><strong id="riskCount">0</strong><span>Найдено рисков</span></div>
@@ -879,25 +928,34 @@ const html = String.raw`<!doctype html>
         <ul class="risk-list" id="riskList"></ul>
       </article>
 
-      <article class="chat-panel" aria-labelledby="chat-title">
-        <div class="chat-head">
-          <span class="eyebrow">AI Legal Chat Bot</span>
-          <h2 id="chat-title">Спросите QADAM</h2>
-          <p class="muted">Чат-бот отвечает по договору, объясняет риски и подсказывает, какие условия стоит добавить в протокол разногласий.</p>
-        </div>
-        <div class="chat-log" id="chatLog" aria-live="polite">
-          <div class="message bot">Здравствуйте. Я QADAM AI. Могу объяснить риск в договоре, подсказать формулировку или подготовить пункты для DOCX-протокола.</div>
-        </div>
-        <div class="suggestions">
-          <button type="button" data-question="Можно ли арендодателю заходить в квартиру без предупреждения?">Доступ арендодателя</button>
-          <button type="button" data-question="Что делать, если депозит не возвращают?">Депозит</button>
-          <button type="button" data-question="Какие пункты включить в протокол разногласий?">Протокол</button>
-        </div>
-        <form class="chat-form" id="chatForm">
-          <input id="chatInput" type="text" autocomplete="off" placeholder="Напишите вопрос по договору...">
-          <button class="btn small" type="submit">Спросить</button>
-        </form>
-      </article>
+      <div class="side-stack">
+        <aside class="privacy-side">
+          <div class="privacy-side-icon">♧</div>
+          <div>
+            <h3>Личные данные — не доказательство риска</h3>
+            <p>ИИН, телефоны, email и номера карт маскируются до анализа. В отчёте остаются только условия договора, понятные выводы и источники.</p>
+          </div>
+        </aside>
+        <article class="chat-panel" aria-labelledby="chat-title">
+          <div class="chat-head">
+            <span class="eyebrow">AI Legal Chat Bot</span>
+            <h2 id="chat-title">Спросите QADAM</h2>
+            <p class="muted">Чат-бот отвечает по договору, объясняет риски и подсказывает, какие условия стоит добавить в протокол разногласий.</p>
+          </div>
+          <div class="chat-log" id="chatLog" aria-live="polite">
+            <div class="message bot">Здравствуйте. Я QADAM AI. Могу объяснить риск в договоре, подсказать формулировку или подготовить пункты для DOCX-протокола.</div>
+          </div>
+          <div class="suggestions">
+            <button type="button" data-question="Можно ли арендодателю заходить в квартиру без предупреждения?">Доступ арендодателя</button>
+            <button type="button" data-question="Что делать, если депозит не возвращают?">Депозит</button>
+            <button type="button" data-question="Какие пункты включить в протокол разногласий?">Протокол</button>
+          </div>
+          <form class="chat-form" id="chatForm">
+            <input id="chatInput" type="text" autocomplete="off" placeholder="Напишите вопрос по договору...">
+            <button class="btn small" type="submit">Спросить</button>
+          </form>
+        </article>
+      </div>
     </section>
 
     <section class="security-panel" aria-labelledby="security-title">
@@ -1119,6 +1177,11 @@ const html = String.raw`<!doctype html>
     }
 
     function runAnalysis() {
+      if (!$("#consentInput").checked) {
+        appendBot("Перед анализом нужно подтвердить согласие на обработку документа. QADAM маскирует персональные данные до AI-обработки.");
+        addEvent("Анализ остановлен: нет согласия");
+        return;
+      }
       const fileName = $("#fileInput").files[0]?.name || "";
       const text = $("#contractText").value || "";
       state.risks = detectRisks(text, fileName);
