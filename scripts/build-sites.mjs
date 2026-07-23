@@ -838,6 +838,155 @@ const html = String.raw`<!doctype html>
     .risk-list li { box-shadow: none; border-radius: 4px; }
     .model-card, .info-card, .chart-card, .brief-card, .topline-card { border-radius: 6px; }
     body::before { opacity: .22; animation-duration: 28s; }
+
+    /* Contract workspace: restrained legal-tech composition based on the supplied reference. */
+    #assistant {
+      position: relative;
+      width: 100%;
+      grid-template-columns: minmax(0, 620px) minmax(300px, 430px);
+      justify-content: center;
+      align-items: start;
+      gap: clamp(48px, 8vw, 120px);
+      padding: clamp(56px, 7vw, 92px) clamp(20px, 4vw, 64px);
+      border: 1px solid #e3ddd1;
+      border-radius: 8px;
+      background: #f4f0e7;
+      overflow: hidden;
+    }
+    #assistant::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(10, 87, 73, .026) 1px, transparent 1px);
+      background-size: 100% 32px;
+      mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+    }
+    #assistant > * { position: relative; z-index: 1; }
+    #assistant .workbench {
+      width: 100%;
+      padding: clamp(24px, 3vw, 34px);
+      border: 1px solid #dedbd4;
+      border-top: 1px solid #dedbd4;
+      border-radius: 8px;
+      background: #fffefa;
+      box-shadow: 0 16px 38px rgba(56, 45, 27, .08);
+      transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease;
+    }
+    #assistant .workbench:focus-within {
+      transform: translateY(-2px);
+      box-shadow: 0 22px 48px rgba(56, 45, 27, .12);
+    }
+    #assistant .workbench h2 {
+      max-width: 520px;
+      margin: 8px 0 8px;
+      font-family: "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
+      font-size: clamp(40px, 4.2vw, 58px);
+      font-weight: 600;
+      line-height: .96;
+    }
+    #assistant .workbench > .muted {
+      max-width: 520px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    #assistant .upload-zone {
+      position: relative;
+      min-height: 178px;
+      margin: 22px 0 14px;
+      padding: 26px;
+      border: 1px dashed #87b8ad;
+      border-radius: 7px;
+      background: #dcefeb;
+      transition: border-color .25s ease, background-color .25s ease, transform .25s ease;
+    }
+    #assistant .upload-zone:hover,
+    #assistant .upload-zone:focus-within {
+      border-color: #0a5749;
+      background: #d3e9e4;
+      transform: translateY(-1px);
+    }
+    #assistant .upload-zone label {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 122px;
+      cursor: pointer;
+    }
+    #assistant .upload-zone input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    #assistant .upload-icon {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 4px;
+      border: 1px solid rgba(10, 87, 73, .16);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .5);
+      font-size: 20px;
+    }
+    #assistant .upload-primary-label { font-size: 13px; }
+    #assistant .upload-secondary-label { margin-top: 3px; font-size: 11px; }
+    #assistant .file-meta { margin: 0 0 14px; }
+    #assistant .agreement-row { padding: 2px 0; font-size: 11px; }
+    #assistant .field { margin-top: 18px; color: #24453c; font-size: 12px; }
+    #assistant .field textarea {
+      min-height: 116px;
+      border-color: #d5d9d5;
+      background: #fbfcfa;
+      line-height: 1.55;
+      transition: border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
+    }
+    #assistant .field textarea:focus,
+    #assistant .chat-form input:focus {
+      outline: 0;
+      border-color: #0a5749;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(10, 87, 73, .1);
+    }
+    #assistant .actions { gap: 10px; margin-top: 18px; }
+    #assistant .actions .btn { min-height: 44px; }
+    #assistant .actions .btn.full { flex: 1 1 100%; }
+    #assistant .actions .btn.gold { flex: 1 1 100%; background: transparent; color: #725315; border-color: #c9a753; }
+    #assistant .browser-note { padding-top: 2px; font-size: 10px; }
+    #assistant .side-stack { width: 100%; gap: 34px; padding-top: clamp(86px, 9vw, 132px); }
+    #assistant .privacy-side { max-width: 390px; padding: 0; }
+    #assistant .privacy-side-icon {
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(10, 87, 73, .22);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .42);
+      font-size: 16px;
+    }
+    #assistant .privacy-side h3 {
+      margin-bottom: 10px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1.05;
+    }
+    #assistant .privacy-side p { max-width: 350px; font-size: 12px; line-height: 1.65; }
+    #assistant .chat-panel {
+      min-height: 500px;
+      border-radius: 8px;
+      background: #fffefa;
+      box-shadow: 0 14px 34px rgba(56, 45, 27, .07);
+    }
+    #assistant .chat-head { padding: 24px 24px 16px; }
+    #assistant .chat-panel h2 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 34px; line-height: 1; }
+    #assistant .chat-log { max-height: 280px; padding: 18px 24px; background: #f7f6f1; }
+    #assistant .suggestions { padding: 0 24px 14px; }
+    #assistant .suggestions button { border-radius: 4px; }
+    #assistant .chat-form { padding: 16px 24px 22px; }
+    #assistant .analysis-summary.show,
+    #assistant .result-grid.show,
+    #assistant .risk-list.show { scroll-margin-top: 110px; }
     @media (max-width: 980px) {
       .container { width: min(100% - 32px, var(--max)); }
       .dashboard-panel { grid-template-columns: 1fr; }
@@ -854,6 +1003,10 @@ const html = String.raw`<!doctype html>
       .model-card { min-height: auto; }
       .scale-card { padding: 28px; }
       .result-grid { grid-template-columns: 1fr; }
+      #assistant { gap: 34px; }
+      #assistant .side-stack { padding-top: 0; }
+      #assistant .privacy-side { max-width: 620px; }
+      #assistant .privacy-side p { max-width: 560px; }
       .pipe-step::after { display: none; }
       .architecture-line { padding-bottom: 18px; }
     }
@@ -873,6 +1026,12 @@ const html = String.raw`<!doctype html>
       .top-actions .btn.ghost { display: none; }
       main { padding-top: 88px; }
       .workbench, .chat-head, .history-panel { padding: 22px; }
+      #assistant { width: 100%; padding: 34px 16px; border-radius: 6px; }
+      #assistant .workbench { padding: 24px 20px; }
+      #assistant .workbench h2 { font-size: 42px; }
+      #assistant .upload-zone { min-height: 150px; padding: 16px; }
+      #assistant .privacy-side { grid-template-columns: 32px 1fr; }
+      #assistant .chat-form { grid-template-columns: 1fr; }
       .chat-log, .suggestions, .chat-form { padding-left: 22px; padding-right: 22px; }
       .footer-bottom { flex-direction: column; }
       .history-toolbar { align-items: flex-start; flex-direction: column; }
@@ -1379,6 +1538,73 @@ const html = String.raw`<!doctype html>
       en: { dashboard: "Dashboard", model: "Commercial Model", chat: "AI Chat Bot", history: "History", title: "Review your rental contract before signing", intro: "QADAM AI highlights disputed clauses, explains risks in plain language, and prepares a negotiation protocol in a few clicks.", cabinet: "Personal Cabinet", start: "Review contract", ask: "Ask AI a question", openHistory: "Open history", overview: "QADAM AI Legal Intelligence", service: "Service status", analysis: "Free: express analysis", document: "Premium DOCX · 490 ₸", events: "History", lastCheck: "Last review", lastAction: "Last action", waiting: "Waiting for a document", guest: "Guest · local history enabled" }
     };
 
+    Object.assign(translations.ru, {
+      checkEyebrow: "Проверка до подписания",
+      uploadTitle: "Загрузите договор",
+      uploadIntro: "PDF или DOCX до 10 МБ. Фото и сканы без текстового слоя пока не поддерживаются.",
+      chooseFile: "Выберите договор",
+      chooseHint: "Нажмите, чтобы выбрать файл",
+      noFile: "Файл не выбран",
+      fileHint: "PDF, DOCX или TXT · до 10 МБ",
+      consent: "Я согласен на обработку документа для анализа. QADAM маскирует ИИН, телефоны и email перед AI-обработкой.",
+      contractLabel: "Текст или ключевые условия",
+      contractPlaceholder: "Например: депозит не возвращается, арендодатель может заходить без предупреждения, штраф за досрочное расторжение...",
+      sample: "Вставить пример договора",
+      run: "Проверить договор",
+      running: "Анализируем условия...",
+      premium: "Premium 490 ₸: оформить DOCX",
+      privacyTitle: "Личные данные — не доказательство риска",
+      privacyText: "ИИН, телефоны, email и номера карт маскируются до анализа. В отчёте остаются только условия договора, понятные выводы и правовые источники.",
+      chatTitle: "Спросите QADAM",
+      chatIntro: "Задайте вопрос по договору: AI объяснит риск, укажет применимую статью и предложит безопасную формулировку.",
+      chatPlaceholder: "Напишите вопрос по договору...",
+      chatSubmit: "Спросить"
+    });
+    Object.assign(translations.kz, {
+      checkEyebrow: "Қол қою алдындағы тексеріс",
+      uploadTitle: "Шартты жүктеңіз",
+      uploadIntro: "PDF немесе DOCX, 10 МБ-қа дейін. Мәтін қабаты жоқ фото мен скан әзірге қолдау таппайды.",
+      chooseFile: "Шартты таңдаңыз",
+      chooseHint: "Файлды таңдау үшін басыңыз",
+      noFile: "Файл таңдалмады",
+      fileHint: "PDF, DOCX немесе TXT · 10 МБ-қа дейін",
+      consent: "Құжатты талдау үшін өңдеуге келісемін. QADAM AI өңдеуіне дейін ЖСН, телефон және email деректерін жасырады.",
+      contractLabel: "Мәтін немесе негізгі талаптар",
+      contractPlaceholder: "Мысалы: депозит қайтарылмайды, жалға беруші ескертусіз кіре алады, мерзімінен бұрын бұзғаны үшін айыппұл...",
+      sample: "Шарт үлгісін енгізу",
+      run: "Шартты тексеру",
+      running: "Талаптар талдануда...",
+      premium: "Premium 490 ₸: DOCX рәсімдеу",
+      privacyTitle: "Жеке деректер тәуекелдің дәлелі емес",
+      privacyText: "ЖСН, телефон, email және карта нөмірлері талдауға дейін жасырылады. Есепте тек шарт талаптары, түсінікті қорытынды және құқықтық дереккөздер қалады.",
+      chatTitle: "QADAM-нан сұраңыз",
+      chatIntro: "Шарт бойынша сұрақ қойыңыз: AI тәуекелді түсіндіріп, қолданылатын бапты және қауіпсіз тұжырымды ұсынады.",
+      chatPlaceholder: "Шарт бойынша сұрағыңызды жазыңыз...",
+      chatSubmit: "Сұрау"
+    });
+    Object.assign(translations.en, {
+      checkEyebrow: "Review before signing",
+      uploadTitle: "Upload your contract",
+      uploadIntro: "PDF or DOCX up to 10 MB. Photos and scans without a text layer are not supported yet.",
+      chooseFile: "Choose a contract",
+      chooseHint: "Click to select a file",
+      noFile: "No file selected",
+      fileHint: "PDF, DOCX or TXT · up to 10 MB",
+      consent: "I consent to document processing for analysis. QADAM masks ID numbers, phone numbers and email before AI processing.",
+      contractLabel: "Text or key clauses",
+      contractPlaceholder: "For example: the deposit is non-refundable, the landlord may enter without notice, early termination carries a penalty...",
+      sample: "Insert a sample contract",
+      run: "Review contract",
+      running: "Analysing clauses...",
+      premium: "Premium 490 ₸: create DOCX",
+      privacyTitle: "Personal data is not evidence of risk",
+      privacyText: "ID numbers, phone numbers, email and card numbers are masked before analysis. The report retains only contract clauses, plain-language findings and legal sources.",
+      chatTitle: "Ask QADAM",
+      chatIntro: "Ask about your contract: AI explains the risk, cites the applicable article and suggests safer wording.",
+      chatPlaceholder: "Ask a question about the contract...",
+      chatSubmit: "Ask"
+    });
+
     function applyLanguage() {
       const t = translations[state.language] || translations.ru;
       document.documentElement.lang = state.language === "kz" ? "kk" : state.language;
@@ -1396,9 +1622,43 @@ const html = String.raw`<!doctype html>
       const modelLabel = document.querySelector("#model .model-card h3");
       if (modelLabel) modelLabel.textContent = t.model;
       const chatTitle = $("#chat-title");
-      if (chatTitle) chatTitle.textContent = t.chat;
+      if (chatTitle) chatTitle.textContent = t.chatTitle;
       const historyTitle = $("#history h2");
       if (historyTitle) historyTitle.textContent = t.history;
+      const workbench = document.querySelector("#assistant .workbench");
+      if (workbench) {
+        const eyebrow = workbench.querySelector(".eyebrow");
+        const title = workbench.querySelector("h2");
+        const intro = workbench.querySelector(":scope > .muted");
+        const primaryLabel = workbench.querySelector(".upload-primary-label");
+        const secondaryLabel = workbench.querySelector(".upload-secondary-label");
+        const consent = workbench.querySelector(".agreement-row span");
+        const contractField = workbench.querySelector(".field");
+        const contractText = $("#contractText");
+        if (eyebrow) eyebrow.textContent = t.checkEyebrow;
+        if (title) title.textContent = t.uploadTitle;
+        if (intro) intro.textContent = t.uploadIntro;
+        if (primaryLabel) primaryLabel.textContent = t.chooseFile;
+        if (secondaryLabel) secondaryLabel.textContent = t.chooseHint;
+        if (consent) consent.textContent = t.consent;
+        if (contractField && contractField.firstChild) contractField.firstChild.textContent = t.contractLabel;
+        if (contractText) contractText.placeholder = t.contractPlaceholder;
+        if ($("#sampleContract")) $("#sampleContract").textContent = t.sample;
+        if ($("#runAnalysis") && !state.busy) $("#runAnalysis").textContent = t.run;
+        if ($("#downloadDocx")) $("#downloadDocx").textContent = t.premium;
+        if ($("#fileName") && !$("#fileInput")?.files?.length) $("#fileName").textContent = t.noFile;
+        if ($("#fileHint")) $("#fileHint").textContent = t.fileHint;
+      }
+      const privacyTitle = document.querySelector("#assistant .privacy-side h3");
+      const privacyText = document.querySelector("#assistant .privacy-side p");
+      const chatIntro = document.querySelector("#assistant .chat-head .muted");
+      const chatInput = $("#chatInput");
+      const chatSubmit = document.querySelector("#chatForm button");
+      if (privacyTitle) privacyTitle.textContent = t.privacyTitle;
+      if (privacyText) privacyText.textContent = t.privacyText;
+      if (chatIntro) chatIntro.textContent = t.chatIntro;
+      if (chatInput) chatInput.placeholder = t.chatPlaceholder;
+      if (chatSubmit) chatSubmit.textContent = t.chatSubmit;
       $$("[data-open-auth]").forEach((button) => { if (!state.session) button.textContent = t.cabinet; });
       $$("[data-lang]").forEach((button) => button.classList.toggle("active", button.dataset.lang === state.language));
       renderDashboard();
@@ -1758,11 +2018,12 @@ const html = String.raw`<!doctype html>
     function runAnalysis() {
       if (state.busy) return;
       state.busy = true;
+      const t = translations[state.language] || translations.ru;
       const workbench = document.querySelector(".workbench");
       const button = $("#runAnalysis");
       workbench.classList.add("is-loading");
       button.disabled = true;
-      button.textContent = "Анализируем условия...";
+      button.textContent = t.running;
       const status = $("#analysisStatus");
       status.className = "analysis-status loading";
       status.textContent = "Шаг 1 из 3 · маскируем данные и выделяем условия...";
@@ -1775,7 +2036,7 @@ const html = String.raw`<!doctype html>
         state.busy = false;
         workbench.classList.remove("is-loading");
         button.disabled = false;
-        button.textContent = "Проверить договор";
+        button.textContent = t.run;
       }, 420);
     }
 
@@ -2025,8 +2286,9 @@ const html = String.raw`<!doctype html>
     });
     $("#fileInput").addEventListener("change", () => {
       const file = $("#fileInput").files[0];
-      $("#fileName").textContent = file ? file.name : "Файл не выбран";
-      $("#fileHint").textContent = file ? Math.ceil(file.size / 1024) + " KB · готов к проверке" : "PDF, DOCX или TXT · до 10 МБ";
+      const t = translations[state.language] || translations.ru;
+      $("#fileName").textContent = file ? file.name : t.noFile;
+      $("#fileHint").textContent = file ? Math.ceil(file.size / 1024) + " KB · ready" : t.fileHint;
       $("#analysisStatus").textContent = file ? "Файл выбран. Запустите бесплатную проверку, чтобы увидеть риски." : "Готово к проверке.";
     });
     $("#contractText").addEventListener("input", () => {
