@@ -1657,24 +1657,6 @@ const html = String.raw`<!doctype html>
       </div>
     </section>
 
-    <section class="security-panel" aria-labelledby="security-title">
-      <div>
-        <span class="eyebrow">Authentication & trust</span>
-        <h2 id="security-title">Аутентификация выглядит как production-flow</h2>
-        <p class="muted">Кабинет использует обычную регистрацию и вход по email/паролю через Supabase Auth. История действий сохраняется за аккаунтом и доступна после входа.</p>
-        <div class="actions">
-          <button class="btn" type="button" data-open-auth>Открыть secure login</button>
-          <button class="btn secondary" type="button" data-open-demo>Посмотреть demo script</button>
-        </div>
-      </div>
-      <div class="security-grid">
-        <div class="security-item"><strong>Email + password</strong><span>Регистрация с повтором пароля и кнопкой показа пароля.</span></div>
-        <div class="security-item"><strong>Account history</strong><span>История анализа, чата и DOCX привязана к аккаунту пользователя.</span></div>
-        <div class="security-item"><strong>Audit trail</strong><span>Вход, анализ, чат и DOCX фиксируются в истории действий.</span></div>
-        <div class="security-item"><strong>Privacy boundary</strong><span>PII-masking заявлен как обязательный шаг AI-chain.</span></div>
-      </div>
-    </section>
-
     <section class="history-panel" id="history">
       <span class="eyebrow">Action history</span>
       <h2>История действий</h2>
