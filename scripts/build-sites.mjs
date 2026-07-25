@@ -1721,7 +1721,6 @@ const html = String.raw`<!doctype html>
           <button class="btn secondary full" type="button" id="logoutBtn">Завершить сессию</button>
           <div class="session-card" id="sessionSummary">Сессия не активна. Зарегистрируйтесь или войдите.</div>
           <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
-          <p class="auth-config-note">QADAM AI не сохраняет пароль в истории или в браузере.</p>
         </div>
       </div>
     </div>
@@ -2730,7 +2729,18 @@ const html = String.raw`<!doctype html>
         });
         setAuthBusy(false);
         if (error) {
-          setAuthStatus(error.message || "Не удалось создать аккаунт.", "error");
+          const message = String(error.message || "").toLowerCase();
+          setAuthStatus(
+            message.includes("already") || message.includes("registered")
+              ? "Аккаунт с этим email уже существует. Перейдите во вкладку «Вход»."
+              : "Не удалось создать аккаунт. Проверьте соединение и попробуйте ещё раз.",
+            "error"
+          );
+          return;
+        }
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          setAuthMode("login");
+          setAuthStatus("Аккаунт с этим email уже существует. Введите пароль для входа.", "error");
           return;
         }
         state.session = data.session;
@@ -2740,7 +2750,7 @@ const html = String.raw`<!doctype html>
           addEvent("Аккаунт создан");
         } else {
           setAuthMode("login");
-          setAuthStatus("Аккаунт создан. Проверьте почту и подтвердите email, затем войдите.", "success");
+          setAuthStatus("Аккаунт создан. Теперь войдите с тем же email и паролем.", "success");
         }
         renderSessionSummary();
         return;
@@ -2748,7 +2758,13 @@ const html = String.raw`<!doctype html>
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       setAuthBusy(false);
       if (error) {
-        setAuthStatus("Неверный email или пароль.", "error");
+        const message = String(error.message || "").toLowerCase();
+        setAuthStatus(
+          message.includes("confirm")
+            ? "Аккаунт создан ранее, но ещё не активирован. Зарегистрируйтесь повторно с этим email."
+            : "Войти не удалось. Проверьте email и пароль или создайте новый аккаунт.",
+          "error"
+        );
         return;
       }
       state.session = data.session;
