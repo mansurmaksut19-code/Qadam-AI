@@ -6,8 +6,6 @@ import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 
-const DEMO_ACCESS_CODE = "490490";
-
 interface Session {
   email: string;
 }
@@ -30,8 +28,7 @@ export function ProductDashboard() {
   const [session, setSession] = useState<Session | null>(() => readJson<Session | null>("qadam:session", null));
   const [events, setEvents] = useState<ProductEvent[]>(() => readJson<ProductEvent[]>("qadam:events", []));
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
 
   function addEvent(label: string) {
     const nextEvents = [
@@ -52,17 +49,12 @@ export function ProductDashboard() {
 
   function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!pendingCode) {
-      setPendingCode(DEMO_ACCESS_CODE);
-      return;
-    }
-    if (code !== pendingCode) return;
+    if (password.length < 8) return;
     const nextSession = { email: email.trim().toLowerCase() };
     setSession(nextSession);
     localStorage.setItem("qadam:session", JSON.stringify(nextSession));
     addEvent("Вход в аккаунт");
-    setCode("");
-    setPendingCode(null);
+    setPassword("");
   }
 
   function logout() {
@@ -91,10 +83,9 @@ export function ProductDashboard() {
             </>
           ) : (
             <form className="auth-form" onSubmit={submitAuth}>
-              <h3>Безопасный вход по email-коду</h3>
+              <h3>Безопасный вход по email и паролю</h3>
               <p className="auth-security-note">
-                Фиксированный demo-код нужен только для судейского просмотра. Production-версия использует email/SMS OTP,
-                rate limiting и audit log.
+                Аккаунт открывает доступ к истории проверок, скачиваниям и журналу действий.
               </p>
               <label>
                 Email
@@ -106,26 +97,21 @@ export function ProductDashboard() {
                   value={email}
                 />
               </label>
-              {pendingCode ? (
-                <label>
-                  Код подтверждения
-                  <input
-                    autoComplete="one-time-code"
-                    onChange={(event) => setCode(event.target.value)}
-                    placeholder={pendingCode}
-                    required
-                    type="text"
-                    value={code}
-                  />
-                </label>
-              ) : null}
+              <label>
+                Пароль
+                <input
+                  autoComplete="current-password"
+                  minLength={8}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  type="password"
+                  value={password}
+                />
+              </label>
               <Button type="submit">
                 <Icon icon={LogIn} size={17} />
-                {pendingCode ? "Подтвердить вход" : "Отправить код"}
+                Войти
               </Button>
-              {pendingCode ? (
-                <p className="premium-note">Код доступа для судей: {pendingCode}. В production он отправляется по email/SMS.</p>
-              ) : null}
             </form>
           )}
         </div>

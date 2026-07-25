@@ -18,7 +18,6 @@ BearerToken = Annotated[str | None, Header(alias="Authorization")]
 class Credentials(BaseModel):
     email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$", min_length=5, max_length=254)
     password: str = Field(min_length=8, max_length=128)
-    role: str = Field(default="Student", min_length=2, max_length=40)
 
 
 def _session(user: dict[str, str | int], token: str) -> dict[str, object]:
@@ -28,7 +27,7 @@ def _session(user: dict[str, str | int], token: str) -> dict[str, object]:
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(payload: Credentials) -> dict[str, object]:
     try:
-        user = store.create_user(payload.email, payload.password, payload.role)
+        user = store.create_user(payload.email, payload.password)
     except Exception as error:
         if "UNIQUE" in str(error).upper():
             raise HTTPException(status_code=409, detail="Аккаунт с этим email уже существует.") from error

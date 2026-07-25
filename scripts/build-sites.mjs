@@ -1371,15 +1371,15 @@ const html = String.raw`<!doctype html>
       <div>
         <span class="eyebrow">Authentication & trust</span>
         <h2 id="security-title">Аутентификация выглядит как production-flow</h2>
-        <p class="muted">Для судей работает demo OTP 490490, но интерфейс показывает реальную модель: passwordless-вход, роли, устройство, audit log, session status и privacy-first обработку договора.</p>
+        <p class="muted">Кабинет использует обычную регистрацию и вход по email/паролю через Supabase Auth. История действий сохраняется за аккаунтом и доступна после входа.</p>
         <div class="actions">
           <button class="btn" type="button" data-open-auth>Открыть secure login</button>
           <button class="btn secondary" type="button" data-open-demo>Посмотреть demo script</button>
         </div>
       </div>
       <div class="security-grid">
-        <div class="security-item"><strong>Passwordless OTP</strong><span>Email/SMS-код вместо пароля, меньше риска утечки.</span></div>
-        <div class="security-item"><strong>Role-aware access</strong><span>Student, judge demo и university admin-ready модель.</span></div>
+        <div class="security-item"><strong>Email + password</strong><span>Регистрация с повтором пароля и кнопкой показа пароля.</span></div>
+        <div class="security-item"><strong>Account history</strong><span>История анализа, чата и DOCX привязана к аккаунту пользователя.</span></div>
         <div class="security-item"><strong>Audit trail</strong><span>Вход, анализ, чат и DOCX фиксируются в истории действий.</span></div>
         <div class="security-item"><strong>Privacy boundary</strong><span>PII-masking заявлен как обязательный шаг AI-chain.</span></div>
       </div>
@@ -1678,10 +1678,6 @@ const html = String.raw`<!doctype html>
 
     function currentUserEmail() {
       return state.session?.user?.email || "";
-    }
-
-    function currentUserRole() {
-      return state.session?.user?.user_metadata?.role || "Пользователь";
     }
 
     async function loadHistory() {
@@ -2458,7 +2454,7 @@ const html = String.raw`<!doctype html>
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password,
-          options: { data: { role: "user", product: "qadam-ai" } }
+          options: { data: { product: "qadam-ai" } }
         });
         setAuthBusy(false);
         if (error) {

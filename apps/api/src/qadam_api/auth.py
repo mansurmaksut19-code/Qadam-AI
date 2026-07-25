@@ -23,7 +23,6 @@ class AuthStore:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
                     password_hash TEXT NOT NULL,
-                    role TEXT NOT NULL DEFAULT 'Student',
                     created_at TEXT NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS sessions (
@@ -63,14 +62,14 @@ class AuthStore:
     def _token_hash(token: str) -> str:
         return hashlib.sha256(token.encode()).hexdigest()
 
-    def create_user(self, email: str, password: str, role: str) -> dict[str, str | int]:
+    def create_user(self, email: str, password: str) -> dict[str, str | int]:
         now = datetime.now(UTC).isoformat()
         with closing(self._connect()) as connection, connection:
             cursor = connection.execute(
-                "INSERT INTO users(email, password_hash, role, created_at) VALUES (?, ?, ?, ?)",
-                (email.lower(), self._hash_password(password), role, now),
+                "INSERT INTO users(email, password_hash, created_at) VALUES (?, ?, ?)",
+                (email.lower(), self._hash_password(password), now),
             )
-            return {"id": int(cursor.lastrowid), "email": email.lower(), "role": role, "created_at": now}
+            return {"id": int(cursor.lastrowid), "email": email.lower(), "created_at": now}
 
     def authenticate(self, email: str, password: str) -> tuple[dict[str, str | int], str] | None:
         with closing(self._connect()) as connection, connection:
@@ -84,13 +83,13 @@ class AuthStore:
                 "INSERT INTO sessions(token_hash, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)",
                 (self._token_hash(token), user["id"], (now + timedelta(days=self.session_days)).isoformat(), now.isoformat()),
             )
-        return {"id": user["id"], "email": user["email"], "role": user["role"], "created_at": user["created_at"]}, token
+        return {"id": user["id"], "email": user["email"], "created_at": user["created_at"]}, token
 
     def get_user(self, token: str) -> dict[str, str | int] | None:
         now = datetime.now(UTC).isoformat()
         with closing(self._connect()) as connection:
             row = connection.execute(
-                "SELECT u.id, u.email, u.role, u.created_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?",
+                "SELECT u.id, u.email, u.created_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?",
                 (self._token_hash(token), now),
             ).fetchone()
         return dict(row) if row else None
