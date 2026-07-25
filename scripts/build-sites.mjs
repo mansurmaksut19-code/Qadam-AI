@@ -693,7 +693,6 @@ const html = String.raw`<!doctype html>
       background: var(--white);
       box-shadow: 0 16px 32px rgba(61, 47, 24, .1);
     }
-    .otp-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
     .auth-stepper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
     .auth-stepper-item { display: grid; gap: 5px; padding: 10px 8px; border-bottom: 2px solid var(--outline-variant); color: var(--muted); font-size: 11px; font-weight: 800; text-align: center; }
     .auth-stepper-item b { color: var(--outline); font-size: 10px; }
@@ -701,8 +700,6 @@ const html = String.raw`<!doctype html>
     .auth-stepper-item.active b { color: var(--secondary); }
     .auth-helper { display: flex; justify-content: space-between; gap: 12px; margin: -4px 0 16px; color: var(--muted); font-size: 12px; }
     .auth-helper strong { color: var(--primary); }
-    .otp-actions input:disabled { background: var(--surface-low); color: var(--muted); cursor: not-allowed; }
-    .otp-toggle { min-width: 42px; padding: 0 10px; border: 1px solid var(--outline-variant); border-radius: 6px; background: var(--white); color: var(--primary); font-size: 12px; font-weight: 800; }
     .auth-status { min-height: 20px; margin: 14px 0 0; font-size: 12px; }
     .auth-status.error { color: var(--danger); }
     .auth-status.success { color: var(--success); }
@@ -713,6 +710,13 @@ const html = String.raw`<!doctype html>
     .auth-password { position: relative; }
     .auth-password input { padding-right: 76px; }
     .password-toggle { position: absolute; right: 8px; bottom: 7px; min-height: 30px; padding: 4px 8px; border: 0; border-radius: 4px; background: var(--surface-low); color: var(--primary); font-size: 11px; font-weight: 800; }
+    .password-strength { display: grid; gap: 6px; margin: -8px 0 14px; color: var(--muted); font-size: 11px; }
+    .password-strength-track { height: 4px; overflow: hidden; border-radius: 999px; background: var(--surface-high); }
+    .password-strength-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--danger); transition: width .2s ease, background .2s ease; }
+    .password-strength.medium .password-strength-track span { width: 60%; background: var(--secondary); }
+    .password-strength.strong .password-strength-track span { width: 100%; background: var(--success); }
+    .auth-submit[disabled] { cursor: wait; opacity: .72; }
+    .auth-config-note { margin: 12px 0 0; color: var(--muted); font-size: 11px; }
     .register-only { display: none; }
     .register-only.show { display: block; }
     .login-only.hide { display: none; }
@@ -1417,44 +1421,35 @@ const html = String.raw`<!doctype html>
       <button class="close" type="button" data-close>×</button>
       <div class="auth-modal-grid">
         <div class="auth-hero-panel">
-          <span class="eyebrow">Secure workspace</span>
-          <h2 id="authTitle">Passwordless-вход QADAM</h2>
-          <p class="muted">Demo OTP: 490490. На защите можно объяснить production-логику: одноразовые коды, rate limiting, role-based доступ и audit trail без хранения паролей.</p>
+          <span class="eyebrow">Защищённый кабинет</span>
+          <h2 id="authTitle">Ваши договоры всегда под рукой</h2>
+          <p class="muted">Создайте аккаунт, чтобы история анализов и действий сохранялась между устройствами. Пароли обрабатываются защищённой системой Supabase Auth.</p>
           <div class="auth-trust" aria-label="Статус безопасности">
-            <div class="trust-row"><span>Security posture</span><strong>92%</strong></div>
+            <div class="trust-row"><span>Защита данных</span><strong>RLS</strong></div>
             <div class="trust-meter"><span></span></div>
-            <p class="muted" style="margin:0;font-size:13px">OTP, trusted device, audit trail и privacy boundary включены для demo-сессии.</p>
+            <p class="muted" style="margin:0;font-size:13px">Каждый пользователь видит только собственную историю. Доступ проверяется на уровне базы данных.</p>
           </div>
           <div class="auth-steps" aria-label="Шаги аутентификации">
-            <div class="auth-step"><b>1</b><div><strong>Идентификация</strong><span>Email, роль и устройство фиксируются в сессии.</span></div></div>
-            <div class="auth-step"><b>2</b><div><strong>OTP challenge</strong><span>Код 490490 имитирует email/SMS OTP для live-demo.</span></div></div>
-            <div class="auth-step"><b>3</b><div><strong>Audit log</strong><span>Вход, анализ и DOCX сохраняются в истории действий.</span></div></div>
+            <div class="auth-step"><b>1</b><div><strong>Создайте аккаунт</strong><span>Укажите email и надёжный пароль.</span></div></div>
+            <div class="auth-step"><b>2</b><div><strong>Подтвердите email</strong><span>Если подтверждение включено в настройках проекта.</span></div></div>
+            <div class="auth-step"><b>3</b><div><strong>Продолжайте работу</strong><span>История автоматически загрузится после входа.</span></div></div>
           </div>
         </div>
         <div class="auth-form-card">
           <div class="auth-tabs" role="tablist" aria-label="Режим аккаунта">
-            <button class="auth-tab active" type="button" data-auth-mode="login">Войти</button>
-            <button class="auth-tab" type="button" data-auth-mode="register">Создать аккаунт</button>
+            <button class="auth-tab active" type="button" data-auth-mode="register">Регистрация</button>
+            <button class="auth-tab" type="button" data-auth-mode="login">Войти</button>
           </div>
-          <div class="auth-helper"><span id="authModeHint">Вернитесь к сохранённому аккаунту</span><strong>SQLite-ready</strong></div>
-          <label class="field">Email <input id="emailInput" type="email" placeholder="judge@example.com" autocomplete="email"></label>
-          <label class="field">Роль
-            <select id="roleInput">
-              <option value="Judge demo">Judge demo</option>
-              <option value="Student">Student</option>
-              <option value="University admin">University admin</option>
-            </select>
-          </label>
-          <label class="field auth-password"><span id="passwordLabel">Пароль</span><input id="passwordInput" type="password" minlength="8" placeholder="Не менее 8 символов" autocomplete="current-password"><button class="password-toggle" type="button" id="togglePassword">Показать</button></label>
-          <label class="field register-only" id="confirmPasswordField">Повторите пароль <input id="confirmPasswordInput" type="password" minlength="8" placeholder="Повторите пароль" autocomplete="new-password"></label>
-          <div class="otp-actions">
-            <label class="field" style="margin:0">OTP-код <input id="otpInput" type="text" inputmode="numeric" placeholder="490490" autocomplete="one-time-code"></label>
-            <button class="btn ghost small" type="button" id="resendOtp">Resend</button>
-          </div>
-          <button class="btn full" type="button" id="loginBtn">Подтвердить защищённый вход</button>
+          <div class="auth-helper"><span id="authModeHint">Создайте аккаунт для сохранения истории</span><strong>Supabase</strong></div>
+          <label class="field">Email <input id="emailInput" type="email" placeholder="name@gmail.com" autocomplete="email" inputmode="email" required></label>
+          <label class="field auth-password"><span id="passwordLabel">Придумайте пароль</span><input id="passwordInput" type="password" minlength="8" placeholder="Не менее 8 символов" autocomplete="new-password" required><button class="password-toggle" type="button" id="togglePassword" aria-pressed="false">Показать</button></label>
+          <div class="password-strength register-only show" id="passwordStrength"><div class="password-strength-track"><span></span></div><span id="passwordStrengthText">Используйте не менее 8 символов</span></div>
+          <label class="field auth-password register-only show" id="confirmPasswordField"><span>Повторите пароль</span><input id="confirmPasswordInput" type="password" minlength="8" placeholder="Повторите пароль" autocomplete="new-password" required><button class="password-toggle" type="button" id="toggleConfirmPassword" aria-pressed="false">Показать</button></label>
+          <button class="btn full auth-submit" type="button" id="loginBtn">Создать аккаунт</button>
           <button class="btn secondary full" type="button" id="logoutBtn">Завершить сессию</button>
-          <div class="session-card" id="sessionSummary">Сессия не активна. Введите email и demo-код 490490.</div>
-          <p class="muted" id="authStatus" style="margin-top:14px"></p>
+          <div class="session-card" id="sessionSummary">Сессия не активна. Зарегистрируйтесь или войдите.</div>
+          <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+          <p class="auth-config-note">QADAM AI не сохраняет пароль в истории или в браузере.</p>
         </div>
       </div>
     </div>
@@ -1465,7 +1460,7 @@ const html = String.raw`<!doctype html>
       <button class="close" type="button" data-close>×</button>
       <span class="eyebrow">Demo Access</span>
       <h2 id="demoTitle">Сценарий для судей</h2>
-      <p class="muted">1) войдите кодом 490490, 2) запустите Free-анализ, 3) задайте вопрос чат-боту, 4) скачайте Premium DOCX за 490 ₸ в демо-режиме.</p>
+      <p class="muted">1) создайте аккаунт или войдите, 2) запустите Free-анализ, 3) задайте вопрос чат-боту, 4) проверьте синхронизированную историю и скачайте Premium DOCX за 490 ₸.</p>
       <button class="btn full" type="button" data-close>Понятно, начать</button>
     </div>
   </div>
@@ -1514,7 +1509,15 @@ const html = String.raw`<!doctype html>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
   <script>
+    const SUPABASE_URL = "__QADAM_SUPABASE_URL__";
+    const SUPABASE_ANON_KEY = "__QADAM_SUPABASE_ANON_KEY__";
+    const supabaseClient = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        })
+      : null;
     const requestedLanguage = new URLSearchParams(window.location?.search || "").get("lang");
     const initialLanguage = ["ru", "kz", "en"].includes(requestedLanguage) ? requestedLanguage : (localStorage.getItem("qadam:language") || "ru");
     const state = {
@@ -1522,12 +1525,15 @@ const html = String.raw`<!doctype html>
       score: 0,
       busy: false,
       chatBusy: false,
-      authMode: "login",
-      authResendAt: 0,
+      authMode: "register",
+      authBusy: false,
       language: initialLanguage,
-      session: JSON.parse(localStorage.getItem("qadam:session") || "null"),
-      events: JSON.parse(localStorage.getItem("qadam:events") || "[]")
+      session: null,
+      events: []
     };
+    localStorage.removeItem("qadam:users");
+    localStorage.removeItem("qadam:session");
+    localStorage.removeItem("qadam:events");
 
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -1670,11 +1676,61 @@ const html = String.raw`<!doctype html>
       applyLanguage();
     };
 
-    function addEvent(label) {
-      const time = new Date().toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-      state.events = [{ label, time }, ...state.events].slice(0, 8);
-      localStorage.setItem("qadam:events", JSON.stringify(state.events));
+    function currentUserEmail() {
+      return state.session?.user?.email || "";
+    }
+
+    function currentUserRole() {
+      return state.session?.user?.user_metadata?.role || "Пользователь";
+    }
+
+    async function loadHistory() {
+      if (!supabaseClient || !state.session?.user?.id) {
+        state.events = [];
+        renderHistory();
+        return;
+      }
+      const { data, error } = await supabaseClient
+        .from("analysis_history")
+        .select("id,label,occurred_at,metadata")
+        .order("occurred_at", { ascending: false })
+        .limit(50);
+      if (error) {
+        setAuthStatus("Не удалось загрузить историю. Проверьте таблицу analysis_history.", "error");
+        return;
+      }
+      state.events = (data || []).map((event) => ({
+        id: event.id,
+        label: event.label,
+        metadata: event.metadata || {},
+        occurredAt: event.occurred_at,
+        time: new Date(event.occurred_at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+      }));
       renderHistory();
+    }
+
+    function addEvent(label, metadata = {}) {
+      const occurredAt = new Date().toISOString();
+      const event = {
+        id: crypto.randomUUID(),
+        label,
+        metadata,
+        occurredAt,
+        time: new Date(occurredAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+      };
+      state.events = [event, ...state.events].slice(0, 50);
+      renderHistory();
+      if (supabaseClient && state.session?.user?.id) {
+        void supabaseClient.from("analysis_history").insert({
+          id: event.id,
+          user_id: state.session.user.id,
+          label: event.label,
+          occurred_at: event.occurredAt,
+          metadata: event.metadata
+        }).then(({ error }) => {
+          if (error) setAuthStatus("Действие показано, но не сохранилось в облаке.", "error");
+        });
+      }
     }
 
     function renderDashboard() {
@@ -1697,7 +1753,7 @@ const html = String.raw`<!doctype html>
       const lastAction = $("#dashboardLastAction");
       if (lastAction) lastAction.textContent = state.events[0]?.label || "Нет действий";
       const sessionState = $("#dashboardSessionState");
-      if (sessionState) sessionState.textContent = state.session ? "Signed in · local history enabled" : t.guest;
+      if (sessionState) sessionState.textContent = state.session ? "Выполнен вход · история синхронизирована" : "Гость · войдите для сохранения истории";
     }
 
     function renderHistory() {
@@ -1724,7 +1780,7 @@ const html = String.raw`<!doctype html>
       if (id === "#authModal") setTimeout(() => $("#emailInput")?.focus(), 180);
       if (id === "#paymentModal") {
         $("#invoiceId").textContent = "QADAM-" + Date.now().toString().slice(-6) + "-490";
-        if (state.session?.email && !$("#buyerEmail").value) $("#buyerEmail").value = state.session.email;
+        if (currentUserEmail() && !$("#buyerEmail").value) $("#buyerEmail").value = currentUserEmail();
       }
     }
 
@@ -2236,13 +2292,13 @@ const html = String.raw`<!doctype html>
       if (!box) return;
       const authCard = document.querySelector(".auth-form-card");
       if (!state.session) {
-        box.textContent = "Сессия не активна. Введите email и demo-код 490490.";
+        box.textContent = "Сессия не активна. Зарегистрируйтесь или войдите.";
         box.classList.remove("active");
         authCard?.classList.remove("is-verified");
         renderAuthButtons();
         return;
       }
-      box.textContent = "Активная сессия: " + state.session.email + " · " + state.session.role + " · device trusted · audit enabled";
+      box.textContent = "Активная сессия: " + currentUserEmail() + " · история защищена и синхронизирована";
       box.classList.add("active");
       authCard?.classList.add("is-verified");
       renderAuthButtons();
@@ -2251,7 +2307,7 @@ const html = String.raw`<!doctype html>
     function renderAuthButtons() {
       renderDashboard();
       $$("[data-open-auth]").forEach((button) => {
-        button.textContent = state.session ? "Кабинет: " + state.session.role : "Личный кабинет";
+        button.textContent = state.session ? "Кабинет" : "Личный кабинет";
       });
     }
 
@@ -2279,9 +2335,15 @@ const html = String.raw`<!doctype html>
     $$("[data-close]").forEach((button) => button.addEventListener("click", closeModals));
     $$(".modal").forEach((modal) => modal.addEventListener("click", (event) => { if (event.target === modal) closeModals(); }));
     document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModals(); });
-    $("#clearHistory").addEventListener("click", () => {
+    $("#clearHistory").addEventListener("click", async () => {
+      if (supabaseClient && state.session?.user?.id) {
+        const { error } = await supabaseClient.from("analysis_history").delete().eq("user_id", state.session.user.id);
+        if (error) {
+          setAuthStatus("Не удалось очистить историю. Попробуйте ещё раз.", "error");
+          return;
+        }
+      }
       state.events = [];
-      localStorage.removeItem("qadam:events");
       renderHistory();
     });
     $("#fileInput").addEventListener("change", () => {
@@ -2307,7 +2369,7 @@ const html = String.raw`<!doctype html>
       addEvent("Premium checkout открыт: 490 ₸");
     });
     $("#confirmPremium").addEventListener("click", () => {
-      const buyer = $("#buyerEmail").value.trim() || state.session?.email || "demo-buyer";
+      const buyer = $("#buyerEmail").value.trim() || currentUserEmail() || "demo-buyer";
       const method = $("#paymentMethod").value;
       addEvent("Premium purchase approved: 490 ₸ · " + method + " · " + buyer);
       downloadDocx();
@@ -2338,16 +2400,20 @@ const html = String.raw`<!doctype html>
       input.value = "";
     });
     $$(".suggestions button").forEach((button) => button.addEventListener("click", () => ask(button.dataset.question || "")));
-    async function hashPassword(value) {
-      const bytes = new TextEncoder().encode(value);
-      const digest = await crypto.subtle.digest("SHA-256", bytes);
-      return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-    }
-
     function setAuthStatus(message, kind) {
       const status = $("#authStatus");
       status.className = "auth-status" + (kind ? " " + kind : "");
       status.textContent = message;
+    }
+
+    function setAuthBusy(busy) {
+      state.authBusy = busy;
+      $("#loginBtn").disabled = busy;
+      $("#emailInput").disabled = busy;
+      $("#passwordInput").disabled = busy;
+      $("#confirmPasswordInput").disabled = busy;
+      if (busy) $("#loginBtn").textContent = state.authMode === "register" ? "Создаём аккаунт..." : "Выполняем вход...";
+      else $("#loginBtn").textContent = state.authMode === "register" ? "Создать аккаунт" : "Войти в аккаунт";
     }
 
     function setAuthMode(mode) {
@@ -2355,99 +2421,164 @@ const html = String.raw`<!doctype html>
       const register = mode === "register";
       $$('[data-auth-mode]').forEach((tab) => tab.classList.toggle("active", tab.dataset.authMode === mode));
       $("#confirmPasswordField").classList.toggle("show", register);
+      $("#passwordStrength").classList.toggle("show", register);
       $("#authModeHint").textContent = register ? "Создайте аккаунт для сохранения истории" : "Вернитесь к сохранённому аккаунту";
       $("#passwordLabel").textContent = register ? "Придумайте пароль" : "Пароль";
       $("#passwordInput").autocomplete = register ? "new-password" : "current-password";
       $("#loginBtn").textContent = register ? "Создать аккаунт" : "Войти в аккаунт";
-      $("#otpInput").closest(".otp-actions").style.opacity = register ? ".55" : "1";
-      setAuthStatus(register ? "Пароль не передаётся в историю действий и хранится только как хэш." : "Введите email и пароль. Для demo-доступа можно использовать код 490490.");
+      setAuthStatus(register ? "После регистрации история будет доступна на любом вашем устройстве." : "Введите email и пароль от аккаунта QADAM AI.");
     }
 
     async function handleAuthSubmit() {
+      if (state.authBusy) return;
       const email = $("#emailInput").value.trim().toLowerCase();
-      const role = $("#roleInput").value;
       const password = $("#passwordInput").value;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         setAuthStatus("Введите корректный email.", "error");
         $("#emailInput").focus();
         return;
       }
-      const users = JSON.parse(localStorage.getItem("qadam:users") || "[]");
-      if (state.authMode === "register") {
-        if (password.length < 8) { setAuthStatus("Пароль должен содержать минимум 8 символов.", "error"); return; }
-        if (password !== $("#confirmPasswordInput").value) { setAuthStatus("Пароли не совпадают.", "error"); return; }
-        if (users.some((user) => user.email === email)) { setAuthStatus("Аккаунт уже существует. Переключитесь на «Войти».", "error"); return; }
-        users.push({ email, role, passwordHash: await hashPassword(password), createdAt: new Date().toISOString() });
-        localStorage.setItem("qadam:users", JSON.stringify(users));
-        state.session = { email, role, authMethod: "password", trustedAt: new Date().toISOString() };
-        localStorage.setItem("qadam:session", JSON.stringify(state.session));
-        setAuthStatus("Аккаунт создан. Вы вошли в QADAM AI.", "success");
-        renderSessionSummary();
-        addEvent("Регистрация аккаунта: " + role + " · " + email);
+      if (!supabaseClient) {
+        setAuthStatus("Supabase ещё не подключён. Добавьте URL проекта и публичный ключ в настройки сайта.", "error");
         return;
       }
-      const user = users.find((item) => item.email === email);
-      const code = $("#otpInput").value.trim();
-      const passwordMatches = user && password ? await hashPassword(password) === user.passwordHash : false;
-      if (!user && code !== "490490") { setAuthStatus("Аккаунт не найден. Сначала создайте аккаунт или используйте demo-код 490490.", "error"); return; }
-      if (user && !passwordMatches && code !== "490490") { setAuthStatus("Неверный пароль. Проверьте данные и попробуйте снова.", "error"); return; }
-      state.session = { email, role: user?.role || role, authMethod: passwordMatches ? "password" : "demo-otp", trustedAt: new Date().toISOString() };
-      localStorage.setItem("qadam:session", JSON.stringify(state.session));
+      if (password.length < 8) {
+        setAuthStatus("Пароль должен содержать минимум 8 символов.", "error");
+        $("#passwordInput").focus();
+        return;
+      }
+      setAuthBusy(true);
+      if (state.authMode === "register") {
+        if (password !== $("#confirmPasswordInput").value) {
+          setAuthBusy(false);
+          setAuthStatus("Пароли не совпадают.", "error");
+          $("#confirmPasswordInput").focus();
+          return;
+        }
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: { data: { role: "user", product: "qadam-ai" } }
+        });
+        setAuthBusy(false);
+        if (error) {
+          setAuthStatus(error.message || "Не удалось создать аккаунт.", "error");
+          return;
+        }
+        state.session = data.session;
+        if (data.session) {
+          setAuthStatus("Аккаунт создан. Вы вошли в QADAM AI.", "success");
+          await loadHistory();
+          addEvent("Аккаунт создан");
+        } else {
+          setAuthMode("login");
+          setAuthStatus("Аккаунт создан. Проверьте почту и подтвердите email, затем войдите.", "success");
+        }
+        renderSessionSummary();
+        return;
+      }
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      setAuthBusy(false);
+      if (error) {
+        setAuthStatus("Неверный email или пароль.", "error");
+        return;
+      }
+      state.session = data.session;
       setAuthStatus("Вход выполнен. Сессия и история действий активны.", "success");
+      await loadHistory();
       renderSessionSummary();
-      addEvent("Вход в аккаунт: " + state.session.role + " · " + email);
+      addEvent("Вход в аккаунт");
     }
 
     $$('[data-auth-mode]').forEach((tab) => tab.addEventListener("click", () => setAuthMode(tab.dataset.authMode)));
-    $("#togglePassword").addEventListener("click", () => {
-      const input = $("#passwordInput");
+    function togglePasswordVisibility(inputSelector, buttonSelector) {
+      const input = $(inputSelector);
+      const button = $(buttonSelector);
       const visible = input.type === "text";
       input.type = visible ? "password" : "text";
-      $("#togglePassword").textContent = visible ? "Показать" : "Скрыть";
+      button.textContent = visible ? "Показать" : "Скрыть";
+      button.setAttribute("aria-pressed", String(!visible));
+    }
+    $("#togglePassword").addEventListener("click", () => togglePasswordVisibility("#passwordInput", "#togglePassword"));
+    $("#toggleConfirmPassword").addEventListener("click", () => togglePasswordVisibility("#confirmPasswordInput", "#toggleConfirmPassword"));
+    ["#emailInput", "#passwordInput", "#confirmPasswordInput"].forEach((selector) => {
+      $(selector).addEventListener("keydown", (event) => {
+        if (event.key === "Enter") handleAuthSubmit();
+      });
+    });
+    $("#passwordInput").addEventListener("input", () => {
+      const value = $("#passwordInput").value;
+      const score = [value.length >= 8, /[a-zа-я]/i.test(value), /[A-ZА-Я]/.test(value), /\d/.test(value)].filter(Boolean).length;
+      const meter = $("#passwordStrength");
+      meter.classList.toggle("medium", score >= 3 && score < 4);
+      meter.classList.toggle("strong", score === 4);
+      $("#passwordStrengthText").textContent = score === 4 ? "Надёжный пароль" : score >= 3 ? "Средняя надёжность" : "Используйте 8+ символов, цифры и разные регистры";
+    });
+    $("#confirmPasswordInput").addEventListener("input", () => {
+      const confirm = $("#confirmPasswordInput");
+      confirm.setCustomValidity(confirm.value && confirm.value !== $("#passwordInput").value ? "Пароли не совпадают" : "");
     });
     $("#loginBtn").addEventListener("click", handleAuthSubmit);
 
-    function legacyLoginHandler() {
-      const email = $("#emailInput").value.trim();
-      const code = $("#otpInput").value.trim();
-      const role = $("#roleInput").value;
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || code !== "490490") {
-        $("#authStatus").textContent = "Введите корректный email и demo-код 490490.";
-        return;
-      }
-      state.session = { email, role, trustedAt: new Date().toISOString() };
-      localStorage.setItem("qadam:session", JSON.stringify(state.session));
-      $("#authStatus").textContent = "Вход выполнен. Включены role-aware session, device trust и audit trail.";
-      renderSessionSummary();
-      addEvent("Secure login: " + role + " · " + email);
-    }
-    $("#resendOtp").addEventListener("click", () => {
-      $("#authStatus").textContent = "Demo OTP повторно отправлен: 490490. В production здесь будет email/SMS delivery.";
-      addEvent("OTP resend requested");
-    });
-    $("#logoutBtn").addEventListener("click", () => {
+    $("#logoutBtn").addEventListener("click", async () => {
+      if (supabaseClient) await supabaseClient.auth.signOut();
       state.session = null;
-      localStorage.removeItem("qadam:session");
-      $("#authStatus").textContent = "Сессия завершена. Доступ к истории остался только в этом браузере.";
+      state.events = [];
+      setAuthStatus("Вы вышли из аккаунта.", "success");
+      renderHistory();
       renderSessionSummary();
-      addEvent("Secure logout");
     });
 
     applyLanguage();
     renderHistory();
     renderSessionSummary();
+    setAuthMode("register");
+    async function initializeAuth() {
+      if (!supabaseClient) {
+        setAuthStatus("Для запуска регистрации подключите Supabase URL и публичный ключ.", "error");
+        return;
+      }
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        setAuthStatus("Не удалось восстановить сессию.", "error");
+        return;
+      }
+      state.session = data.session;
+      if (state.session) {
+        await loadHistory();
+        setAuthStatus("Сессия восстановлена. История синхронизирована.", "success");
+      }
+      renderSessionSummary();
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        window.setTimeout(async () => {
+          state.session = session;
+          await loadHistory();
+          renderSessionSummary();
+        }, 0);
+      });
+    }
+    void initializeAuth();
   </script>
 </body>
 </html>`;
 
-const worker = `const html = ${JSON.stringify(html)};
+const worker = `const pageHtml = ${JSON.stringify(html)};
+
+function escapeInlineValue(value) {
+  return JSON.stringify(String(value || "")).slice(1, -1);
+}
 
 export default {
-  async fetch() {
+  async fetch(_request, env) {
+    const html = pageHtml
+      .replaceAll("__QADAM_SUPABASE_URL__", escapeInlineValue(env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL))
+      .replaceAll("__QADAM_SUPABASE_ANON_KEY__", escapeInlineValue(env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY));
     return new Response(html, {
       headers: {
         "content-type": "text/html; charset=utf-8",
-        "cache-control": "public, max-age=60"
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "strict-origin-when-cross-origin"
       }
     });
   }
