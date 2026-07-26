@@ -122,7 +122,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const store={get(k,f=null){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};
 const state={analysis:store.get("qadam:analysis"),history:store.get("qadam:history",[]),authMode:"register",session:null};
 const cfg=window.QADAM_CONFIG||{}; const hasSupabase=cfg.supabaseUrl&&cfg.supabaseKey&&!cfg.supabaseUrl.includes("__QADAM");
-const supabase=hasSupabase&&window.supabase?window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey):null;
+const qadamSupabase=hasSupabase&&window.supabase?window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey):null;
 const legalUrl="https://adilet.zan.kz/rus/docs/K990000409_";
 const rules=[
 {id:"deposit",title:"Безусловная потеря депозита",severity:"high",patterns:[/депозит.{0,70}(не возвращ|невозврат|удерж)/i,/залог.{0,70}(не возвращ|удерж)/i],article:"Статья 546 ГК РК",why:"Порядок, сроки и основания удержания денег должны быть определены договором. Безусловное удержание создаёт несоразмерный риск потери средств.",action:"Укажите срок возврата, например 5 рабочих дней после акта выезда, и закройте перечень удержаний документально подтверждённым ущербом и задолженностью."},
@@ -154,7 +154,7 @@ function analyze(text){
 }
 function addHistory(label,metadata={}){
  const item={id:crypto.randomUUID(),label,metadata,occurred_at:new Date().toISOString()};state.history=[item,...state.history].slice(0,50);store.set("qadam:history",state.history);
- if(supabase&&state.session?.user?.id)supabase.from("analysis_history").insert({user_id:state.session.user.id,label,metadata}).then(()=>{});
+ if(qadamSupabase&&state.session?.user?.id)qadamSupabase.from("analysis_history").insert({user_id:state.session.user.id,label,metadata}).then(()=>{});
  return item;
 }
 function toast(message){const old=$(".toast");if(old)old.remove();const el=document.createElement("div");el.className="toast";el.textContent=message;document.body.append(el);setTimeout(()=>el.remove(),3200)}
@@ -200,20 +200,20 @@ function answerQuestion(question){
 }
 function formatChatAnswer(text){return text.split("\\n\\n").map(block=>{const lines=block.split("\\n"),heading=lines.shift()||"",body=lines.join("\\n");return '<section class="answer-section"><strong>'+escapeHtml(heading)+'</strong>'+(body?'<p>'+escapeHtml(body)+'</p>':'')+'</section>'}).join("")}
 function initChat(){if(!$("#chatForm"))return;$("#contextState").innerHTML=state.analysis?'<strong>'+escapeHtml(state.analysis.name)+'</strong><br>'+state.analysis.findings.length+' выводов · индекс '+state.analysis.score+'/100':'Анализ ещё не выполнен. <a href="/analysis">Проверить договор</a>';const send=q=>{if(!q.trim())return;const box=$("#messages");box.insertAdjacentHTML("beforeend",'<div class="message user">'+escapeHtml(q)+'</div>');const ans=answerQuestion(q);setTimeout(()=>{box.insertAdjacentHTML("beforeend",'<div class="message bot"><strong>QADAM AI · grounded answer</strong>'+formatChatAnswer(ans)+'</div>');box.scrollTop=box.scrollHeight;addHistory("Вопрос AI: "+q.slice(0,80),{type:"chat"})},280)};$("#chatForm").addEventListener("submit",e=>{e.preventDefault();const i=$("#chatInput"),q=i.value;i.value="";send(q)});$$("[data-question]").forEach(b=>b.addEventListener("click",()=>send(b.dataset.question)))}
-async function loadRemoteHistory(){if(!supabase||!state.session)return;const {data}=await supabase.from("analysis_history").select("*").order("occurred_at",{ascending:false}).limit(50);if(data){state.history=data;store.set("qadam:history",data)}}
+async function loadRemoteHistory(){if(!qadamSupabase||!state.session)return;const {data}=await qadamSupabase.from("analysis_history").select("*").order("occurred_at",{ascending:false}).limit(50);if(data){state.history=data;store.set("qadam:history",data)}}
 function renderHistory(){const box=$("#historyList");if(!box)return;box.innerHTML=state.history.length?state.history.map(x=>'<article class="history-row"><time>'+new Date(x.occurred_at).toLocaleString("ru-RU")+'</time><strong>'+escapeHtml(x.label)+'</strong><span>'+(x.metadata?.type==="analysis"?"Проверка":x.metadata?.type==="chat"?"AI-чат":"Действие")+'</span></article>').join(""):'<div class="empty"><h2>История пока пуста</h2><p>Выполните первый анализ договора — результат появится здесь.</p><a class="btn" href="/analysis">Начать проверку</a></div>'}
-function initHistory(){if(!$("#historyList"))return;renderHistory();$("#clearHistory").addEventListener("click",async()=>{if(supabase&&state.session)await supabase.from("analysis_history").delete().eq("user_id",state.session.user.id);state.history=[];store.set("qadam:history",[]);renderHistory()})}
+function initHistory(){if(!$("#historyList"))return;renderHistory();$("#clearHistory").addEventListener("click",async()=>{if(qadamSupabase&&state.session)await qadamSupabase.from("analysis_history").delete().eq("user_id",state.session.user.id);state.history=[];store.set("qadam:history",[]);renderHistory()})}
 function setAuthMode(mode){state.authMode=mode;$$("[data-auth-mode]").forEach(b=>b.classList.toggle("active",b.dataset.authMode===mode));$("#confirmField").hidden=mode==="login";$("#authSubmit").textContent=mode==="login"?"Войти":"Создать аккаунт";$("#passwordInput").autocomplete=mode==="login"?"current-password":"new-password"}
 function authStatus(text,type=""){$("#authStatus").textContent=text;$("#authStatus").className="status "+type}
 async function submitAuth(){
  const submit=$("#authSubmit"),email=$("#emailInput").value.trim(),pass=$("#passwordInput").value,confirm=$("#confirmInput").value;
- if(!supabase){authStatus("Подключение к Supabase временно недоступно. Проверьте интернет и повторите попытку.","error");return}
+ if(!qadamSupabase){authStatus("Подключение к Supabase временно недоступно. Проверьте интернет и повторите попытку.","error");return}
  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){authStatus("Введите корректный email.","error");$("#emailInput").focus();return}
  if(pass.length<8){authStatus("Пароль должен содержать минимум 8 символов.","error");$("#passwordInput").focus();return}
  if(state.authMode==="register"&&pass!==confirm){authStatus("Пароли не совпадают.","error");$("#confirmInput").focus();return}
  submit.disabled=true;submit.textContent=state.authMode==="login"?"Входим…":"Создаём аккаунт…";
  try{
-  const operation=state.authMode==="register"?supabase.auth.signUp({email,password:pass}):supabase.auth.signInWithPassword({email,password:pass});
+  const operation=state.authMode==="register"?qadamSupabase.auth.signUp({email,password:pass}):qadamSupabase.auth.signInWithPassword({email,password:pass});
   const result=await Promise.race([operation,new Promise((_,reject)=>setTimeout(()=>reject(new Error("timeout")),12000))]);
   if(result.error){authStatus(state.authMode==="login"?"Неверный email или пароль. Проверьте данные или зарегистрируйтесь.":"Не удалось создать аккаунт: "+result.error.message,"error");return}
   state.session=result.data.session;
@@ -229,13 +229,13 @@ function initAuth(){
  $$("[data-show]").forEach(b=>b.addEventListener("click",()=>{const i=$(b.dataset.show),show=i.type==="password";i.type=show?"text":"password";b.textContent=show?"Скрыть":"Показать";b.setAttribute("aria-pressed",String(show))}));
  $("#authSubmit").addEventListener("click",submitAuth);
  ["#emailInput","#passwordInput","#confirmInput"].forEach(selector=>$(selector)?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();void submitAuth()}}));
- $("#logoutBtn").addEventListener("click",async()=>{try{await supabase?.auth.signOut()}finally{state.session=null;$("#logoutBtn").hidden=true;authStatus("Вы вышли из аккаунта.","success")}});
+ $("#logoutBtn").addEventListener("click",async()=>{try{await qadamSupabase?.auth.signOut()}finally{state.session=null;$("#logoutBtn").hidden=true;authStatus("Вы вышли из аккаунта.","success")}});
 }
 function initCommerce(){$("#buyPremium")?.addEventListener("click",()=>{addHistory("Открыта покупка Premium DOCX",{type:"purchase",amount:490});toast("Демо-покупка оформлена: 490 ₸. DOCX станет доступен после анализа.")});$("#requestB2B")?.addEventListener("click",()=>{addHistory("Запрос Campus License",{type:"lead"});toast("Запрос сохранён. Коммерческое предложение будет отправлено на email аккаунта.")})}
 async function initSession(){
- if(!supabase)return;
+ if(!qadamSupabase)return;
  try{
-  const result=await Promise.race([supabase.auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("timeout")),5000))]);
+  const result=await Promise.race([qadamSupabase.auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("timeout")),5000))]);
   state.session=result.data.session;
   const link=$("#sessionLink");if(link&&state.session)link.textContent=state.session.user.email;
   if($("#logoutBtn"))$("#logoutBtn").hidden=!state.session;
