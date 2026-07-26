@@ -40,6 +40,8 @@ h2{font-weight:620;line-height:1.15}
 .plan:hover,.metric:hover,.workspace-side:hover{border-color:#b9afa0;box-shadow:var(--shadow-hover)}
 .field input,.field textarea,.chat-form textarea{font-size:14px;line-height:1.55}
 .message{font-size:14px;line-height:1.65}
+.language a{min-width:30px;padding:5px;border:0;border-radius:3px;background:transparent;color:var(--muted);font-size:10px;font-weight:800;text-align:center;text-decoration:none}
+.language a.active{background:var(--green);color:white}
 .answer-section{margin:0 0 18px;padding:0 0 16px;border-bottom:1px solid var(--line)}
 .answer-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
 .answer-section strong{display:block;margin-bottom:7px;color:var(--green);font-size:11px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
@@ -58,13 +60,27 @@ const navItems = [
   ["/account", "Аккаунт"],
 ];
 
-function navigation(path, mobile = false) {
+function navigation(path, mobile = false, lang = "ru") {
   const items = mobile ? navItems.slice(0, 5) : navItems;
-  return items.map(([href, label]) => `<a href="${href}" class="${path === href ? "active" : ""}"><span class="nav-mark"></span>${label}</a>`).join("");
+  const suffix = lang === "ru" ? "" : `?lang=${lang}`;
+  return items.map(([href, label]) => `<a href="${href}${suffix}" class="${path === href ? "active" : ""}"><span class="nav-mark"></span>${label}</a>`).join("");
 }
 
-function shell(path, title, content) {
-  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="QADAM AI — проверка договоров аренды и защита прав арендаторов в Казахстане."><title>${title} · QADAM AI</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet"><style>${styles}</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.mjs" type="module"></script></head><body data-page="${path}"><div class="app"><aside class="sidebar"><a class="brand" href="/"><img src="${logo}" alt=""><span><strong>QADAM AI</strong><small>Legal AI Platform</small></span></a><nav class="nav">${navigation(path)}</nav><div class="sidebar-foot">Информационная помощь, не юридическое заключение.<a href="/account" id="sessionLink">Войти в аккаунт</a></div></aside><div class="main"><header class="topbar"><span class="topbar-title">${title}</span><div class="top-actions"><div class="language" aria-label="Язык"><button class="active" data-lang="ru">RU</button><button data-lang="kz">KZ</button><button data-lang="en">EN</button></div><a class="btn ghost" href="/account">Личный кабинет</a></div></header><main class="content" id="main-content">${content}</main></div><nav class="mobile-nav">${navigation(path, true)}</nav></div><script>window.QADAM_CONFIG={supabaseUrl:"__QADAM_SUPABASE_URL__",supabaseKey:"__QADAM_SUPABASE_ANON_KEY__"};</script><script>${clientScript}</script></body></html>`;
+function translateMarkup(markup, lang, translations, placeholders) {
+  if (lang === "ru") return markup;
+  const index = lang === "kz" ? 0 : 1;
+  let translated = markup;
+  for (const [source, variants] of Object.entries(translations)) translated = translated.replaceAll(source, variants[index]);
+  for (const [source, variants] of Object.entries(placeholders)) translated = translated.replaceAll(source, variants[index]);
+  return translated;
+}
+
+function shell(path, title, content, lang, translations, placeholders) {
+  const suffix = lang === "ru" ? "" : `?lang=${lang}`;
+  const localizedTitle = translateMarkup(title, lang, translations, placeholders);
+  const chrome = `<div class="app"><aside class="sidebar"><a class="brand" href="/${suffix}"><img src="${logo}" alt=""><span><strong>QADAM AI</strong><small>Legal AI Platform</small></span></a><nav class="nav">${navigation(path, false, lang)}</nav><div class="sidebar-foot">Информационная помощь, не юридическое заключение.<a href="/account${suffix}" id="sessionLink">Войти в аккаунт</a></div></aside><div class="main"><header class="topbar"><span class="topbar-title">${title}</span><div class="top-actions"><div class="language" aria-label="Язык"><a class="${lang === "ru" ? "active" : ""}" data-lang="ru" href="${path}">RU</a><a class="${lang === "kz" ? "active" : ""}" data-lang="kz" href="${path}?lang=kz">KZ</a><a class="${lang === "en" ? "active" : ""}" data-lang="en" href="${path}?lang=en">EN</a></div><a class="btn ghost" href="/account${suffix}">Личный кабинет</a></div></header><main class="content" id="main-content">${content}</main></div><nav class="mobile-nav">${navigation(path, true, lang)}</nav></div>`;
+  const localizedChrome = translateMarkup(chrome, lang, translations, placeholders);
+  return `<!doctype html><html lang="${lang === "kz" ? "kk" : lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="QADAM AI — проверка договоров аренды и защита прав арендаторов в Казахстане."><title>${localizedTitle} · QADAM AI</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet"><style>${styles}</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.mjs" type="module"></script></head><body data-page="${path}">${localizedChrome}<script>window.QADAM_CONFIG={supabaseUrl:"__QADAM_SUPABASE_URL__",supabaseKey:"__QADAM_SUPABASE_ANON_KEY__"};localStorage.setItem("qadam:lang","${lang}");</script><script>${clientScript}</script></body></html>`;
 }
 
 const dashboard = `
@@ -214,16 +230,24 @@ $$("[data-lang]").forEach(b=>b.addEventListener("click",()=>applyLanguage(b.data
 (async()=>{await initSession();updateDashboard();initAnalysis();initChat();initHistory();initAuth();initCommerce();applyLanguage(currentLanguage(),false)})();
 `;
 
-// Rebuild pages after clientScript initialization.
+const languageTextMatch = clientScript.match(/const LANGUAGE_TEXT=(\{[\s\S]*?\});\nconst LANGUAGE_PLACEHOLDERS=/);
+const languagePlaceholderMatch = clientScript.match(/const LANGUAGE_PLACEHOLDERS=(\{[^\n]*\});/);
+if (!languageTextMatch || !languagePlaceholderMatch) throw new Error("Unable to extract language dictionaries");
+const serverLanguageText = Function(`"use strict";return (${languageTextMatch[1]})`)();
+const serverLanguagePlaceholders = Function(`"use strict";return (${languagePlaceholderMatch[1]})`)();
+
+// Build independent language variants so switching does not depend on client JavaScript.
 for (const path of Object.keys(pageContents)) {
   const title = path === "/" ? "Dashboard" : navItems.find(([href]) => href === path)?.[1] ?? "QADAM";
   const content = pageContents[path];
-  pages[path] = shell(path, title, content);
+  for (const lang of ["ru", "kz", "en"]) {
+    pages[`${path}|${lang}`] = shell(path, title, content, lang, serverLanguageText, serverLanguagePlaceholders);
+  }
 }
 
 const worker = `const pages=${JSON.stringify(pages)};
 function inject(html,env){const clean=v=>JSON.stringify(String(v||"")).slice(1,-1);return html.replaceAll("__QADAM_SUPABASE_URL__",clean(env.NEXT_PUBLIC_SUPABASE_URL||env.SUPABASE_URL)).replaceAll("__QADAM_SUPABASE_ANON_KEY__",clean(env.NEXT_PUBLIC_SUPABASE_ANON_KEY||env.SUPABASE_ANON_KEY))}
-export default{async fetch(request,env){const url=new URL(request.url);const path=url.pathname.length>1?url.pathname.replace(/\\/$/,""):url.pathname;const page=pages[path]||pages["/"];return new Response(inject(page,env),{status:pages[path]?200:404,headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin"}})}};`;
+export default{async fetch(request,env){const url=new URL(request.url);const path=url.pathname.length>1?url.pathname.replace(/\\/$/,""):url.pathname;const requested=url.searchParams.get("lang");const lang=requested==="kz"||requested==="en"?requested:"ru";const key=path+"|"+lang;const exists=Boolean(pages[key]);const page=pages[key]||pages["/|"+lang];return new Response(inject(page,env),{status:exists?200:404,headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin"}})}};`;
 
 writeFileSync(join(dist, "server", "index.js"), worker);
 cpSync(join(root, ".openai", "hosting.json"), join(dist, ".openai", "hosting.json"));
