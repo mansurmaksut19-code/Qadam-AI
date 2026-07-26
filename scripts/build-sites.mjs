@@ -205,9 +205,43 @@ function renderHistory(){const box=$("#historyList");if(!box)return;box.innerHTM
 function initHistory(){if(!$("#historyList"))return;renderHistory();$("#clearHistory").addEventListener("click",async()=>{if(supabase&&state.session)await supabase.from("analysis_history").delete().eq("user_id",state.session.user.id);state.history=[];store.set("qadam:history",[]);renderHistory()})}
 function setAuthMode(mode){state.authMode=mode;$$("[data-auth-mode]").forEach(b=>b.classList.toggle("active",b.dataset.authMode===mode));$("#confirmField").hidden=mode==="login";$("#authSubmit").textContent=mode==="login"?"Войти":"Создать аккаунт";$("#passwordInput").autocomplete=mode==="login"?"current-password":"new-password"}
 function authStatus(text,type=""){$("#authStatus").textContent=text;$("#authStatus").className="status "+type}
-async function initAuth(){if(!$("#authSubmit"))return;$$("[data-auth-mode]").forEach(b=>b.addEventListener("click",()=>setAuthMode(b.dataset.authMode)));$$("[data-show]").forEach(b=>b.addEventListener("click",()=>{const i=$(b.dataset.show),show=i.type==="password";i.type=show?"text":"password";b.textContent=show?"Скрыть":"Показать"}));$("#authSubmit").addEventListener("click",async()=>{const email=$("#emailInput").value.trim(),pass=$("#passwordInput").value,confirm=$("#confirmInput").value;if(!supabase){authStatus("Подключение к Supabase временно недоступно.","error");return}if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){authStatus("Введите корректный email.","error");return}if(pass.length<8){authStatus("Пароль должен содержать минимум 8 символов.","error");return}if(state.authMode==="register"&&pass!==confirm){authStatus("Пароли не совпадают.","error");return}$("#authSubmit").disabled=true;const result=state.authMode==="register"?await supabase.auth.signUp({email,password:pass}):await supabase.auth.signInWithPassword({email,password:pass});$("#authSubmit").disabled=false;if(result.error){authStatus(state.authMode==="login"?"Неверный email или пароль. Проверьте данные или зарегистрируйтесь.":"Не удалось создать аккаунт: "+result.error.message,"error");return}state.session=result.data.session;authStatus(state.authMode==="register"?"Аккаунт создан. История будет синхронизироваться.":"Вход выполнен. История синхронизирована.","success");$("#logoutBtn").hidden=!state.session;if(state.session)await loadRemoteHistory()});$("#logoutBtn").addEventListener("click",async()=>{await supabase?.auth.signOut();state.session=null;$("#logoutBtn").hidden=true;authStatus("Вы вышли из аккаунта.","success")});}
+async function submitAuth(){
+ const submit=$("#authSubmit"),email=$("#emailInput").value.trim(),pass=$("#passwordInput").value,confirm=$("#confirmInput").value;
+ if(!supabase){authStatus("Подключение к Supabase временно недоступно. Проверьте интернет и повторите попытку.","error");return}
+ if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){authStatus("Введите корректный email.","error");$("#emailInput").focus();return}
+ if(pass.length<8){authStatus("Пароль должен содержать минимум 8 символов.","error");$("#passwordInput").focus();return}
+ if(state.authMode==="register"&&pass!==confirm){authStatus("Пароли не совпадают.","error");$("#confirmInput").focus();return}
+ submit.disabled=true;submit.textContent=state.authMode==="login"?"Входим…":"Создаём аккаунт…";
+ try{
+  const operation=state.authMode==="register"?supabase.auth.signUp({email,password:pass}):supabase.auth.signInWithPassword({email,password:pass});
+  const result=await Promise.race([operation,new Promise((_,reject)=>setTimeout(()=>reject(new Error("timeout")),12000))]);
+  if(result.error){authStatus(state.authMode==="login"?"Неверный email или пароль. Проверьте данные или зарегистрируйтесь.":"Не удалось создать аккаунт: "+result.error.message,"error");return}
+  state.session=result.data.session;
+  authStatus(state.authMode==="register"?(state.session?"Аккаунт создан. Вы вошли в систему.":"Аккаунт создан. Если подтверждение email включено, проверьте почту."):"Вход выполнен. История синхронизирована.","success");
+  $("#logoutBtn").hidden=!state.session;
+  if(state.session){await loadRemoteHistory();renderHistory();addHistory(state.authMode==="register"?"Аккаунт создан":"Вход в аккаунт",{type:"auth"})}
+ }catch(error){authStatus(error?.message==="timeout"?"Supabase отвечает слишком долго. Проверьте соединение и повторите попытку.":"Не удалось связаться с сервисом авторизации. Повторите попытку.","error")}
+ finally{submit.disabled=false;submit.textContent=state.authMode==="login"?"Войти":"Создать аккаунт"}
+}
+function initAuth(){
+ if(!$("#authSubmit"))return;
+ $$("[data-auth-mode]").forEach(b=>b.addEventListener("click",()=>setAuthMode(b.dataset.authMode)));
+ $$("[data-show]").forEach(b=>b.addEventListener("click",()=>{const i=$(b.dataset.show),show=i.type==="password";i.type=show?"text":"password";b.textContent=show?"Скрыть":"Показать";b.setAttribute("aria-pressed",String(show))}));
+ $("#authSubmit").addEventListener("click",submitAuth);
+ ["#emailInput","#passwordInput","#confirmInput"].forEach(selector=>$(selector)?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();void submitAuth()}}));
+ $("#logoutBtn").addEventListener("click",async()=>{try{await supabase?.auth.signOut()}finally{state.session=null;$("#logoutBtn").hidden=true;authStatus("Вы вышли из аккаунта.","success")}});
+}
 function initCommerce(){$("#buyPremium")?.addEventListener("click",()=>{addHistory("Открыта покупка Premium DOCX",{type:"purchase",amount:490});toast("Демо-покупка оформлена: 490 ₸. DOCX станет доступен после анализа.")});$("#requestB2B")?.addEventListener("click",()=>{addHistory("Запрос Campus License",{type:"lead"});toast("Запрос сохранён. Коммерческое предложение будет отправлено на email аккаунта.")})}
-async function initSession(){if(!supabase)return;const {data}=await supabase.auth.getSession();state.session=data.session;const link=$("#sessionLink");if(link&&state.session)link.textContent=state.session.user.email}
+async function initSession(){
+ if(!supabase)return;
+ try{
+  const result=await Promise.race([supabase.auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("timeout")),5000))]);
+  state.session=result.data.session;
+  const link=$("#sessionLink");if(link&&state.session)link.textContent=state.session.user.email;
+  if($("#logoutBtn"))$("#logoutBtn").hidden=!state.session;
+  if(state.session){await loadRemoteHistory();renderHistory();updateDashboard()}
+ }catch{if($("#authStatus"))authStatus("Интерфейс готов. Сохранённую сессию восстановить не удалось; можно войти повторно.","error")}
+}
 const LANGUAGE_TEXT={
  "Dashboard":["Басқару панелі","Dashboard"],"Анализ договора":["Шартты талдау","Contract Analysis"],"Commercial Model":["Коммерциялық модель","Commercial Model"],"AI Chat Bot":["AI чат-бот","AI Chat Bot"],"History":["Тарих","History"],"Аккаунт":["Аккаунт","Account"],
  "Информационная помощь, не юридическое заключение.":["Ақпараттық көмек, заңгерлік қорытынды емес.","Informational assistance, not legal advice."],"Войти в аккаунт":["Аккаунтқа кіру","Sign in"],"Личный кабинет":["Жеке кабинет","Account"],
@@ -229,7 +263,14 @@ function applyLanguage(lang,announce=true){
  if(announce)toast(lang==="ru"?"Русский язык включён":lang==="kz"?"Қазақ тілі қосылды":"English enabled");
 }
 $$("[data-lang]").forEach(b=>b.addEventListener("click",()=>applyLanguage(b.dataset.lang)));
-(async()=>{await initSession();updateDashboard();initAnalysis();initChat();initHistory();initAuth();initCommerce();applyLanguage(currentLanguage(),false)})();
+updateDashboard();
+initAnalysis();
+initChat();
+initHistory();
+initAuth();
+initCommerce();
+applyLanguage(currentLanguage(),false);
+void initSession();
 `;
 
 const languageTextMatch = clientScript.match(/const LANGUAGE_TEXT=(\{[\s\S]*?\});\nconst LANGUAGE_PLACEHOLDERS=/);
